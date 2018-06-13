@@ -1,0 +1,15 @@
+[
+{
+  "modid": "lightingwand",
+  "name": "Lighting Wand",
+  "description": "Lighting up!",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Snownee"],
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

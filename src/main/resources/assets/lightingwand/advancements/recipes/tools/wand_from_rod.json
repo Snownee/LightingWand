@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "lightingwand:wand"
+    ]
+  },
+  "criteria": {
+    "has_mat": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "minecraft:blaze_rod"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "lightingwand:wand"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_mat",
+      "has_the_recipe"
+    ]
+  ]
+}
