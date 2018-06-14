@@ -33,6 +33,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import snownee.lightingwand.Config;
 import snownee.lightingwand.LW;
 
 public class ItemWand extends Item
@@ -55,27 +56,30 @@ public class ItemWand extends Item
                 return ItemWand.isUsable(stack) ? 0 : 1;
             }
         });
-        BlockDispenser.DISPENSE_BEHAVIOR_REGISTRY.putObject(this, new IBehaviorDispenseItem()
+        if (Config.registerWand && Config.shootProjectile)
         {
-            @Override
-            public ItemStack dispense(IBlockSource source, ItemStack stack)
+            BlockDispenser.DISPENSE_BEHAVIOR_REGISTRY.putObject(this, new IBehaviorDispenseItem()
             {
-                if (ItemWand.isUsable(stack))
+                @Override
+                public ItemStack dispense(IBlockSource source, ItemStack stack)
                 {
-                    World world = source.getWorld();
-                    IPosition iposition = BlockDispenser.getDispensePosition(source);
-                    EnumFacing enumfacing = source.getBlockState().getValue(BlockDispenser.FACING);
-                    EntityLight entity = new EntityLight(world, iposition.getX(), iposition.getY(), iposition.getZ());
-                    entity.shoot(enumfacing.getFrontOffsetX(), enumfacing.getFrontOffsetY()
-                            + 0.1F, enumfacing.getFrontOffsetZ(), 1.3F + world.rand.nextFloat() * 0.4F, 0);
-                    entity.motionX += world.rand.nextGaussian() * 0.1D;
-                    entity.motionZ += world.rand.nextGaussian() * 0.1D;
-                    world.spawnEntity(entity);
-                    stack.attemptDamageItem(1, world.rand, null);
+                    if (ItemWand.isUsable(stack))
+                    {
+                        World world = source.getWorld();
+                        IPosition iposition = BlockDispenser.getDispensePosition(source);
+                        EnumFacing enumfacing = source.getBlockState().getValue(BlockDispenser.FACING);
+                        EntityLight entity = new EntityLight(world, iposition.getX(), iposition.getY(), iposition.getZ());
+                        entity.shoot(enumfacing.getFrontOffsetX(), enumfacing.getFrontOffsetY()
+                                + 0.1F, enumfacing.getFrontOffsetZ(), 1.3F + world.rand.nextFloat() * 0.4F, 0);
+                        entity.motionX += world.rand.nextGaussian() * 0.1D;
+                        entity.motionZ += world.rand.nextGaussian() * 0.1D;
+                        world.spawnEntity(entity);
+                        stack.attemptDamageItem(1, world.rand, null);
+                    }
+                    return stack;
                 }
-                return stack;
-            }
-        });
+            });
+        }
     }
 
     public static boolean isUsable(ItemStack stack)
@@ -115,7 +119,7 @@ public class ItemWand extends Item
                     }
                 }
             }
-            else
+            else if (Config.shootProjectile)
             {
                 // TODO: Sound subtitle
                 worldIn.playSound((EntityPlayer) null, playerIn.posX, playerIn.posY, playerIn.posZ, SoundEvents.ENTITY_EGG_THROW, SoundCategory.PLAYERS, 0.8F, 0.4F

@@ -40,9 +40,11 @@ public class CommonRegistry
     @SubscribeEvent
     public static void onEntityRegister(RegistryEvent.Register<EntityEntry> event)
     {
-
-        event.getRegistry().register(EntityEntryBuilder.<EntityLight>create().entity(EntityLight.class).id(new ResourceLocation(LW.MODID, "light"), 0).name(LW.MODID
-                + ".light").tracker(160, 3, true).build());
+        if (Config.registerWand && Config.shootProjectile)
+        {
+            event.getRegistry().register(EntityEntryBuilder.<EntityLight>create().entity(EntityLight.class).id(new ResourceLocation(LW.MODID, "light"), 0).name(LW.MODID
+                    + ".light").tracker(160, 3, true).build());
+        }
     }
 
     @SubscribeEvent
@@ -52,9 +54,6 @@ public class CommonRegistry
         {
             event.getRegistry().register(new ShapedOreRecipe(null, ModConstants.WAND, false, new Object[] { " *", "/ ",
                     '/', Items.BLAZE_ROD, '*', "glowstone" }).setRegistryName(LW.MODID, "wand"));
-            // new Advancement(new ResourceLocation(LW.MODID,
-            // "recipes/tools/wand_from_glowstone"), parentIn, displayIn, rewardsIn,
-            // criteriaIn, requirementsIn);
             if (Config.repairRecipe)
             {
                 event.getRegistry().register(new RecipeRepair());
@@ -66,6 +65,9 @@ public class CommonRegistry
     @SideOnly(Side.CLIENT)
     public static void onModelRegister(ModelRegistryEvent event)
     {
-        ModelLoader.setCustomModelResourceLocation(ModConstants.WAND, 0, new ModelResourceLocation(ModConstants.WAND.getRegistryName().toString(), "inventory"));
+        if (Config.registerWand)
+        {
+            ModelLoader.setCustomModelResourceLocation(ModConstants.WAND, 0, new ModelResourceLocation(ModConstants.WAND.getRegistryName().toString(), "inventory"));
+        }
     }
 }

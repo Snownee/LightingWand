@@ -2,7 +2,6 @@ package snownee.lightingwand.common;
 
 import java.util.Arrays;
 
-import net.minecraft.init.Items;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
@@ -15,7 +14,7 @@ import snownee.lightingwand.LW;
 public class RecipeRepair extends Impl<IRecipe> implements IRecipe
 {
     int ore;
-    
+
     public RecipeRepair()
     {
         super();
@@ -78,7 +77,8 @@ public class RecipeRepair extends Impl<IRecipe> implements IRecipe
             {
                 wand = itemstack;
             }
-            else if (!itemstack.isEmpty() && Arrays.asList(OreDictionary.getOreIDs(itemstack)).contains(OreDictionary.getOreID("dustGlowstone")))
+            else if (!itemstack.isEmpty()
+                    && Arrays.asList(OreDictionary.getOreIDs(itemstack)).contains(OreDictionary.getOreID("dustGlowstone")))
             {
                 int count = itemstack.getCount();
                 if (count > 0)
