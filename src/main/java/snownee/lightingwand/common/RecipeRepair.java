@@ -27,7 +27,7 @@ public class RecipeRepair extends net.minecraftforge.registries.IForgeRegistryEn
             ItemStack itemstack = inv.getStackInSlot(i);
             if (itemstack.getItem() == ModConstants.WAND && itemstack.getItemDamage() != 0)
             {
-                if (wand == ItemStack.EMPTY)
+                if (wand.isEmpty())
                 {
                     wand = itemstack;
                 }
@@ -38,22 +38,15 @@ public class RecipeRepair extends net.minecraftforge.registries.IForgeRegistryEn
             }
             else if (itemstack.getItem() == Items.GLOWSTONE_DUST)
             {
-                int count = itemstack.getCount();
-                if (count > 0)
-                {
-                    dust += count;
-                }
+                dust++;
             }
             else if (itemstack != ItemStack.EMPTY)
             {
                 return false;
             }
         }
-        if (wand == ItemStack.EMPTY || dust < 1)
-        {
-            return false;
-        }
-        return true;
+        return !wand.isEmpty() && dust > 0
+                && wand.getItemDamage() - wand.getMaxItemUseDuration() / 4 * dust > -wand.getMaxItemUseDuration() / 4;
     }
 
     @Override
@@ -74,13 +67,19 @@ public class RecipeRepair extends net.minecraftforge.registries.IForgeRegistryEn
                 int count = itemstack.getCount();
                 if (count > 0)
                 {
-                    dust += count;
+                    dust++;
                 }
             }
         }
         int damage = MathHelper.clamp(wand.getItemDamage()
                 - wand.getMaxItemUseDuration() / 4 * dust, 0, ModConstants.WAND.getMaxDamage(wand));
         return new ItemStack(ModConstants.WAND, 1, damage, wand.getTagCompound());
+    }
+
+    @Override
+    public boolean isDynamic()
+    {
+        return true;
     }
 
     @Override
@@ -94,5 +93,4 @@ public class RecipeRepair extends net.minecraftforge.registries.IForgeRegistryEn
     {
         return ItemStack.EMPTY;
     }
-
 }
