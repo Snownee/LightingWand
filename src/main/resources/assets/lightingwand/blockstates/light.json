@@ -3,7 +3,7 @@
   "variants": {
 		"normal": [{
       "model": "minecraft:cube_all",
-      "textures": { "particle": "minecraft:items/glowstone_dust" }
+      "textures": { "particle": "minecraft:items/glowstone_dust", "all": "minecraft:blocks/stone" }
     }]
   }
 }
