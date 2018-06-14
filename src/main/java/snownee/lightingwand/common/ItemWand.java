@@ -4,9 +4,13 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.block.BlockDispenser;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.dispenser.IBehaviorDispenseItem;
+import net.minecraft.dispenser.IBlockSource;
+import net.minecraft.dispenser.IPosition;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -19,6 +23,7 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.stats.StatList;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
@@ -48,6 +53,27 @@ public class ItemWand extends Item
             public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn)
             {
                 return ItemWand.isUsable(stack) ? 0 : 1;
+            }
+        });
+        BlockDispenser.DISPENSE_BEHAVIOR_REGISTRY.putObject(this, new IBehaviorDispenseItem()
+        {
+            @Override
+            public ItemStack dispense(IBlockSource source, ItemStack stack)
+            {
+                if (ItemWand.isUsable(stack))
+                {
+                    World world = source.getWorld();
+                    IPosition iposition = BlockDispenser.getDispensePosition(source);
+                    EnumFacing enumfacing = source.getBlockState().getValue(BlockDispenser.FACING);
+                    EntityLight entity = new EntityLight(world, iposition.getX(), iposition.getY(), iposition.getZ());
+                    entity.shoot(enumfacing.getFrontOffsetX(), enumfacing.getFrontOffsetY()
+                            + 0.1F, enumfacing.getFrontOffsetZ(), 1.3F + world.rand.nextFloat() * 0.4F, 0);
+                    entity.motionX += world.rand.nextGaussian() * 0.1D;
+                    entity.motionZ += world.rand.nextGaussian() * 0.1D;
+                    world.spawnEntity(entity);
+                    stack.attemptDamageItem(1, world.rand, null);
+                }
+                return stack;
             }
         });
     }
