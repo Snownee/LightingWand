@@ -3,6 +3,7 @@ package snownee.lightingwand.common;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
@@ -35,6 +36,12 @@ public class CommonRegistry
     {
         event.getRegistry().register(EntityEntryBuilder.<EntityLight>create().entity(EntityLight.class).id(new ResourceLocation(LW.MODID, "light"), 0).name(LW.MODID
                 + ".light").tracker(160, 3, true).build());
+    }
+
+    @SubscribeEvent
+    public static void onRecipeRegister(RegistryEvent.Register<IRecipe> event)
+    {
+        event.getRegistry().register(new RecipeRepair());
     }
 
     @SubscribeEvent
