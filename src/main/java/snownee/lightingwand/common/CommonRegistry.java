@@ -2,6 +2,7 @@ package snownee.lightingwand.common;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.ResourceLocation;
@@ -14,6 +15,8 @@ import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.oredict.ShapedOreRecipe;
+import snownee.lightingwand.Config;
 import snownee.lightingwand.LW;
 
 @Mod.EventBusSubscriber()
@@ -28,12 +31,16 @@ public class CommonRegistry
     @SubscribeEvent
     public static void onItemRegister(RegistryEvent.Register<Item> event)
     {
-        event.getRegistry().register(new ItemWand());
+        if (Config.registerWand)
+        {
+            event.getRegistry().register(new ItemWand());
+        }
     }
 
     @SubscribeEvent
     public static void onEntityRegister(RegistryEvent.Register<EntityEntry> event)
     {
+
         event.getRegistry().register(EntityEntryBuilder.<EntityLight>create().entity(EntityLight.class).id(new ResourceLocation(LW.MODID, "light"), 0).name(LW.MODID
                 + ".light").tracker(160, 3, true).build());
     }
@@ -41,7 +48,18 @@ public class CommonRegistry
     @SubscribeEvent
     public static void onRecipeRegister(RegistryEvent.Register<IRecipe> event)
     {
-        event.getRegistry().register(new RecipeRepair());
+        if (Config.registerWand)
+        {
+            event.getRegistry().register(new ShapedOreRecipe(null, ModConstants.WAND, false, new Object[] { " *", "/ ",
+                    '/', Items.BLAZE_ROD, '*', "glowstone" }).setRegistryName(LW.MODID, "wand"));
+            // new Advancement(new ResourceLocation(LW.MODID,
+            // "recipes/tools/wand_from_glowstone"), parentIn, displayIn, rewardsIn,
+            // criteriaIn, requirementsIn);
+            if (Config.repairRecipe)
+            {
+                event.getRegistry().register(new RecipeRepair());
+            }
+        }
     }
 
     @SubscribeEvent
