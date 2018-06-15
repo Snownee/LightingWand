@@ -7,7 +7,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
-@Mod(modid = LW.MODID, name = LW.NAME, version = LW.VERSION, guiFactory = LW.GUI_FACTORY)
+@Mod(modid = LW.MODID, name = LW.NAME, version = LW.VERSION, guiFactory = LW.GUI_FACTORY, acceptedMinecraftVersions = "[1.12.2,1.13)", dependencies = "required-after:forge@[14.23.3.2698,);")
 public class LW
 {
     public static final String MODID = "lightingwand";
