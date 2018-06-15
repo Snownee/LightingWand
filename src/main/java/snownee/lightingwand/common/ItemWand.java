@@ -19,6 +19,7 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.stats.StatList;
 import net.minecraft.util.ActionResult;
@@ -31,6 +32,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import snownee.lightingwand.Config;
@@ -184,5 +188,28 @@ public class ItemWand extends Item
             return true;
         }
         return super.hitEntity(stack, target, attacker);
+    }
+
+    @Override
+    public ICapabilityProvider initCapabilities(ItemStack stack, NBTTagCompound nbt)
+    {
+        return new ICapabilityProvider()
+        {
+            @Override
+            public boolean hasCapability(Capability<?> capability, EnumFacing facing)
+            {
+                return Config.energyPerUse != 0;
+            }
+
+            @Override
+            public <T> T getCapability(Capability<T> capability, EnumFacing facing)
+            {
+                if (Config.energyPerUse != 0 && capability == CapabilityEnergy.ENERGY)
+                {
+                    return CapabilityEnergy.ENERGY.cast(new EnergyRepair(stack));
+                }
+                return null;
+            }
+        };
     }
 }
