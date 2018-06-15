@@ -20,7 +20,7 @@ public class EnergyRepair implements IEnergyStorage
         {
             if (!simulate && maxReceive > Config.energyPerUse)
             {
-                container.setItemDamage(Math.max(0, container.getItemDamage() - 1));
+                container.setItemDamage(container.getItemDamage() - 1);
             }
             return maxReceive > Config.energyPerUse ? Config.energyPerUse : 0;
         }

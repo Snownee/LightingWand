@@ -36,7 +36,7 @@ public class JEICompat implements IModPlugin
         return list;
     }
 
-    private class WandRepairRecipeWrapper implements ICraftingRecipeWrapper
+    private static class WandRepairRecipeWrapper implements ICraftingRecipeWrapper
     {
         private final IJeiHelpers helpers;
 
