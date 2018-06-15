@@ -100,7 +100,6 @@ public class ItemWand extends Item
     @Override
     public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand handIn)
     {
-        LW.log(playerIn.motionX);
         ItemStack stack = playerIn.getHeldItem(handIn);
         if (ItemWand.isUsable(stack))
         {
