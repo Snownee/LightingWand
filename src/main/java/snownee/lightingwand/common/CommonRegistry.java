@@ -54,7 +54,7 @@ public class CommonRegistry
         {
             event.getRegistry().register(new ShapedOreRecipe(null, ModConstants.WAND, false, new Object[] { " *", "/ ",
                     '/', Items.BLAZE_ROD, '*', "glowstone" }).setRegistryName(LW.MODID, "wand"));
-            if (Config.repairRecipe)
+            if (Config.config.getBoolean("repairRecipe", Config.catGeneral, true, "Should use glowstone dust to repair wand"))
             {
                 event.getRegistry().register(new RecipeRepair());
             }

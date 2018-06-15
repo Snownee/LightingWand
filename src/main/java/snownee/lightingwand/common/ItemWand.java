@@ -44,7 +44,7 @@ public class ItemWand extends Item
         setRegistryName(LW.MODID, "wand");
         setUnlocalizedName(LW.MODID + ".wand");
         setMaxStackSize(1);
-        setMaxDamage(255);
+        setMaxDamage(Config.config.getInt("wandDuration", Config.catGeneral, 255, 1, Integer.MAX_VALUE, "Max duration of wand"));
         setCreativeTab(CreativeTabs.TOOLS);
         setNoRepair();
         addPropertyOverride(new ResourceLocation("broken"), new IItemPropertyGetter()

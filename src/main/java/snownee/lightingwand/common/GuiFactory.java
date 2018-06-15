@@ -50,7 +50,7 @@ public class GuiFactory implements IModGuiFactory
     {
         public ConfigGui(GuiScreen parent)
         {
-            super(parent, getConfigElements(), LW.MODID, false, false, LW.NAME + " Configuration");
+            super(parent, getConfigElements(), LW.MODID, false, true, LW.NAME + " Configuration");
         }
     }
 }

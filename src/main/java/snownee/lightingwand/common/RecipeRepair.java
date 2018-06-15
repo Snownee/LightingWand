@@ -1,7 +1,5 @@
 package snownee.lightingwand.common;
 
-import java.util.Arrays;
-
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
@@ -13,16 +11,14 @@ import snownee.lightingwand.LW;
 
 public class RecipeRepair extends Impl<IRecipe> implements IRecipe
 {
-    int ore;
+    private static final int ORE = OreDictionary.getOreID("dustGlowstone");
 
     public RecipeRepair()
     {
         super();
         setRegistryName(LW.MODID, "repair");
-        ore = OreDictionary.getOreID("dustGlowstone");
     }
 
-    @SuppressWarnings("unlikely-arg-type")
     @Override
     public boolean matches(InventoryCrafting inv, World worldIn)
     {
@@ -32,13 +28,6 @@ public class RecipeRepair extends Impl<IRecipe> implements IRecipe
         for (int i = 0; i < inv.getSizeInventory(); ++i)
         {
             ItemStack itemstack = inv.getStackInSlot(i);
-            if (!itemstack.isEmpty())
-            {
-                for (int id : OreDictionary.getOreIDs(itemstack))
-                {
-                    LW.log(OreDictionary.getOreName(id));
-                }
-            }
             if (itemstack.getItem() == ModConstants.WAND && itemstack.getItemDamage() != 0)
             {
                 if (wand.isEmpty())
@@ -50,7 +39,7 @@ public class RecipeRepair extends Impl<IRecipe> implements IRecipe
                     return false;
                 }
             }
-            else if (!itemstack.isEmpty() && Arrays.asList(OreDictionary.getOreIDs(itemstack)).contains(ore))
+            else if (!itemstack.isEmpty() && isGlowstoneDust(itemstack))
             {
                 dust++;
             }
@@ -59,11 +48,10 @@ public class RecipeRepair extends Impl<IRecipe> implements IRecipe
                 return false;
             }
         }
-        return !wand.isEmpty() && dust > 0
-                && wand.getItemDamage() - wand.getMaxItemUseDuration() / 4 * dust > -wand.getMaxItemUseDuration() / 4;
+        return !wand.isEmpty() && dust > 0 && wand.getItemDamage() - MathHelper.ceil(wand.getMaxItemUseDuration() / 4F)
+                * dust > -MathHelper.ceil(wand.getMaxItemUseDuration() / 4F);
     }
 
-    @SuppressWarnings("unlikely-arg-type")
     @Override
     public ItemStack getCraftingResult(InventoryCrafting inv)
     {
@@ -77,8 +65,7 @@ public class RecipeRepair extends Impl<IRecipe> implements IRecipe
             {
                 wand = itemstack;
             }
-            else if (!itemstack.isEmpty()
-                    && Arrays.asList(OreDictionary.getOreIDs(itemstack)).contains(OreDictionary.getOreID("dustGlowstone")))
+            else if (!itemstack.isEmpty() && isGlowstoneDust(itemstack))
             {
                 int count = itemstack.getCount();
                 if (count > 0)
@@ -88,7 +75,7 @@ public class RecipeRepair extends Impl<IRecipe> implements IRecipe
             }
         }
         int damage = MathHelper.clamp(wand.getItemDamage()
-                - wand.getMaxItemUseDuration() / 4 * dust, 0, ModConstants.WAND.getMaxDamage(wand));
+                - MathHelper.ceil(wand.getMaxItemUseDuration() / 4F) * dust, 0, ModConstants.WAND.getMaxDamage(wand));
         return new ItemStack(ModConstants.WAND, 1, damage, wand.getTagCompound());
     }
 
@@ -108,5 +95,17 @@ public class RecipeRepair extends Impl<IRecipe> implements IRecipe
     public ItemStack getRecipeOutput()
     {
         return ItemStack.EMPTY;
+    }
+
+    public static boolean isGlowstoneDust(ItemStack stack)
+    {
+        for (int i : OreDictionary.getOreIDs(stack))
+        {
+            if (i == ORE)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

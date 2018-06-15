@@ -34,7 +34,7 @@ public class LW
     public void preInit(FMLPreInitializationEvent event)
     {
         logger = event.getModLog();
-        Config.init(event.getSuggestedConfigurationFile());
+        Config.preInit(event.getSuggestedConfigurationFile());
     }
 
     @Mod.EventHandler
@@ -45,5 +45,6 @@ public class LW
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent event)
     {
+        Config.postInit();
     }
 }
