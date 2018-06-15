@@ -43,7 +43,7 @@ public class CommonRegistry
         if (Config.registerWand && Config.shootProjectile)
         {
             event.getRegistry().register(EntityEntryBuilder.<EntityLight>create().entity(EntityLight.class).id(new ResourceLocation(LW.MODID, "light"), 0).name(LW.MODID
-                    + ".light").tracker(160, 3, true).build());
+                    + ".light").tracker(64, 20, true).build());
         }
     }
 

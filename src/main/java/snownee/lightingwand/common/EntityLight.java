@@ -53,9 +53,9 @@ public class EntityLight extends EntityThrowable
     @Override
     protected void onImpact(RayTraceResult result)
     {
-        setDead();
         if (!world.isRemote && result != null)
         {
+            setDead();
             BlockPos pos = result.entityHit != null ? new BlockPos(result.hitVec)
                     : result.getBlockPos().offset(result.sideHit);
 
