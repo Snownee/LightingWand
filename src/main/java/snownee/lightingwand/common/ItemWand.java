@@ -100,6 +100,7 @@ public class ItemWand extends Item
     @Override
     public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand handIn)
     {
+        LW.log(playerIn.motionX);
         ItemStack stack = playerIn.getHeldItem(handIn);
         if (ItemWand.isUsable(stack))
         {
@@ -129,9 +130,12 @@ public class ItemWand extends Item
                 worldIn.playSound((EntityPlayer) null, playerIn.posX, playerIn.posY, playerIn.posZ, SoundEvents.ENTITY_EGG_THROW, SoundCategory.PLAYERS, 0.8F, 0.4F
                         / (itemRand.nextFloat() * 0.4F + 0.8F));
 
-                EntityLight entity = new EntityLight(worldIn, playerIn);
-                entity.shoot(playerIn, playerIn.rotationPitch, playerIn.rotationYaw, 0, 1.5F, 0);
-                worldIn.spawnEntity(entity);
+                if (!worldIn.isRemote)
+                {
+                    EntityLight entity = new EntityLight(worldIn, playerIn);
+                    entity.shoot(playerIn, playerIn.rotationPitch, playerIn.rotationYaw, 0, 1.5F, 0);
+                    worldIn.spawnEntity(entity);
+                }
 
                 playerIn.getHeldItem(handIn).damageItem(1, playerIn);
                 playerIn.addStat(StatList.getObjectUseStats(this));
