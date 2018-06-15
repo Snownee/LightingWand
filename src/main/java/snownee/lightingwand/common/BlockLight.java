@@ -14,14 +14,17 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import snownee.lightingwand.Config;
 import snownee.lightingwand.LW;
 
 public class BlockLight extends Block
@@ -42,13 +45,7 @@ public class BlockLight extends Block
     @Override
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
-        EntityPlayer player = Minecraft.getMinecraft().player;
-        if (player != null && (player.getHeldItemMainhand().getItem() == ModConstants.WAND
-                || player.getHeldItemOffhand().getItem() == ModConstants.WAND))
-        {
-            return FULL_BLOCK_AABB;
-        }
-        return NULL_AABB;
+        return hasItem(Minecraft.getMinecraft().player) ? FULL_BLOCK_AABB : NULL_AABB;
     }
 
     @Override
@@ -140,9 +137,7 @@ public class BlockLight extends Block
     @SideOnly(Side.CLIENT)
     public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
     {
-        EntityPlayer player = Minecraft.getMinecraft().player;
-        if (player.getHeldItemMainhand().getItem() == ModConstants.WAND
-                || player.getHeldItemOffhand().getItem() == ModConstants.WAND)
+        if (hasItem(Minecraft.getMinecraft().player))
         {
             float x = pos.getX() + 0.3F + rand.nextFloat() * 0.4F;
             float y = pos.getY() + 0.5F;
@@ -151,5 +146,21 @@ public class BlockLight extends Block
             worldIn.spawnParticle(EnumParticleTypes.REDSTONE, x, y, z, 1, 1, 0);
         }
         super.randomDisplayTick(stateIn, worldIn, pos, rand);
+    }
+
+    public static boolean hasItem(EntityPlayer player)
+    {
+        Item main = player.getHeldItemMainhand().getItem();
+        Item off = player.getHeldItemOffhand().getItem();
+        if (Config.registerWand && (main == ModConstants.WAND || off == ModConstants.WAND))
+        {
+            return true;
+        }
+        if (Config.psiCompat && Loader.isModLoaded("psi"))
+        {
+            return main.getRegistryName().toString().equals("psi:cad")
+                    || off.getRegistryName().toString().equals("psi:cad");
+        }
+        return false;
     }
 }

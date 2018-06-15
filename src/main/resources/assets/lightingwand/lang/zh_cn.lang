@@ -1,3 +1,5 @@
 item.lightingwand.wand.name=照明魔杖
 tile.lightingwand.light.name=光源
 tip.lightingwand.uncharged=未充能
+psi.spellpiece.trickConjureLightInvisible=启动式: 构筑隐藏光线
+psi.spellpiece.trickConjureLightInvisible.desc=在指定位置构筑一团亮光，只有手持CAD时才能看到方块边框

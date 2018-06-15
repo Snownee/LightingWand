@@ -2,10 +2,12 @@ package snownee.lightingwand;
 
 import org.apache.logging.log4j.Logger;
 
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import snownee.lightingwand.compat.PsiCompat;
 
 @Mod(modid = LW.MODID, name = LW.NAME, version = LW.VERSION, guiFactory = LW.GUI_FACTORY, acceptedMinecraftVersions = "[1.12.2,1.13)", dependencies = "required-after:forge@[14.23.3.2698,);")
 public class LW
@@ -40,6 +42,10 @@ public class LW
     @Mod.EventHandler
     public void init(FMLInitializationEvent event)
     {
+        if (Config.psiCompat && Loader.isModLoaded("psi"))
+        {
+            PsiCompat.init();
+        }
     }
 
     @Mod.EventHandler

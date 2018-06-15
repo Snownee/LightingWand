@@ -43,6 +43,7 @@ public class GuiFactory implements IModGuiFactory
     {
         List<IConfigElement> list = new ArrayList<IConfigElement>();
         list.add(new ConfigElement(Config.config.getCategory(Config.catGeneral)));
+        list.add(new ConfigElement(Config.config.getCategory(Config.catCompat)));
         return list;
     }
 
