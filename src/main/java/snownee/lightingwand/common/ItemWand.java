@@ -116,10 +116,11 @@ public class ItemWand extends Item
                 if (worldIn.isAirBlock(pos))
                 {
                     playerIn.getHeldItem(handIn).damageItem(1, playerIn);
-                    if (worldIn.setBlockState(pos, ModConstants.LIGHT.getDefaultState(), 11))
+                    worldIn.playSound(playerIn, pos, SoundEvents.BLOCK_SLIME_PLACE, SoundCategory.BLOCKS, 1.0F, itemRand.nextFloat()
+                            * 0.4F + 0.8F);
+                    if (!worldIn.isRemote)
                     {
-                        worldIn.playSound(playerIn, pos, SoundEvents.BLOCK_SLIME_PLACE, SoundCategory.BLOCKS, 1.0F, itemRand.nextFloat()
-                                * 0.4F + 0.8F);
+                        worldIn.setBlockState(pos, ModConstants.LIGHT.getDefaultState(), 11);
                     }
                 }
             }

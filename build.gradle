@@ -16,7 +16,7 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 
 version = "${version_major}.${version_minor}.${version_patch}"
 group = "snownee.lightingwand"
-archivesBaseName = "Lighting Wand"
+archivesBaseName = "LightingWand"
 
 sourceCompatibility = targetCompatibility = '1.8'
 
