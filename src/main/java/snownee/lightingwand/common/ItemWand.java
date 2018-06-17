@@ -202,13 +202,13 @@ public class ItemWand extends Item
             @Override
             public boolean hasCapability(Capability<?> capability, EnumFacing facing)
             {
-                return Config.energyPerUse != 0;
+                return Config.energyPerUse != 0 && capability == CapabilityEnergy.ENERGY;
             }
 
             @Override
             public <T> T getCapability(Capability<T> capability, EnumFacing facing)
             {
-                if (Config.energyPerUse != 0 && capability == CapabilityEnergy.ENERGY)
+                if (hasCapability(capability, facing))
                 {
                     return CapabilityEnergy.ENERGY.cast(new EnergyRepair(stack));
                 }
