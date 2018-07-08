@@ -45,14 +45,39 @@ public class BlockLight extends Block
     @Override
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
-        return hasItem(Minecraft.getMinecraft().player) ? FULL_BLOCK_AABB : NULL_AABB;
+        return (CommonRegistry.isClient && hasItem()) ? FULL_BLOCK_AABB : NULL_AABB;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public AxisAlignedBB getSelectedBoundingBox(IBlockState state, World worldIn, BlockPos pos)
+    {
+        return (hasItem() ? FULL_BLOCK_AABB : NULL_AABB).offset(pos);
+    }
+
+    @Override
+    public boolean canCollideCheck(IBlockState state, boolean hitIfLiquid)
+    {
+        return true;
+    }
+
+    @Override
+    public boolean isCollidable()
+    {
+        return false;
     }
 
     @Override
     @Nullable
     public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos)
     {
-        return super.NULL_AABB;
+        return null;
+    }
+
+    @Override
+    public boolean isPassable(IBlockAccess worldIn, BlockPos pos)
+    {
+        return true;
     }
 
     @Override
@@ -137,7 +162,7 @@ public class BlockLight extends Block
     @SideOnly(Side.CLIENT)
     public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
     {
-        if (hasItem(Minecraft.getMinecraft().player))
+        if (hasItem())
         {
             float x = pos.getX() + 0.3F + rand.nextFloat() * 0.4F;
             float y = pos.getY() + 0.5F;
@@ -148,8 +173,10 @@ public class BlockLight extends Block
         super.randomDisplayTick(stateIn, worldIn, pos, rand);
     }
 
-    public static boolean hasItem(EntityPlayer player)
+    @SideOnly(Side.CLIENT)
+    public static boolean hasItem()
     {
+        EntityPlayer player = Minecraft.getMinecraft().player;
         Item main = player.getHeldItemMainhand().getItem();
         Item off = player.getHeldItemOffhand().getItem();
         if (Config.registerWand && (main == ModConstants.WAND || off == ModConstants.WAND))

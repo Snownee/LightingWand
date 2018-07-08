@@ -5,6 +5,7 @@ import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.network.status.INetHandlerStatusClient;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
@@ -60,6 +61,8 @@ public class CommonRegistry
             }
         }
     }
+    
+    public static boolean isClient = false;
 
     @SubscribeEvent
     @SideOnly(Side.CLIENT)
@@ -69,5 +72,6 @@ public class CommonRegistry
         {
             ModelLoader.setCustomModelResourceLocation(ModConstants.WAND, 0, new ModelResourceLocation(ModConstants.WAND.getRegistryName().toString(), "inventory"));
         }
+        isClient = true;
     }
 }
