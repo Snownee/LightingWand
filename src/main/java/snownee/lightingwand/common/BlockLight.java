@@ -143,7 +143,7 @@ public class BlockLight extends Block
     @Override
     public boolean isReplaceableOreGen(IBlockState state, IBlockAccess world, BlockPos pos, Predicate<IBlockState> target)
     {
-        return true;
+        return false;
     }
 
     @Override
