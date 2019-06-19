@@ -1,49 +1,35 @@
 package snownee.lightingwand;
 
-import java.io.File;
+import org.apache.commons.lang3.tuple.Pair;
 
-import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec.BooleanValue;
+import net.minecraftforge.common.ForgeConfigSpec.IntValue;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @EventBusSubscriber(modid = LW.MODID)
 public class Config
 {
-    public static Configuration config;
-    public static boolean registerWand;
-    public static boolean shootProjectile;
-    public static boolean psiCompat;
-    public static int energyPerUse;
-    public static String catGeneral = "General";
-    public static String catCompat = "Compat";
+    static final ForgeConfigSpec spec;
 
-    public static void preInit(File file)
+    static
     {
-        config = new Configuration(file, true);
-        config.load();
-        config.addCustomCategoryComment(catGeneral, "Basic features of Lighting Wand.");
-        config.addCustomCategoryComment(catCompat, "Compat modules for other mods.");
-        registerWand = config.getBoolean("registerWand", catGeneral, true, "Enable lighting wand item.");
-        shootProjectile = config.getBoolean("shootProjectile", catGeneral, true, "Should wand shoot projectile.");
-        energyPerUse = config.getInt("energyPerUse", catGeneral, 50, 0, Integer.MAX_VALUE, "How much FE to repair one use of wand. Zero to disable.");
-        psiCompat = config.getBoolean("Psi", Config.catCompat, true, "Add a spell piece to place invisible light source.");
+        final Pair<Config, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Config::new);
+        spec = specPair.getRight();
     }
 
-    public static void postInit()
-    {
-        if (config.hasChanged())
-        {
-            config.save();
-        }
-    }
+    public static BooleanValue shootProjectile;
+    public static IntValue energyPerUse;
+    public static BooleanValue repairRecipe;
+    public static IntValue wandDurability;
 
-    @SubscribeEvent
-    public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event)
+    private Config(ForgeConfigSpec.Builder builder)
     {
-        if (event.getModID().equals(LW.MODID))
-        {
-            config.save();
-        }
+        shootProjectile = builder.comment("Should wand be able to shoot projectile.").define("shootProjectile", true);
+        energyPerUse = builder.comment("How much FE to repair one use of wand. Zero to disable.").defineInRange("energyPerUse", 50, 0, Integer.MAX_VALUE - 1);
+        repairRecipe = builder.comment("Should use glowstone dust to repair wand.").define("repairRecipe", true);
+        wandDurability = builder.comment("Max durability of wand.").defineInRange("wandDurability", 255, 1, Integer.MAX_VALUE - 1);
     }
 }

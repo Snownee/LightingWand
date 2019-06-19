@@ -1,18 +1,27 @@
 package snownee.lightingwand.common;
 
 import net.minecraft.block.Block;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
+import net.minecraft.block.Blocks;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.projectile.ThrowableEntity;
 import net.minecraft.item.Item;
-import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraft.item.Items;
+import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraftforge.registries.ObjectHolder;
 import snownee.lightingwand.LW;
 
-@GameRegistry.ObjectHolder(LW.MODID)
+@ObjectHolder(LW.MODID)
 public class ModConstants
 {
-    @GameRegistry.ObjectHolder("light")
+    @ObjectHolder("light")
     public static final Block LIGHT = Blocks.AIR;
 
-    @GameRegistry.ObjectHolder("wand")
+    @ObjectHolder("light")
+    public static final EntityType<? extends ThrowableEntity> LIGHT_ENTITY_TYPE = null;
+
+    @ObjectHolder("wand")
     public static final Item WAND = Items.AIR;
+
+    @ObjectHolder("repair")
+    public static final IRecipeSerializer<?> REPAIR = null;
 }
