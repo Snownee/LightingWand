@@ -10,8 +10,14 @@ import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.fluid.Fluids;
+import net.minecraft.fluid.IFluidState;
+import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.Item;
 import net.minecraft.particles.RedstoneParticleData;
+import net.minecraft.state.BooleanProperty;
+import net.minecraft.state.StateContainer.Builder;
+import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
@@ -26,9 +32,12 @@ import net.minecraftforge.fml.common.thread.EffectiveSide;
 
 public class LightBlock extends Block implements IWaterLoggable
 {
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
+
     public LightBlock()
     {
         super(Block.Properties.create(Material.AIR).lightValue(15).sound(SoundType.SLIME));
+        setDefaultState(stateContainer.getBaseState().with(WATERLOGGED, false));
     }
 
     @Override
@@ -93,5 +102,26 @@ public class LightBlock extends Block implements IWaterLoggable
         Item main = player.getHeldItemMainhand().getItem();
         Item off = player.getHeldItemOffhand().getItem();
         return main == ModConstants.WAND || off == ModConstants.WAND;
+    }
+
+    @Override
+    protected void fillStateContainer(Builder<Block, BlockState> builder)
+    {
+        builder.add(WATERLOGGED);
+    }
+
+    @Override
+    public IFluidState getFluidState(BlockState state)
+    {
+        return state.get(WATERLOGGED) ? Fluids.WATER.getStillFluidState(false) : super.getFluidState(state);
+    }
+
+    @Override
+    public BlockState getStateForPlacement(BlockItemUseContext context)
+    {
+        IBlockReader iblockreader = context.getWorld();
+        BlockPos blockpos = context.getPos();
+        IFluidState ifluidstate = context.getWorld().getFluidState(context.getPos());
+        return super.getStateForPlacement(context).with(WATERLOGGED, ifluidstate.getFluid() == Fluids.WATER);
     }
 }

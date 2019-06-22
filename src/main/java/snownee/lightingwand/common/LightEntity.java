@@ -2,8 +2,10 @@ package snownee.lightingwand.common;
 
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.projectile.ThrowableEntity;
+import net.minecraft.fluid.IFluidState;
 import net.minecraft.network.IPacket;
 import net.minecraft.particles.RedstoneParticleData;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
@@ -65,7 +67,8 @@ public class LightEntity extends ThrowableEntity
 
             if (world.getBlockState(pos).getMaterial().isReplaceable())
             {
-                if (world.setBlockState(pos, ModConstants.LIGHT.getDefaultState(), 11))
+                IFluidState ifluidstate = world.getFluidState(pos);
+                if (world.setBlockState(pos, ModConstants.LIGHT.getDefaultState().with(LightBlock.WATERLOGGED, ifluidstate.isTagged(FluidTags.WATER) && ifluidstate.getLevel() == 8), 11))
                 {
                     world.playSound(null, pos, SoundEvents.BLOCK_SLIME_BLOCK_PLACE, SoundCategory.BLOCKS, 1.0F, world.rand.nextFloat() * 0.4F + 0.8F);
                 }
