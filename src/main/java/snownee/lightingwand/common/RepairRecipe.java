@@ -15,6 +15,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class RepairRecipe implements ICraftingRecipe
 {
@@ -141,9 +142,11 @@ public class RepairRecipe implements ICraftingRecipe
         {
             String group = JSONUtils.getString(json, "group", "");
             String s = JSONUtils.getString(json, "repairable");
-            Item repairable = Registry.field_212630_s.func_218349_b(new ResourceLocation(s)).orElseThrow(() -> {
-                return new JsonSyntaxException("Unknown item '" + s + "'");
-            });
+            Item repairable = ForgeRegistries.ITEMS.getValue(new ResourceLocation(s));
+            if (repairable == null)
+            {
+                throw new JsonSyntaxException("Unknown item '" + s + "'");
+            }
             Ingredient material = Ingredient.deserialize(JSONUtils.getJsonObject(json, "material"));
             int ratio = JSONUtils.getInt(json, "ratio");
             return new RepairRecipe(recipeId, group, repairable, material, ratio);
