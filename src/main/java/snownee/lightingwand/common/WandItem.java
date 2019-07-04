@@ -70,7 +70,7 @@ public class WandItem extends Item
         ItemStack stack = playerIn.getHeldItem(handIn);
         if (WandItem.isUsable(stack))
         {
-            RayTraceResult rayTraceResult = func_219968_a(worldIn, playerIn, FluidMode.NONE);
+            RayTraceResult rayTraceResult = rayTrace(worldIn, playerIn, FluidMode.NONE);
             if (rayTraceResult.getType() == RayTraceResult.Type.BLOCK)
             {
                 BlockRayTraceResult blockRayTraceResult = (BlockRayTraceResult) rayTraceResult;
@@ -159,7 +159,7 @@ public class WandItem extends Item
     {
         if (WandItem.isUsable(stack))
         {
-            target.addPotionEffect(new EffectInstance(Effects.field_188423_x, 200));
+            target.addPotionEffect(new EffectInstance(Effects.GLOWING, 200));
             stack.setDamage(stack.getDamage() + 1);
             return true;
         }
