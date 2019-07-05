@@ -1,5 +1,8 @@
 package snownee.lightingwand.common;
 
+import java.util.List;
+
+import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
@@ -13,8 +16,10 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.common.thread.EffectiveSide;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class RepairRecipe implements ICraftingRecipe
@@ -134,8 +139,25 @@ public class RepairRecipe implements ICraftingRecipe
         return group;
     }
 
+    public Ingredient getMaterial()
+    {
+        return material;
+    }
+
+    public Item getRepairable()
+    {
+        return repairable;
+    }
+
+    public int getRatio()
+    {
+        return ratio;
+    }
+
     public static class Serializer extends net.minecraftforge.registries.ForgeRegistryEntry<IRecipeSerializer<?>> implements IRecipeSerializer<RepairRecipe>
     {
+        public static boolean recordRecipes = EffectiveSide.get() == LogicalSide.CLIENT && ModList.get().isLoaded("jei");
+        public static List<RepairRecipe> recipes = recordRecipes ? Lists.newArrayList() : null;
 
         @Override
         public RepairRecipe read(ResourceLocation recipeId, JsonObject json)
@@ -149,7 +171,7 @@ public class RepairRecipe implements ICraftingRecipe
             }
             Ingredient material = Ingredient.deserialize(JSONUtils.getJsonObject(json, "material"));
             int ratio = JSONUtils.getInt(json, "ratio");
-            return new RepairRecipe(recipeId, group, repairable, material, ratio);
+            return record(new RepairRecipe(recipeId, group, repairable, material, ratio));
         }
 
         @Override
@@ -160,7 +182,7 @@ public class RepairRecipe implements ICraftingRecipe
             Item repairable = Item.getItemById(buffer.readVarInt());
             Ingredient material = Ingredient.read(buffer);
             int ratio = buffer.readVarInt();
-            return new RepairRecipe(recipeId, group, repairable, material, ratio);
+            return record(new RepairRecipe(recipeId, group, repairable, material, ratio));
         }
 
         @Override
@@ -170,6 +192,15 @@ public class RepairRecipe implements ICraftingRecipe
             buffer.writeVarInt(Item.getIdFromItem(recipe.repairable));
             recipe.material.write(buffer);
             buffer.writeVarInt(recipe.ratio);
+        }
+
+        public static RepairRecipe record(RepairRecipe recipe)
+        {
+            if (recordRecipes)
+            {
+                recipes.add(recipe);
+            }
+            return recipe;
         }
 
     }

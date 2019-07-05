@@ -160,7 +160,10 @@ public class WandItem extends Item
         if (WandItem.isUsable(stack))
         {
             target.addPotionEffect(new EffectInstance(Effects.GLOWING, 200));
-            stack.setDamage(stack.getDamage() + 1);
+            if (attacker instanceof PlayerEntity && !((PlayerEntity) attacker).isCreative())
+            {
+                stack.setDamage(stack.getDamage() + 1);
+            }
             return true;
         }
         return super.hitEntity(stack, target, attacker);
