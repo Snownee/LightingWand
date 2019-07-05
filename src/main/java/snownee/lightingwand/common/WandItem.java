@@ -5,8 +5,6 @@ import java.util.List;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.IFluidState;
@@ -149,9 +147,9 @@ public class WandItem extends Item
     }
 
     @Override
-    public boolean canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment)
+    public boolean isEnchantable(ItemStack stack)
     {
-        return enchantment == Enchantments.VANISHING_CURSE;
+        return false;
     }
 
     @Override
