@@ -1,8 +1,5 @@
 package snownee.lightingwand.common;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.DispenserBlock;
 import net.minecraft.dispenser.IBlockSource;
@@ -99,19 +96,7 @@ public class CommonRegistry
                     }
                 });
             }
-            try
-            {
-                Field m = Field.class.getDeclaredField("modifiers");
-                m.setAccessible(true);
-                Field f = Item.class.getDeclaredField("maxDamage");
-                m.setInt(f, f.getModifiers() & ~Modifier.FINAL);
-                f.setAccessible(true);
-                f.setInt(ModConstants.WAND, Config.wandDurability.get());
-            }
-            catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e)
-            {
-                LW.logger.error("Failed to set max durability of wand item.", e);
-            }
+            ModConstants.WAND.maxDamage = Config.wandDurability.get();
         }
     }
 }
