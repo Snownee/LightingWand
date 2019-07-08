@@ -178,7 +178,6 @@ public class RepairRecipe implements ICraftingRecipe
         public RepairRecipe read(ResourceLocation recipeId, PacketBuffer buffer)
         {
             String group = buffer.readString(32767);
-            String s = buffer.readString(32767);
             Item repairable = Item.getItemById(buffer.readVarInt());
             Ingredient material = Ingredient.read(buffer);
             int ratio = buffer.readVarInt();
