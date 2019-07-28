@@ -14,7 +14,6 @@ import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.ServerWorld;
 import net.minecraft.world.World;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.event.RegistryEvent;
@@ -81,7 +80,7 @@ public class CommonRegistry
                     public ItemStack dispense(IBlockSource source, ItemStack stack)
                     {
                         World world = source.getWorld();
-                        if (world instanceof ServerWorld && WandItem.isUsable(stack))
+                        if (!world.isRemote && WandItem.isUsable(stack))
                         {
                             IPosition iposition = DispenserBlock.getDispensePosition(source);
                             Direction Direction = source.getBlockState().get(DispenserBlock.FACING);
@@ -89,7 +88,7 @@ public class CommonRegistry
                             entity.shoot(Direction.getXOffset(), Direction.getYOffset() + 0.1F, Direction.getZOffset(), 1.3F + world.rand.nextFloat() * 0.4F, 0);
                             Vec3d motion = entity.getMotion();
                             entity.setMotion(motion.add(world.rand.nextGaussian() * 0.1D, 0, world.rand.nextGaussian() * 0.1D));
-                            ((ServerWorld) world).summonEntity(entity);
+                            world.addEntity(entity);
                             stack.attemptDamageItem(1, world.rand, null);
                         }
                         return stack;

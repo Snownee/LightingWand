@@ -30,7 +30,6 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.ServerWorld;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -99,11 +98,11 @@ public class WandItem extends Item
                 worldIn.playSound((PlayerEntity) null, playerIn.posX, playerIn.posY, playerIn.posZ, SoundEvents.ENTITY_EGG_THROW, SoundCategory.PLAYERS, 0.8F, 0.4F / (random.nextFloat() * 0.4F + 0.8F));
 
                 ItemStack held = playerIn.getHeldItem(handIn);
-                if (worldIn instanceof ServerWorld)
+                if (!worldIn.isRemote)
                 {
                     LightEntity entity = new LightEntity(worldIn, playerIn);
                     entity.shoot(playerIn, playerIn.rotationPitch, playerIn.rotationYaw, 0, 1.5F, 0);
-                    ((ServerWorld) worldIn).summonEntity(entity);
+                    worldIn.addEntity(entity);
                 }
                 if (!playerIn.isCreative())
                 {
