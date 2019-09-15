@@ -66,9 +66,7 @@ public class CommonRegistry
     @SubscribeEvent
     public static void init(FMLCommonSetupEvent event)
     {
-        CraftingHelper.register(new ResourceLocation(LW.MODID, "repair_recipe"), (
-                json
-        ) -> () -> Config.repairRecipe.get());
+        CraftingHelper.register(new RepairRecipeCondition.Serializer());
 
         if (ModConstants.WAND != Items.AIR)
         {

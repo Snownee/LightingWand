@@ -78,7 +78,7 @@ public class WandItem extends Item
                     return new ActionResult<ItemStack>(ActionResultType.FAIL, playerIn.getHeldItem(handIn));
                 }
                 BlockState state = worldIn.getBlockState(pos);
-                if (!worldIn.isRemote && state.getBlock() != ModConstants.LIGHT && state.getMaterial().isReplaceable())
+                if (state.getBlock() != ModConstants.LIGHT && state.getMaterial().isReplaceable())
                 {
                     if (!playerIn.isCreative())
                     {
