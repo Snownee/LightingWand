@@ -2,6 +2,7 @@ package snownee.lightingwand.common;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.DispenserBlock;
+import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.dispenser.IBlockSource;
 import net.minecraft.dispenser.IDispenseItemBehavior;
 import net.minecraft.dispenser.IPosition;
@@ -12,21 +13,27 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import snownee.lightingwand.Config;
 import snownee.lightingwand.LW;
+import snownee.lightingwand.client.EmptyEntityRenderer;
 
 @Mod.EventBusSubscriber(bus = Bus.MOD)
 public class CommonRegistry
 {
+    private static EntityType<LightEntity> ENTITY;
+
     @SubscribeEvent
     public static void onBlockRegister(RegistryEvent.Register<Block> event)
     {
@@ -43,7 +50,7 @@ public class CommonRegistry
     public static void onEntityRegister(RegistryEvent.Register<EntityType<?>> event)
     {
         /* off */
-        event.getRegistry().register(EntityType.Builder.create(EntityClassification.MISC)
+        event.getRegistry().register(ENTITY = (EntityType<LightEntity>) EntityType.Builder.create(EntityClassification.MISC)
                 .setCustomClientFactory((
                         spawnEntity, world
                 ) -> new LightEntity(world))
@@ -95,5 +102,11 @@ public class CommonRegistry
             }
             ModConstants.WAND.maxDamage = Config.wandDurability.get();
         }
+    }
+
+    @SubscribeEvent
+    @OnlyIn(Dist.CLIENT)
+    public static void clientInit(FMLClientSetupEvent event) {
+        RenderingRegistry.registerEntityRenderingHandler(ENTITY, EmptyEntityRenderer::new);
     }
 }

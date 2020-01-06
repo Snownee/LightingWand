@@ -16,14 +16,15 @@ import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.Item;
 import net.minecraft.particles.RedstoneParticleData;
 import net.minecraft.state.BooleanProperty;
+import net.minecraft.state.IntegerProperty;
 import net.minecraft.state.StateContainer.Builder;
 import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.IBlockReader;
+import net.minecraft.world.ILightReader;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -33,23 +34,23 @@ import net.minecraftforge.fml.common.thread.EffectiveSide;
 public class LightBlock extends Block implements IWaterLoggable
 {
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
+    public static final IntegerProperty LIGHT = IntegerProperty.create("light", 1, 15);
 
     public LightBlock()
     {
         super(Block.Properties.create(Material.AIR).lightValue(15).sound(SoundType.SLIME));
-        setDefaultState(stateContainer.getBaseState().with(WATERLOGGED, false));
+        setDefaultState(stateContainer.getBaseState().with(WATERLOGGED, false).with(LIGHT, 15));
     }
 
     @Override
     public BlockRenderType getRenderType(BlockState state)
     {
-        return BlockRenderType.MODEL;
+        return BlockRenderType.INVISIBLE;
     }
 
     @Override
-    public BlockRenderLayer getRenderLayer()
-    {
-        return BlockRenderLayer.CUTOUT;
+    public int getLightValue(BlockState state) {
+        return state.get(LIGHT);
     }
 
     @Override
@@ -107,7 +108,7 @@ public class LightBlock extends Block implements IWaterLoggable
     @Override
     protected void fillStateContainer(Builder<Block, BlockState> builder)
     {
-        builder.add(WATERLOGGED);
+        builder.add(WATERLOGGED, LIGHT);
     }
 
     @Override

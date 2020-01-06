@@ -17,8 +17,6 @@ out
 build
 .gradle
 gradle
-/gradlew.bat
-/gradlew
 
 # other
 eclipse
