@@ -177,11 +177,9 @@ public class BlockLight extends Block
     public static boolean hasItem()
     {
         EntityPlayer player = Minecraft.getMinecraft().player;
-
         if (player == null) {
             return false;
         }
-
         Item main = player.getHeldItemMainhand().getItem();
         Item off = player.getHeldItemOffhand().getItem();
         if (Config.registerWand && (main == ModConstants.WAND || off == ModConstants.WAND))
