@@ -36,13 +36,13 @@ public class EnergyRepair implements IEnergyStorage
     @Override
     public int getEnergyStored()
     {
-        return 0;
+        return (container.getMaxDamage() - container.getItemDamage()) * Config.energyPerUse;
     }
 
     @Override
     public int getMaxEnergyStored()
     {
-        return 0;
+        return container.getMaxDamage() * Config.energyPerUse;
     }
 
     @Override
