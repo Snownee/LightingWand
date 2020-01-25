@@ -85,7 +85,7 @@ public class LightEntity extends ThrowableEntity
             Vec3d motion = getMotion();
             for (int k = 0; k < 2; ++k)
             {
-                this.world.addParticle(new RedstoneParticleData(1, 1, 0, 1.0F), func_226277_ct_() + motion.x * k / 2D, func_226278_cu_() + motion.y * k / 2D, func_226281_cx_() + motion.z * k / 2D, 0, 0, 0);
+                this.world.addParticle(new RedstoneParticleData(1, 1, 0, 1.0F), getPosX() + motion.x * k / 2D, getPosY() + motion.y * k / 2D, getPosZ() + motion.z * k / 2D, 0, 0, 0);
             }
         }
     }

@@ -95,7 +95,7 @@ public class WandItem extends Item
             else if (rayTraceResult.getType() == RayTraceResult.Type.MISS && Config.shootProjectile.get())
             {
                 // TODO: Sound subtitle
-                worldIn.playSound((PlayerEntity) null, playerIn.func_226277_ct_(), playerIn.func_226278_cu_(), playerIn.func_226281_cx_(), SoundEvents.ENTITY_EGG_THROW, SoundCategory.PLAYERS, 0.8F, 0.4F / (random.nextFloat() * 0.4F + 0.8F));
+                worldIn.playSound((PlayerEntity) null, playerIn.getPosX(), playerIn.getPosY(), playerIn.getPosZ(), SoundEvents.ENTITY_EGG_THROW, SoundCategory.PLAYERS, 0.8F, 0.4F / (random.nextFloat() * 0.4F + 0.8F));
 
                 ItemStack held = playerIn.getHeldItem(handIn);
                 if (!worldIn.isRemote)
@@ -111,7 +111,7 @@ public class WandItem extends Item
             }
             if (!WandItem.isUsable(stack))
             {
-                worldIn.playSound((PlayerEntity) null, playerIn.func_226277_ct_(), playerIn.func_226278_cu_(), playerIn.func_226281_cx_(), SoundEvents.ENTITY_ITEM_BREAK, SoundCategory.NEUTRAL, 0.5F, 0.8F + worldIn.rand.nextFloat() * 0.4F);
+                worldIn.playSound((PlayerEntity) null, playerIn.getPosX(), playerIn.getPosY(), playerIn.getPosZ(), SoundEvents.ENTITY_ITEM_BREAK, SoundCategory.NEUTRAL, 0.5F, 0.8F + worldIn.rand.nextFloat() * 0.4F);
             }
             playerIn.swingArm(handIn);
             return new ActionResult<ItemStack>(ActionResultType.SUCCESS, stack);

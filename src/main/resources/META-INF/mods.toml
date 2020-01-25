@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[30,)"
+loaderVersion="[31,)"
 [[mods]]
 modId="lightingwand"
 version="${file.jarVersion}"
