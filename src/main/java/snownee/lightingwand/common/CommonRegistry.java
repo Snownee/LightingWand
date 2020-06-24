@@ -2,7 +2,6 @@ package snownee.lightingwand.common;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.DispenserBlock;
-import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.dispenser.IBlockSource;
 import net.minecraft.dispenser.IDispenseItemBehavior;
 import net.minecraft.dispenser.IPosition;
@@ -20,6 +19,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
@@ -28,27 +28,25 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import snownee.lightingwand.Config;
 import snownee.lightingwand.LW;
 import snownee.lightingwand.client.EmptyEntityRenderer;
+import snownee.lightingwand.compat.PsiCompat;
 
 @Mod.EventBusSubscriber(bus = Bus.MOD)
-public class CommonRegistry
-{
+public class CommonRegistry {
     private static EntityType<LightEntity> ENTITY;
+    public static boolean psiCompat = false;
 
     @SubscribeEvent
-    public static void onBlockRegister(RegistryEvent.Register<Block> event)
-    {
+    public static void onBlockRegister(RegistryEvent.Register<Block> event) {
         event.getRegistry().register(new LightBlock().setRegistryName(LW.MODID, "light"));
     }
 
     @SubscribeEvent
-    public static void onItemRegister(RegistryEvent.Register<Item> event)
-    {
+    public static void onItemRegister(RegistryEvent.Register<Item> event) {
         event.getRegistry().register(new WandItem().setRegistryName(LW.MODID, "wand"));
     }
 
     @SubscribeEvent
-    public static void onEntityRegister(RegistryEvent.Register<EntityType<?>> event)
-    {
+    public static void onEntityRegister(RegistryEvent.Register<EntityType<?>> event) {
         /* off */
         event.getRegistry().register(ENTITY = (EntityType<LightEntity>) EntityType.Builder.create(EntityClassification.MISC)
                 .setCustomClientFactory((
@@ -65,28 +63,21 @@ public class CommonRegistry
     }
 
     @SubscribeEvent
-    public static void onRecipeRegister(RegistryEvent.Register<IRecipeSerializer<?>> event)
-    {
+    public static void onRecipeRegister(RegistryEvent.Register<IRecipeSerializer<?>> event) {
         event.getRegistry().register(new RepairRecipe.Serializer().setRegistryName(LW.MODID, "repair"));
     }
 
     @SubscribeEvent
-    public static void init(FMLCommonSetupEvent event)
-    {
+    public static void init(FMLCommonSetupEvent event) {
         CraftingHelper.register(new RepairRecipeCondition.Serializer());
 
-        if (ModConstants.WAND != Items.AIR)
-        {
-            if (Config.shootProjectile.get())
-            {
-                DispenserBlock.registerDispenseBehavior(ModConstants.WAND, new IDispenseItemBehavior()
-                {
+        if (ModConstants.WAND != Items.AIR) {
+            if (Config.shootProjectile.get()) {
+                DispenserBlock.registerDispenseBehavior(ModConstants.WAND, new IDispenseItemBehavior() {
                     @Override
-                    public ItemStack dispense(IBlockSource source, ItemStack stack)
-                    {
+                    public ItemStack dispense(IBlockSource source, ItemStack stack) {
                         World world = source.getWorld();
-                        if (!world.isRemote && WandItem.isUsable(stack))
-                        {
+                        if (!world.isRemote && WandItem.isUsable(stack)) {
                             IPosition iposition = DispenserBlock.getDispensePosition(source);
                             Direction Direction = source.getBlockState().get(DispenserBlock.FACING);
                             LightEntity entity = new LightEntity(world, iposition.getX(), iposition.getY(), iposition.getZ());
@@ -101,6 +92,11 @@ public class CommonRegistry
                 });
             }
             ModConstants.WAND.maxDamage = Config.wandDurability.get();
+        }
+
+        if (ModList.get().isLoaded("psi")) {
+            psiCompat = true;
+            PsiCompat.init();
         }
     }
 

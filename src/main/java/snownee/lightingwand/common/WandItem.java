@@ -40,77 +40,60 @@ import net.minecraftforge.energy.CapabilityEnergy;
 import snownee.lightingwand.Config;
 import snownee.lightingwand.LW;
 
-public class WandItem extends Item
-{
-    public WandItem()
-    {
+public class WandItem extends Item {
+    public WandItem() {
         super(new Item.Properties().group(ItemGroup.TOOLS).setNoRepair().maxStackSize(1));
-        addPropertyOverride(new ResourceLocation("broken"), new IItemPropertyGetter()
-        {
+        addPropertyOverride(new ResourceLocation("broken"), new IItemPropertyGetter() {
             @OnlyIn(Dist.CLIENT)
             @Override
-            public float call(ItemStack stack, World worldIn, LivingEntity entityIn)
-            {
+            public float call(ItemStack stack, World worldIn, LivingEntity entityIn) {
                 return WandItem.isUsable(stack) ? 0 : 1;
             }
         });
     }
 
-    public static boolean isUsable(ItemStack stack)
-    {
+    public static boolean isUsable(ItemStack stack) {
         return stack.getDamage() < stack.getMaxDamage();
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn)
-    {
+    public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
         ItemStack stack = playerIn.getHeldItem(handIn);
-        if (WandItem.isUsable(stack))
-        {
+        if (WandItem.isUsable(stack)) {
             RayTraceResult rayTraceResult = rayTrace(worldIn, playerIn, FluidMode.NONE);
-            if (rayTraceResult.getType() == RayTraceResult.Type.BLOCK)
-            {
+            if (rayTraceResult.getType() == RayTraceResult.Type.BLOCK) {
                 BlockRayTraceResult blockRayTraceResult = (BlockRayTraceResult) rayTraceResult;
                 BlockPos pos = blockRayTraceResult.getPos().offset(blockRayTraceResult.getFace());
 
-                if (!playerIn.canPlayerEdit(pos, playerIn.getAdjustedHorizontalFacing(), stack))
-                {
+                if (!playerIn.canPlayerEdit(pos, playerIn.getAdjustedHorizontalFacing(), stack)) {
                     return new ActionResult<ItemStack>(ActionResultType.FAIL, playerIn.getHeldItem(handIn));
                 }
                 BlockState state = worldIn.getBlockState(pos);
-                if (state.getBlock() != ModConstants.LIGHT && state.getMaterial().isReplaceable())
-                {
-                    if (!playerIn.isCreative())
-                    {
+                if (state.getBlock() != ModConstants.LIGHT && state.getMaterial().isReplaceable()) {
+                    if (!playerIn.isCreative()) {
                         stack.setDamage(stack.getDamage() + 1);
                     }
                     worldIn.playSound(playerIn, pos, SoundEvents.BLOCK_SLIME_BLOCK_PLACE, SoundCategory.BLOCKS, 1.0F, random.nextFloat() * 0.4F + 0.8F);
-                    if (!worldIn.isRemote)
-                    {
+                    if (!worldIn.isRemote) {
                         IFluidState ifluidstate = worldIn.getFluidState(pos);
                         worldIn.setBlockState(pos, ModConstants.LIGHT.getDefaultState().with(LightBlock.WATERLOGGED, ifluidstate.isTagged(FluidTags.WATER) && ifluidstate.getLevel() == 8), 11);
                     }
                 }
-            }
-            else if (rayTraceResult.getType() == RayTraceResult.Type.MISS && Config.shootProjectile.get())
-            {
+            } else if (rayTraceResult.getType() == RayTraceResult.Type.MISS && Config.shootProjectile.get()) {
                 // TODO: Sound subtitle
                 worldIn.playSound((PlayerEntity) null, playerIn.getPosX(), playerIn.getPosY(), playerIn.getPosZ(), SoundEvents.ENTITY_EGG_THROW, SoundCategory.PLAYERS, 0.8F, 0.4F / (random.nextFloat() * 0.4F + 0.8F));
 
                 ItemStack held = playerIn.getHeldItem(handIn);
-                if (!worldIn.isRemote)
-                {
+                if (!worldIn.isRemote) {
                     LightEntity entity = new LightEntity(worldIn, playerIn);
                     entity.shoot(playerIn, playerIn.rotationPitch, playerIn.rotationYaw, 0, 1.5F, 0);
                     worldIn.addEntity(entity);
                 }
-                if (!playerIn.isCreative())
-                {
+                if (!playerIn.isCreative()) {
                     held.setDamage(held.getDamage() + 1);
                 }
             }
-            if (!WandItem.isUsable(stack))
-            {
+            if (!WandItem.isUsable(stack)) {
                 worldIn.playSound((PlayerEntity) null, playerIn.getPosX(), playerIn.getPosY(), playerIn.getPosZ(), SoundEvents.ENTITY_ITEM_BREAK, SoundCategory.NEUTRAL, 0.5F, 0.8F + worldIn.rand.nextFloat() * 0.4F);
             }
             playerIn.swingArm(handIn);
@@ -121,44 +104,35 @@ public class WandItem extends Item
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void addInformation(ItemStack stack, World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
-    {
-        if (!WandItem.isUsable(stack))
-        {
+    public void addInformation(ItemStack stack, World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
+        if (!WandItem.isUsable(stack)) {
             tooltip.add(new StringTextComponent(TextFormatting.DARK_RED + "" + TextFormatting.BOLD + I18n.format("tip." + LW.MODID + ".uncharged")));
         }
     }
 
     @Override
-    public boolean showDurabilityBar(ItemStack stack)
-    {
-        if (!isUsable(stack))
-        {
+    public boolean showDurabilityBar(ItemStack stack) {
+        if (!isUsable(stack)) {
             return false;
         }
         return super.showDurabilityBar(stack);
     }
 
     @Override
-    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged)
-    {
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
         return slotChanged;
     }
 
     @Override
-    public boolean isEnchantable(ItemStack stack)
-    {
+    public boolean isEnchantable(ItemStack stack) {
         return false;
     }
 
     @Override
-    public boolean hitEntity(ItemStack stack, LivingEntity target, LivingEntity attacker)
-    {
-        if (WandItem.isUsable(stack))
-        {
+    public boolean hitEntity(ItemStack stack, LivingEntity target, LivingEntity attacker) {
+        if (WandItem.isUsable(stack)) {
             target.addPotionEffect(new EffectInstance(Effects.GLOWING, 200));
-            if (attacker instanceof PlayerEntity && !((PlayerEntity) attacker).isCreative())
-            {
+            if (attacker instanceof PlayerEntity && !((PlayerEntity) attacker).isCreative()) {
                 stack.setDamage(stack.getDamage() + 1);
             }
             return true;
@@ -167,15 +141,11 @@ public class WandItem extends Item
     }
 
     @Override
-    public ICapabilityProvider initCapabilities(ItemStack stack, CompoundNBT nbt)
-    {
-        return new ICapabilityProvider()
-        {
+    public ICapabilityProvider initCapabilities(ItemStack stack, CompoundNBT nbt) {
+        return new ICapabilityProvider() {
             @Override
-            public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side)
-            {
-                if (Config.energyPerUse.get() > 0 && cap == CapabilityEnergy.ENERGY)
-                {
+            public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
+                if (Config.energyPerUse.get() > 0 && cap == CapabilityEnergy.ENERGY) {
                     return LazyOptional.of(() -> new EnergyRepair(stack)).cast();
                 }
                 return LazyOptional.empty();

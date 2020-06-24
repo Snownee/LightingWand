@@ -11,8 +11,7 @@ import net.minecraftforge.registries.ObjectHolder;
 import snownee.lightingwand.LW;
 
 @ObjectHolder(LW.MODID)
-public class ModConstants
-{
+public class ModConstants {
     @ObjectHolder("light")
     public static final Block LIGHT = Blocks.AIR;
 

@@ -8,44 +8,34 @@ import net.minecraftforge.common.crafting.conditions.IConditionSerializer;
 import snownee.lightingwand.Config;
 import snownee.lightingwand.LW;
 
-public class RepairRecipeCondition implements ICondition
-{
+public class RepairRecipeCondition implements ICondition {
     private static final ResourceLocation NAME = new ResourceLocation(LW.MODID, "repair_recipe");
     private static final RepairRecipeCondition INSTANCE = new RepairRecipeCondition();
 
-    private RepairRecipeCondition()
-    {
-    }
+    private RepairRecipeCondition() {}
 
     @Override
-    public ResourceLocation getID()
-    {
+    public ResourceLocation getID() {
         return NAME;
     }
 
     @Override
-    public boolean test()
-    {
+    public boolean test() {
         return Config.repairRecipe.get();
     }
 
-    public static class Serializer implements IConditionSerializer<RepairRecipeCondition>
-    {
+    public static class Serializer implements IConditionSerializer<RepairRecipeCondition> {
 
         @Override
-        public void write(JsonObject json, RepairRecipeCondition value)
-        {
-        }
+        public void write(JsonObject json, RepairRecipeCondition value) {}
 
         @Override
-        public RepairRecipeCondition read(JsonObject json)
-        {
+        public RepairRecipeCondition read(JsonObject json) {
             return INSTANCE;
         }
 
         @Override
-        public ResourceLocation getID()
-        {
+        public ResourceLocation getID() {
             return NAME;
         }
 

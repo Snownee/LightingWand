@@ -4,22 +4,17 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.energy.IEnergyStorage;
 import snownee.lightingwand.Config;
 
-public class EnergyRepair implements IEnergyStorage
-{
+public class EnergyRepair implements IEnergyStorage {
     protected ItemStack container;
 
-    public EnergyRepair(ItemStack container)
-    {
+    public EnergyRepair(ItemStack container) {
         this.container = container;
     }
 
     @Override
-    public int receiveEnergy(int maxReceive, boolean simulate)
-    {
-        if (canReceive())
-        {
-            if (!simulate && maxReceive > Config.energyPerUse.get())
-            {
+    public int receiveEnergy(int maxReceive, boolean simulate) {
+        if (canReceive()) {
+            if (!simulate && maxReceive > Config.energyPerUse.get()) {
                 container.setDamage(container.getDamage() - 1);
             }
             return maxReceive > Config.energyPerUse.get() ? Config.energyPerUse.get() : 0;
@@ -28,32 +23,27 @@ public class EnergyRepair implements IEnergyStorage
     }
 
     @Override
-    public int extractEnergy(int maxExtract, boolean simulate)
-    {
+    public int extractEnergy(int maxExtract, boolean simulate) {
         return 0;
     }
 
     @Override
-    public int getEnergyStored()
-    {
+    public int getEnergyStored() {
         return (container.getMaxDamage() - container.getDamage()) * Config.energyPerUse.get();
     }
 
     @Override
-    public int getMaxEnergyStored()
-    {
+    public int getMaxEnergyStored() {
         return container.getMaxDamage() * Config.energyPerUse.get();
     }
 
     @Override
-    public boolean canExtract()
-    {
+    public boolean canExtract() {
         return false;
     }
 
     @Override
-    public boolean canReceive()
-    {
+    public boolean canReceive() {
         return container.getDamage() > 0;
     }
 
