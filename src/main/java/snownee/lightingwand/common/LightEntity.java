@@ -2,7 +2,7 @@ package snownee.lightingwand.common;
 
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.projectile.ThrowableEntity;
-import net.minecraft.fluid.IFluidState;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.network.IPacket;
 import net.minecraft.particles.RedstoneParticleData;
 import net.minecraft.tags.FluidTags;
@@ -12,7 +12,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkHooks;
 
@@ -57,8 +57,8 @@ public class LightEntity extends ThrowableEntity {
             }
 
             if (world.getBlockState(pos).getMaterial().isReplaceable()) {
-                IFluidState ifluidstate = world.getFluidState(pos);
-                if (world.setBlockState(pos, ModConstants.LIGHT.getDefaultState().with(LightBlock.WATERLOGGED, ifluidstate.isTagged(FluidTags.WATER) && ifluidstate.getLevel() == 8), 11)) {
+                FluidState fluidstate = world.getFluidState(pos);
+                if (world.setBlockState(pos, ModConstants.LIGHT.getDefaultState().with(LightBlock.WATERLOGGED, fluidstate.isTagged(FluidTags.WATER) && fluidstate.getLevel() == 8), 11)) {
                     world.playSound(null, pos, SoundEvents.BLOCK_SLIME_BLOCK_PLACE, SoundCategory.BLOCKS, 1.0F, world.rand.nextFloat() * 0.4F + 0.8F);
                 }
             }
@@ -68,8 +68,8 @@ public class LightEntity extends ThrowableEntity {
     @Override
     public void tick() {
         super.tick();
-        if (world.isRemote && !inGround) {
-            Vec3d motion = getMotion();
+        if (world.isRemote && !onGround) {
+            Vector3d motion = getMotion();
             for (int k = 0; k < 2; ++k) {
                 this.world.addParticle(new RedstoneParticleData(1, 1, 0, 1.0F), getPosX() + motion.x * k / 2D, getPosY() + motion.y * k / 2D, getPosZ() + motion.z * k / 2D, 0, 0, 0);
             }

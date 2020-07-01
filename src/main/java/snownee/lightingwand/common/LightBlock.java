@@ -2,16 +2,17 @@ package snownee.lightingwand.common;
 
 import java.util.Random;
 
+import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.IWaterLoggable;
 import net.minecraft.block.SoundType;
-import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
-import net.minecraft.fluid.IFluidState;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.Item;
 import net.minecraft.particles.RedstoneParticleData;
@@ -29,30 +30,19 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.thread.EffectiveSide;
-import vazkii.psi.api.cad.ICAD;
 
 public class LightBlock extends Block implements IWaterLoggable {
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     public static final IntegerProperty LIGHT = IntegerProperty.create("light", 1, 15);
 
     public LightBlock() {
-        super(Block.Properties.create(Material.AIR).lightValue(15).sound(SoundType.SLIME));
+        super(AbstractBlock.Properties.from(Blocks.AIR)./*lightValue*/func_235838_a_(state -> state.get(LIGHT)).sound(SoundType.SLIME));
         setDefaultState(stateContainer.getBaseState().with(WATERLOGGED, false).with(LIGHT, 15));
     }
 
     @Override
     public BlockRenderType getRenderType(BlockState state) {
         return BlockRenderType.INVISIBLE;
-    }
-
-    @Override
-    public int getLightValue(BlockState state) {
-        return state.get(LIGHT);
-    }
-
-    @Override
-    public boolean isAir(BlockState state) {
-        return true;
     }
 
     @Override
@@ -94,11 +84,11 @@ public class LightBlock extends Block implements IWaterLoggable {
         if (main == ModConstants.WAND || off == ModConstants.WAND) {
             return true;
         }
-        if (CommonRegistry.psiCompat) {
-            if (main instanceof ICAD || off instanceof ICAD) {
-                return true;
-            }
-        }
+        //        if (CommonRegistry.psiCompat) {
+//            if (main instanceof ICAD || off instanceof ICAD) {
+//                return true;
+//            }
+//        }
         return false;
     }
 
@@ -108,7 +98,7 @@ public class LightBlock extends Block implements IWaterLoggable {
     }
 
     @Override
-    public IFluidState getFluidState(BlockState state) {
+    public FluidState getFluidState(BlockState state) {
         return state.get(WATERLOGGED) ? Fluids.WATER.getStillFluidState(false) : Fluids.EMPTY.getDefaultState();
     }
 
@@ -116,7 +106,7 @@ public class LightBlock extends Block implements IWaterLoggable {
     public BlockState getStateForPlacement(BlockItemUseContext context) {
         context.getWorld();
         context.getPos();
-        IFluidState ifluidstate = context.getWorld().getFluidState(context.getPos());
-        return super.getStateForPlacement(context).with(WATERLOGGED, ifluidstate.getFluid() == Fluids.WATER);
+        FluidState fluidstate = context.getWorld().getFluidState(context.getPos());
+        return super.getStateForPlacement(context).with(WATERLOGGED, fluidstate.getFluid() == Fluids.WATER);
     }
 }

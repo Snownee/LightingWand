@@ -8,18 +8,19 @@ import net.minecraft.dispenser.IPosition;
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemModelsProperties;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.util.Direction;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
@@ -28,7 +29,6 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import snownee.lightingwand.Config;
 import snownee.lightingwand.LW;
 import snownee.lightingwand.client.EmptyEntityRenderer;
-import snownee.lightingwand.compat.PsiCompat;
 
 @Mod.EventBusSubscriber(bus = Bus.MOD)
 public class CommonRegistry {
@@ -82,7 +82,7 @@ public class CommonRegistry {
                             Direction Direction = source.getBlockState().get(DispenserBlock.FACING);
                             LightEntity entity = new LightEntity(world, iposition.getX(), iposition.getY(), iposition.getZ());
                             entity.shoot(Direction.getXOffset(), Direction.getYOffset() + 0.1F, Direction.getZOffset(), 1.3F + world.rand.nextFloat() * 0.4F, 0);
-                            Vec3d motion = entity.getMotion();
+                            Vector3d motion = entity.getMotion();
                             entity.setMotion(motion.add(world.rand.nextGaussian() * 0.1D, 0, world.rand.nextGaussian() * 0.1D));
                             world.addEntity(entity);
                             stack.attemptDamageItem(1, world.rand, null);
@@ -94,15 +94,19 @@ public class CommonRegistry {
             ModConstants.WAND.maxDamage = Config.wandDurability.get();
         }
 
-        if (ModList.get().isLoaded("psi")) {
-            psiCompat = true;
-            PsiCompat.init();
-        }
+        //        if (ModList.get().isLoaded("psi")) {
+        //            psiCompat = true;
+        //            PsiCompat.init();
+        //        }
     }
 
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
     public static void clientInit(FMLClientSetupEvent event) {
         RenderingRegistry.registerEntityRenderingHandler(ENTITY, EmptyEntityRenderer::new);
+
+        ItemModelsProperties.func_239418_a_(ModConstants.WAND, new ResourceLocation("broken"), (stack, worldIn, entityIn) -> {
+            return WandItem.isUsable(stack) ? 0 : 1;
+        });
     }
 }

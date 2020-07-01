@@ -7,8 +7,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.IFluidState;
-import net.minecraft.item.IItemPropertyGetter;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
@@ -20,7 +19,6 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
@@ -43,13 +41,6 @@ import snownee.lightingwand.LW;
 public class WandItem extends Item {
     public WandItem() {
         super(new Item.Properties().group(ItemGroup.TOOLS).setNoRepair().maxStackSize(1));
-        addPropertyOverride(new ResourceLocation("broken"), new IItemPropertyGetter() {
-            @OnlyIn(Dist.CLIENT)
-            @Override
-            public float call(ItemStack stack, World worldIn, LivingEntity entityIn) {
-                return WandItem.isUsable(stack) ? 0 : 1;
-            }
-        });
     }
 
     public static boolean isUsable(ItemStack stack) {
@@ -75,8 +66,8 @@ public class WandItem extends Item {
                     }
                     worldIn.playSound(playerIn, pos, SoundEvents.BLOCK_SLIME_BLOCK_PLACE, SoundCategory.BLOCKS, 1.0F, random.nextFloat() * 0.4F + 0.8F);
                     if (!worldIn.isRemote) {
-                        IFluidState ifluidstate = worldIn.getFluidState(pos);
-                        worldIn.setBlockState(pos, ModConstants.LIGHT.getDefaultState().with(LightBlock.WATERLOGGED, ifluidstate.isTagged(FluidTags.WATER) && ifluidstate.getLevel() == 8), 11);
+                        FluidState fluidstate = worldIn.getFluidState(pos);
+                        worldIn.setBlockState(pos, ModConstants.LIGHT.getDefaultState().with(LightBlock.WATERLOGGED, fluidstate.isTagged(FluidTags.WATER) && fluidstate.getLevel() == 8), 11);
                     }
                 }
             } else if (rayTraceResult.getType() == RayTraceResult.Type.MISS && Config.shootProjectile.get()) {
@@ -86,7 +77,7 @@ public class WandItem extends Item {
                 ItemStack held = playerIn.getHeldItem(handIn);
                 if (!worldIn.isRemote) {
                     LightEntity entity = new LightEntity(worldIn, playerIn);
-                    entity.shoot(playerIn, playerIn.rotationPitch, playerIn.rotationYaw, 0, 1.5F, 0);
+                    entity./*shoot*/func_234612_a_(playerIn, playerIn.rotationPitch, playerIn.rotationYaw, 0, 1.5F, 0);
                     worldIn.addEntity(entity);
                 }
                 if (!playerIn.isCreative()) {
