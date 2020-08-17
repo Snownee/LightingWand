@@ -37,7 +37,7 @@ public class LightBlock extends Block implements IWaterLoggable {
     public static final IntegerProperty LIGHT = IntegerProperty.create("light", 1, 15);
 
     public LightBlock() {
-        super(AbstractBlock.Properties.from(Blocks.AIR)./*lightValue*/func_235838_a_(state -> state.get(LIGHT)).sound(SoundType.SLIME));
+        super(AbstractBlock.Properties.from(Blocks.AIR).setLightLevel(state -> state.get(LIGHT)).sound(SoundType.SLIME));
         setDefaultState(stateContainer.getBaseState().with(WATERLOGGED, false).with(LIGHT, 15));
     }
 
