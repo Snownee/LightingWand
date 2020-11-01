@@ -134,10 +134,13 @@ public class WandItem extends Item {
     @Override
     public ICapabilityProvider initCapabilities(ItemStack stack, CompoundNBT nbt) {
         return new ICapabilityProvider() {
+
+            private final LazyOptional<EnergyRepair> handler = LazyOptional.of(() -> new EnergyRepair(stack));
+
             @Override
             public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-                if (Config.energyPerUse.get() > 0 && cap == CapabilityEnergy.ENERGY) {
-                    return LazyOptional.of(() -> new EnergyRepair(stack)).cast();
+                if (cap == CapabilityEnergy.ENERGY && Config.energyPerUse.get() > 0) {
+                    return handler.cast();
                 }
                 return LazyOptional.empty();
             }
