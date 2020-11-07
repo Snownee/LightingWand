@@ -14,10 +14,10 @@ public class EnergyRepair implements IEnergyStorage {
     @Override
     public int receiveEnergy(int maxReceive, boolean simulate) {
         if (canReceive()) {
-            if (!simulate && maxReceive > Config.energyPerUse.get()) {
+            if (!simulate && maxReceive >= Config.energyPerUse.get()) {
                 container.setDamage(container.getDamage() - 1);
             }
-            return maxReceive > Config.energyPerUse.get() ? Config.energyPerUse.get() : 0;
+            return maxReceive >= Config.energyPerUse.get() ? Config.energyPerUse.get() : 0;
         }
         return 0;
     }
@@ -29,7 +29,7 @@ public class EnergyRepair implements IEnergyStorage {
 
     @Override
     public int getEnergyStored() {
-        return (container.getMaxDamage() - container.getDamage()) * Config.energyPerUse.get();
+        return Math.max((container.getMaxDamage() - container.getDamage()) * Config.energyPerUse.get(), 0);
     }
 
     @Override
