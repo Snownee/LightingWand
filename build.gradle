@@ -89,6 +89,9 @@ repositories {
         name = "psi"
         url = "https://maven.blamejared.com/"
     }
+    maven {
+        url = "https://www.cursemaven.com"
+    }
 }
 
 dependencies {
@@ -99,7 +102,8 @@ dependencies {
 
     compile fg.deobf("mezz.jei:jei-${minecraft_version}:${jei_version}")
     compile fg.deobf("vazkii.patchouli:Patchouli:${minecraft_version}-${patchouli_version}")
-    compile fg.deobf("vazkii.psi:Psi:${psi_version}")
+    //compile fg.deobf("vazkii.psi:Psi:${psi_version}")
+    compile fg.deobf("curse.maven:psi:3057858")
 }
 
 // Example for how to get properties into the manifest for reading by the runtime..

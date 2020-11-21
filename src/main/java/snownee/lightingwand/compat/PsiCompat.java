@@ -5,10 +5,13 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModList;
 import snownee.lightingwand.LW;
+import vazkii.psi.api.ClientPsiAPI;
 import vazkii.psi.api.PsiAPI;
-import vazkii.psi.common.lib.LibPieceGroups;
 
 public class PsiCompat {
+
+    // from LibPieceGroups
+    public static final String BLOCK_CONJURATION = "block_conjuration";
 
     public static final ResourceLocation PIECE_ID = new ResourceLocation(LW.MODID, "trick_conjure_invisible_light");
 
@@ -20,9 +23,9 @@ public class PsiCompat {
             if (ModList.get().isLoaded("magipsi")) {
                 textureName = "magical_" + textureName;
             }
-            PsiAPI.registerPieceTexture(PIECE_ID, new ResourceLocation(LW.MODID, "spell/" + textureName));
+            ClientPsiAPI.registerPieceTexture(PIECE_ID, new ResourceLocation(LW.MODID, "spell/" + textureName));
         });
 
-        PsiAPI.addPieceToGroup(ConjureInvisibleLightPieceTrick.class, new ResourceLocation("psi", LibPieceGroups.BLOCK_CONJURATION), false);
+        PsiAPI.addPieceToGroup(ConjureInvisibleLightPieceTrick.class, new ResourceLocation("psi", BLOCK_CONJURATION), false);
     }
 }
