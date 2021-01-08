@@ -21,6 +21,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
@@ -29,6 +30,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import snownee.lightingwand.Config;
 import snownee.lightingwand.LW;
 import snownee.lightingwand.client.EmptyEntityRenderer;
+import snownee.lightingwand.compat.PsiCompat;
 
 @Mod.EventBusSubscriber(bus = Bus.MOD)
 public class CommonRegistry {
@@ -43,6 +45,11 @@ public class CommonRegistry {
     @SubscribeEvent
     public static void onItemRegister(RegistryEvent.Register<Item> event) {
         event.getRegistry().register(new WandItem().setRegistryName(LW.MODID, "wand"));
+
+        if (ModList.get().isLoaded("psi")) {
+            psiCompat = true;
+            PsiCompat.init();
+        }
     }
 
     @SubscribeEvent
@@ -93,11 +100,6 @@ public class CommonRegistry {
             }
             ModConstants.WAND.maxDamage = Config.wandDurability.get();
         }
-
-        //        if (ModList.get().isLoaded("psi")) {
-        //            psiCompat = true;
-        //            PsiCompat.init();
-        //        }
     }
 
     @SubscribeEvent

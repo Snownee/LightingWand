@@ -31,6 +31,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.thread.EffectiveSide;
 import net.minecraftforge.fml.loading.FMLEnvironment;
+import vazkii.psi.api.cad.ICAD;
 
 public class LightBlock extends Block implements IWaterLoggable {
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
@@ -85,11 +86,11 @@ public class LightBlock extends Block implements IWaterLoggable {
         if (main == ModConstants.WAND || off == ModConstants.WAND) {
             return true;
         }
-        //        if (CommonRegistry.psiCompat) {
-//            if (main instanceof ICAD || off instanceof ICAD) {
-//                return true;
-//            }
-//        }
+        if (CommonRegistry.psiCompat) {
+            if (main instanceof ICAD || off instanceof ICAD) {
+                return true;
+            }
+        }
         return false;
     }
 

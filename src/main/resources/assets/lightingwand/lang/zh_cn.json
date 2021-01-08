@@ -3,5 +3,5 @@
   "block.lightingwand.light": "光源",
   "tip.lightingwand.uncharged": "未充能",
   "lightingwand.spellpiece.trick_conjure_invisible_light": "启动式: 构筑隐藏光线",
-  "lightingwand.spellpiece.trick_conjure_invisible_light.desc": "在指定位置构筑一团亮光，只有手持CAD时才能看到方块边框"
+  "lightingwand.spellpiece.trick_conjure_invisible_light.desc": "在指定位置构筑一团亮光，只有手持CAD时才能看到方块边框。第二个参数是光源强度。"
 }
