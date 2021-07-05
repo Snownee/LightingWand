@@ -6,12 +6,10 @@ import com.google.common.collect.Lists;
 
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
-import mezz.jei.api.constants.VanillaRecipeCategoryUid;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.ingredients.IIngredients;
 import mezz.jei.api.recipe.category.extensions.IExtendableRecipeCategory;
 import mezz.jei.api.recipe.category.extensions.vanilla.crafting.ICraftingCategoryExtension;
-import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.registration.IVanillaCategoryExtensionRegistration;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.ICraftingRecipe;
@@ -26,12 +24,7 @@ public class JEICompat implements IModPlugin {
 
     @Override
     public ResourceLocation getPluginUid() {
-        return new ResourceLocation(LW.MODID, LW.MODID);
-    }
-
-    @Override
-    public void registerRecipes(IRecipeRegistration registration) {
-        registration.addRecipes(RepairRecipe.Serializer.recipes, VanillaRecipeCategoryUid.CRAFTING);
+        return new ResourceLocation(LW.MODID, "main");
     }
 
     @Override
