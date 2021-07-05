@@ -55,7 +55,7 @@ public class CommonRegistry {
     @SubscribeEvent
     public static void onEntityRegister(RegistryEvent.Register<EntityType<?>> event) {
         /* off */
-        event.getRegistry().register(ENTITY = (EntityType<LightEntity>) EntityType.Builder.create(EntityClassification.MISC)
+        event.getRegistry().register(ENTITY = (EntityType<LightEntity>) EntityType.Builder.create(LightEntity::new, EntityClassification.MISC)
                 .setCustomClientFactory((
                         spawnEntity, world
                 ) -> new LightEntity(world))
@@ -88,6 +88,7 @@ public class CommonRegistry {
                             IPosition iposition = DispenserBlock.getDispensePosition(source);
                             Direction Direction = source.getBlockState().get(DispenserBlock.FACING);
                             LightEntity entity = new LightEntity(world, iposition.getX(), iposition.getY(), iposition.getZ());
+                            entity.lightValue = WandItem.getLightValue(stack);
                             entity.shoot(Direction.getXOffset(), Direction.getYOffset() + 0.1F, Direction.getZOffset(), 1.3F + world.rand.nextFloat() * 0.4F, 0);
                             Vector3d motion = entity.getMotion();
                             entity.setMotion(motion.add(world.rand.nextGaussian() * 0.1D, 0, world.rand.nextGaussian() * 0.1D));

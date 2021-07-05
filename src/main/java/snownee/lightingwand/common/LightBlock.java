@@ -15,12 +15,16 @@ import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.particles.RedstoneParticleData;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.IntegerProperty;
 import net.minecraft.state.StateContainer.Builder;
 import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
@@ -110,5 +114,23 @@ public class LightBlock extends Block implements IWaterLoggable {
         context.getPos();
         FluidState fluidstate = context.getWorld().getFluidState(context.getPos());
         return super.getStateForPlacement(context).with(WATERLOGGED, fluidstate.getFluid() == Fluids.WATER);
+    }
+
+    @Override
+    public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
+        ItemStack stack = player.getHeldItem(handIn);
+        if (stack.getItem() != ModConstants.WAND) {
+            return ActionResultType.PASS;
+        }
+        int wandLight = WandItem.getLightValue(stack);
+        int blockLight = state.get(LIGHT);
+        if (wandLight != blockLight) {
+            worldIn.setBlockState(pos, state.with(LIGHT, wandLight));
+        } else {
+            wandLight = wandLight % 15 + 1;
+            stack.getOrCreateTag().putInt("Light", wandLight);
+            worldIn.setBlockState(pos, state.with(LIGHT, wandLight));
+        }
+        return ActionResultType.SUCCESS;
     }
 }

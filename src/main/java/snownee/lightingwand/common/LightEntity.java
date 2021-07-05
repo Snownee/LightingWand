@@ -1,8 +1,10 @@
 package snownee.lightingwand.common;
 
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.projectile.ThrowableEntity;
 import net.minecraft.fluid.FluidState;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
 import net.minecraft.particles.RedstoneParticleData;
 import net.minecraft.tags.FluidTags;
@@ -17,6 +19,12 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkHooks;
 
 public class LightEntity extends ThrowableEntity {
+    public int lightValue = 15;
+
+    public LightEntity(EntityType<?> type, World worldIn) {
+    	this(worldIn);
+    }
+    
     public LightEntity(World worldIn) {
         super(ModConstants.LIGHT_ENTITY_TYPE, worldIn);
     }
@@ -58,7 +66,7 @@ public class LightEntity extends ThrowableEntity {
 
             if (world.getBlockState(pos).getMaterial().isReplaceable()) {
                 FluidState fluidstate = world.getFluidState(pos);
-                if (world.setBlockState(pos, ModConstants.LIGHT.getDefaultState().with(LightBlock.WATERLOGGED, fluidstate.isTagged(FluidTags.WATER) && fluidstate.getLevel() == 8), 11)) {
+                if (world.setBlockState(pos, ModConstants.LIGHT.getDefaultState().with(LightBlock.LIGHT, MathHelper.clamp(lightValue, 1, 15)).with(LightBlock.WATERLOGGED, fluidstate.isTagged(FluidTags.WATER) && fluidstate.getLevel() == 8), 11)) {
                     world.playSound(null, pos, SoundEvents.BLOCK_SLIME_BLOCK_PLACE, SoundCategory.BLOCKS, 1.0F, world.rand.nextFloat() * 0.4F + 0.8F);
                 }
             }
@@ -77,10 +85,26 @@ public class LightEntity extends ThrowableEntity {
     }
 
     @Override
-    protected void registerData() {}
+    protected void registerData() {
+    }
 
     @Override
     public IPacket<?> createSpawnPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
+    }
+
+    @Override
+    protected void readAdditional(CompoundNBT compound) {
+        super.readAdditional(compound);
+        lightValue = compound.getInt("Light");
+        if (lightValue == 0) {
+            lightValue = 15;
+        }
+    }
+
+    @Override
+    protected void writeAdditional(CompoundNBT compound) {
+        super.writeAdditional(compound);
+        compound.putInt("Light", lightValue);
     }
 }

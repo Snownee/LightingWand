@@ -23,6 +23,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceContext.FluidMode;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.ITextComponent;
@@ -33,6 +34,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
 import snownee.lightingwand.Config;
@@ -57,7 +59,7 @@ public class WandItem extends Item {
                 BlockPos pos = blockRayTraceResult.getPos().offset(blockRayTraceResult.getFace());
 
                 if (!playerIn.canPlayerEdit(pos, playerIn.getAdjustedHorizontalFacing(), stack)) {
-                    return new ActionResult<ItemStack>(ActionResultType.FAIL, playerIn.getHeldItem(handIn));
+                    return new ActionResult<>(ActionResultType.FAIL, playerIn.getHeldItem(handIn));
                 }
                 BlockState state = worldIn.getBlockState(pos);
                 if (state.getBlock() != ModConstants.LIGHT && state.getMaterial().isReplaceable()) {
@@ -67,7 +69,7 @@ public class WandItem extends Item {
                     worldIn.playSound(playerIn, pos, SoundEvents.BLOCK_SLIME_BLOCK_PLACE, SoundCategory.BLOCKS, 1.0F, random.nextFloat() * 0.4F + 0.8F);
                     if (!worldIn.isRemote) {
                         FluidState fluidstate = worldIn.getFluidState(pos);
-                        worldIn.setBlockState(pos, ModConstants.LIGHT.getDefaultState().with(LightBlock.WATERLOGGED, fluidstate.isTagged(FluidTags.WATER) && fluidstate.getLevel() == 8), 11);
+                        worldIn.setBlockState(pos, ModConstants.LIGHT.getDefaultState().with(LightBlock.LIGHT, getLightValue(stack)).with(LightBlock.WATERLOGGED, fluidstate.isTagged(FluidTags.WATER) && fluidstate.getLevel() == 8), 11);
                     }
                 }
             } else if (rayTraceResult.getType() == RayTraceResult.Type.MISS && Config.shootProjectile.get()) {
@@ -77,6 +79,7 @@ public class WandItem extends Item {
                 ItemStack held = playerIn.getHeldItem(handIn);
                 if (!worldIn.isRemote) {
                     LightEntity entity = new LightEntity(worldIn, playerIn);
+                    entity.lightValue = getLightValue(stack);
                     entity./*shoot*/func_234612_a_(playerIn, playerIn.rotationPitch, playerIn.rotationYaw, 0, 1.5F, 0);
                     worldIn.addEntity(entity);
                 }
@@ -88,9 +91,9 @@ public class WandItem extends Item {
                 worldIn.playSound((PlayerEntity) null, playerIn.getPosX(), playerIn.getPosY(), playerIn.getPosZ(), SoundEvents.ENTITY_ITEM_BREAK, SoundCategory.NEUTRAL, 0.5F, 0.8F + worldIn.rand.nextFloat() * 0.4F);
             }
             playerIn.swingArm(handIn);
-            return new ActionResult<ItemStack>(ActionResultType.SUCCESS, stack);
+            return new ActionResult<>(ActionResultType.SUCCESS, stack);
         }
-        return new ActionResult<ItemStack>(ActionResultType.FAIL, stack);
+        return new ActionResult<>(ActionResultType.FAIL, stack);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -145,5 +148,13 @@ public class WandItem extends Item {
                 return LazyOptional.empty();
             }
         };
+    }
+
+    public static int getLightValue(ItemStack stack) {
+        if (stack.hasTag() && stack.getTag().contains("Light", NBT.TAG_INT)) {
+            return MathHelper.clamp(stack.getTag().getInt("Light"), 1, 15);
+        } else {
+            return 15;
+        }
     }
 }
