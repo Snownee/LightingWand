@@ -9,3 +9,6 @@ displayName="Lighting Wand"
 authors="Snownee"
 displayURL="https://minecraft.curseforge.com/projects/lighting-wand"
 description='''Lighting up!'''
+
+[modproperties.lightingwand]
+    catalogueItemIcon="lightingwand:wand" #Support for Catalogue mod
