@@ -2,7 +2,7 @@ package snownee.lightingwand.common;
 
 import com.google.gson.JsonObject;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.crafting.conditions.ICondition;
 import net.minecraftforge.common.crafting.conditions.IConditionSerializer;
 import snownee.lightingwand.Config;
@@ -12,7 +12,8 @@ public class RepairRecipeCondition implements ICondition {
     private static final ResourceLocation NAME = new ResourceLocation(LW.MODID, "repair_recipe");
     private static final RepairRecipeCondition INSTANCE = new RepairRecipeCondition();
 
-    private RepairRecipeCondition() {}
+    private RepairRecipeCondition() {
+    }
 
     @Override
     public ResourceLocation getID() {
@@ -27,7 +28,8 @@ public class RepairRecipeCondition implements ICondition {
     public static class Serializer implements IConditionSerializer<RepairRecipeCondition> {
 
         @Override
-        public void write(JsonObject json, RepairRecipeCondition value) {}
+        public void write(JsonObject json, RepairRecipeCondition value) {
+        }
 
         @Override
         public RepairRecipeCondition read(JsonObject json) {

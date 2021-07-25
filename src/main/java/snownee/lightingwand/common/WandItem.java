@@ -2,34 +2,34 @@ package snownee.lightingwand.common;
 
 import java.util.List;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceContext.FluidMode;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.World;
+import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.Capability;
@@ -42,65 +42,65 @@ import snownee.lightingwand.LW;
 
 public class WandItem extends Item {
     public WandItem() {
-        super(new Item.Properties().group(ItemGroup.TOOLS).setNoRepair().maxStackSize(1));
+        super(new Item.Properties().tab(CreativeModeTab.TAB_TOOLS).setNoRepair().stacksTo(1));
     }
 
     public static boolean isUsable(ItemStack stack) {
-        return stack.getDamage() < stack.getMaxDamage();
+        return stack.getDamageValue() < stack.getMaxDamage();
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
-        ItemStack stack = playerIn.getHeldItem(handIn);
+    public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn) {
+        ItemStack stack = playerIn.getItemInHand(handIn);
         if (WandItem.isUsable(stack)) {
-            RayTraceResult rayTraceResult = rayTrace(worldIn, playerIn, FluidMode.NONE);
-            if (rayTraceResult.getType() == RayTraceResult.Type.BLOCK) {
-                BlockRayTraceResult blockRayTraceResult = (BlockRayTraceResult) rayTraceResult;
-                BlockPos pos = blockRayTraceResult.getPos().offset(blockRayTraceResult.getFace());
+            HitResult rayTraceResult = getPlayerPOVHitResult(worldIn, playerIn, ClipContext.Fluid.NONE);
+            if (rayTraceResult.getType() == HitResult.Type.BLOCK) {
+                BlockHitResult blockHitResult = (BlockHitResult) rayTraceResult;
+                BlockPos pos = blockHitResult.getBlockPos().relative(blockHitResult.getDirection());
 
-                if (!playerIn.canPlayerEdit(pos, playerIn.getAdjustedHorizontalFacing(), stack)) {
-                    return new ActionResult<>(ActionResultType.FAIL, playerIn.getHeldItem(handIn));
+                if (!playerIn.mayUseItemAt(pos, playerIn.getMotionDirection(), stack)) {
+                    return new InteractionResultHolder<>(InteractionResult.FAIL, playerIn.getItemInHand(handIn));
                 }
                 BlockState state = worldIn.getBlockState(pos);
                 if (state.getBlock() != ModConstants.LIGHT && state.getMaterial().isReplaceable()) {
                     if (!playerIn.isCreative()) {
-                        stack.setDamage(stack.getDamage() + 1);
+                        stack.setDamageValue(stack.getDamageValue() + 1);
                     }
-                    worldIn.playSound(playerIn, pos, SoundEvents.BLOCK_SLIME_BLOCK_PLACE, SoundCategory.BLOCKS, 1.0F, random.nextFloat() * 0.4F + 0.8F);
-                    if (!worldIn.isRemote) {
+                    worldIn.playSound(playerIn, pos, SoundEvents.SLIME_BLOCK_PLACE, SoundSource.BLOCKS, 1.0F, playerIn.getRandom().nextFloat() * 0.4F + 0.8F);
+                    if (!worldIn.isClientSide) {
                         FluidState fluidstate = worldIn.getFluidState(pos);
-                        worldIn.setBlockState(pos, ModConstants.LIGHT.getDefaultState().with(LightBlock.LIGHT, getLightValue(stack)).with(LightBlock.WATERLOGGED, fluidstate.isTagged(FluidTags.WATER) && fluidstate.getLevel() == 8), 11);
+                        worldIn.setBlock(pos, ModConstants.LIGHT.defaultBlockState().setValue(LightBlock.LIGHT, getLightValue(stack)).setValue(LightBlock.WATERLOGGED, fluidstate.is(FluidTags.WATER) && fluidstate.getAmount() == 8), 11);
                     }
                 }
-            } else if (rayTraceResult.getType() == RayTraceResult.Type.MISS && Config.shootProjectile.get()) {
+            } else if (rayTraceResult.getType() == HitResult.Type.MISS && Config.shootProjectile.get()) {
                 // TODO: Sound subtitle
-                worldIn.playSound((PlayerEntity) null, playerIn.getPosX(), playerIn.getPosY(), playerIn.getPosZ(), SoundEvents.ENTITY_EGG_THROW, SoundCategory.PLAYERS, 0.8F, 0.4F / (random.nextFloat() * 0.4F + 0.8F));
+                worldIn.playSound((Player) null, playerIn.getX(), playerIn.getY(), playerIn.getZ(), SoundEvents.EGG_THROW, SoundSource.PLAYERS, 0.8F, 0.4F / (playerIn.getRandom().nextFloat() * 0.4F + 0.8F));
 
-                ItemStack held = playerIn.getHeldItem(handIn);
-                if (!worldIn.isRemote) {
+                ItemStack held = playerIn.getItemInHand(handIn);
+                if (!worldIn.isClientSide) {
                     LightEntity entity = new LightEntity(worldIn, playerIn);
                     entity.lightValue = getLightValue(stack);
-                    entity./*shoot*/func_234612_a_(playerIn, playerIn.rotationPitch, playerIn.rotationYaw, 0, 1.5F, 0);
-                    worldIn.addEntity(entity);
+                    entity.shootFromRotation(playerIn, playerIn.getXRot(), playerIn.getYRot(), 0, 1.5F, 0);
+                    worldIn.addFreshEntity(entity);
                 }
                 if (!playerIn.isCreative()) {
-                    held.setDamage(held.getDamage() + 1);
+                    held.setDamageValue(held.getDamageValue() + 1);
                 }
             }
             if (!WandItem.isUsable(stack)) {
-                worldIn.playSound((PlayerEntity) null, playerIn.getPosX(), playerIn.getPosY(), playerIn.getPosZ(), SoundEvents.ENTITY_ITEM_BREAK, SoundCategory.NEUTRAL, 0.5F, 0.8F + worldIn.rand.nextFloat() * 0.4F);
+                worldIn.playSound((Player) null, playerIn.getX(), playerIn.getY(), playerIn.getZ(), SoundEvents.ITEM_BREAK, SoundSource.NEUTRAL, 0.5F, 0.8F + worldIn.random.nextFloat() * 0.4F);
             }
-            playerIn.swingArm(handIn);
-            return new ActionResult<>(ActionResultType.SUCCESS, stack);
+            playerIn.swing(handIn);
+            return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
         }
-        return new ActionResult<>(ActionResultType.FAIL, stack);
+        return new InteractionResultHolder<>(InteractionResult.FAIL, stack);
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void addInformation(ItemStack stack, World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
+    public void appendHoverText(ItemStack stack, Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
         if (!WandItem.isUsable(stack)) {
-            tooltip.add(new StringTextComponent(TextFormatting.DARK_RED + "" + TextFormatting.BOLD + I18n.format("tip." + LW.MODID + ".uncharged")));
+            tooltip.add(new TextComponent(ChatFormatting.DARK_RED + "" + ChatFormatting.BOLD + I18n.get("tip." + LW.MODID + ".uncharged")));
         }
     }
 
@@ -123,19 +123,19 @@ public class WandItem extends Item {
     }
 
     @Override
-    public boolean hitEntity(ItemStack stack, LivingEntity target, LivingEntity attacker) {
+    public boolean hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
         if (WandItem.isUsable(stack)) {
-            target.addPotionEffect(new EffectInstance(Effects.GLOWING, 200));
-            if (attacker instanceof PlayerEntity && !((PlayerEntity) attacker).isCreative()) {
-                stack.setDamage(stack.getDamage() + 1);
+            target.addEffect(new MobEffectInstance(MobEffects.GLOWING, 200));
+            if (attacker instanceof Player && !((Player) attacker).isCreative()) {
+                stack.setDamageValue(stack.getDamageValue() + 1);
             }
             return true;
         }
-        return super.hitEntity(stack, target, attacker);
+        return super.hurtEnemy(stack, target, attacker);
     }
 
     @Override
-    public ICapabilityProvider initCapabilities(ItemStack stack, CompoundNBT nbt) {
+    public ICapabilityProvider initCapabilities(ItemStack stack, CompoundTag nbt) {
         return new ICapabilityProvider() {
 
             private final LazyOptional<EnergyRepair> handler = LazyOptional.of(() -> new EnergyRepair(stack));
@@ -152,7 +152,7 @@ public class WandItem extends Item {
 
     public static int getLightValue(ItemStack stack) {
         if (stack.hasTag() && stack.getTag().contains("Light", NBT.TAG_INT)) {
-            return MathHelper.clamp(stack.getTag().getInt("Light"), 1, 15);
+            return Mth.clamp(stack.getTag().getInt("Light"), 1, 15);
         } else {
             return 15;
         }

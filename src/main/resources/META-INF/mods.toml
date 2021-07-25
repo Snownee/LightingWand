@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[34,)"
+loaderVersion="[37,)"
 license="MIT"
 
 [[mods]]
@@ -8,7 +8,14 @@ version="${file.jarVersion}"
 displayName="Lighting Wand"
 authors="Snownee"
 displayURL="https://minecraft.curseforge.com/projects/lighting-wand"
-description='''Lighting up!'''
+description="Lighting up!"
+
+[[dependencies.lightingwand]]
+    modId="forge"
+    mandatory=true
+    versionRange="[37.0.8,)"
+    ordering="NONE"
+    side="BOTH"
 
 [modproperties.lightingwand]
     catalogueItemIcon="lightingwand:wand" #Support for Catalogue mod

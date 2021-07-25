@@ -3,20 +3,21 @@ package snownee.lightingwand.common;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
-import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.ICraftingRecipe;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.util.Mth;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.ForgeRegistryEntry;
 
-public class RepairRecipe implements ICraftingRecipe {
+public class RepairRecipe implements CraftingRecipe {
     private final ResourceLocation Id;
     private final String group;
     private final Item repairable;
@@ -36,28 +37,28 @@ public class RepairRecipe implements ICraftingRecipe {
     }
 
     @Override
-    public boolean isDynamic() {
+    public boolean isSpecial() {
         return true;
     }
 
     @Override
-    public boolean canFit(int width, int height) {
+    public boolean canCraftInDimensions(int width, int height) {
         return width > 1 || height > 1;
     }
 
     @Override
-    public ItemStack getRecipeOutput() {
+    public ItemStack getResultItem() {
         return ItemStack.EMPTY;
     }
 
     @Override
-    public boolean matches(CraftingInventory inv, World worldIn) {
+    public boolean matches(CraftingContainer inv, Level worldIn) {
         int dust = 0;
         ItemStack wand = ItemStack.EMPTY;
 
-        for (int i = 0; i < inv.getSizeInventory(); ++i) {
-            ItemStack itemstack = inv.getStackInSlot(i);
-            if (itemstack.getItem() == repairable && itemstack.getDamage() != 0) {
+        for (int i = 0; i < inv.getContainerSize(); ++i) {
+            ItemStack itemstack = inv.getItem(i);
+            if (itemstack.getItem() == repairable && itemstack.getDamageValue() != 0) {
                 if (wand.isEmpty()) {
                     wand = itemstack;
                 } else {
@@ -69,16 +70,16 @@ public class RepairRecipe implements ICraftingRecipe {
                 return false;
             }
         }
-        return !wand.isEmpty() && dust > 0 && wand.getDamage() - MathHelper.ceil(wand.getMaxDamage() / ratio) * dust > -MathHelper.ceil(wand.getMaxDamage() / ratio);
+        return !wand.isEmpty() && dust > 0 && wand.getDamageValue() - Mth.ceil(wand.getMaxDamage() / ratio) * dust > -Mth.ceil(wand.getMaxDamage() / ratio);
     }
 
     @Override
-    public ItemStack getCraftingResult(CraftingInventory inv) {
+    public ItemStack assemble(CraftingContainer inv) {
         int dust = 0;
         ItemStack wand = ItemStack.EMPTY;
 
-        for (int i = 0; i < inv.getSizeInventory(); ++i) {
-            ItemStack itemstack = inv.getStackInSlot(i);
+        for (int i = 0; i < inv.getContainerSize(); ++i) {
+            ItemStack itemstack = inv.getItem(i);
             if (itemstack.getItem() == repairable) {
                 wand = itemstack;
             } else if (!itemstack.isEmpty() && material.test(itemstack)) {
@@ -88,9 +89,9 @@ public class RepairRecipe implements ICraftingRecipe {
                 }
             }
         }
-        int damage = MathHelper.clamp(wand.getDamage() - MathHelper.ceil(wand.getMaxDamage() / ratio) * dust, 0, ModConstants.WAND.getMaxDamage(wand));
+        int damage = Mth.clamp(wand.getDamageValue() - Mth.ceil(wand.getMaxDamage() / ratio) * dust, 0, ModConstants.WAND.getMaxDamage(wand));
         ItemStack result = new ItemStack(repairable, 1, wand.getTag());
-        result.setDamage(damage);
+        result.setDamageValue(damage);
         return result;
     }
 
@@ -100,7 +101,7 @@ public class RepairRecipe implements ICraftingRecipe {
     }
 
     @Override
-    public IRecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<?> getSerializer() {
         return ModConstants.REPAIR;
     }
 
@@ -121,34 +122,34 @@ public class RepairRecipe implements ICraftingRecipe {
         return ratio;
     }
 
-    public static class Serializer extends net.minecraftforge.registries.ForgeRegistryEntry<IRecipeSerializer<?>> implements IRecipeSerializer<RepairRecipe> {
+    public static class Serializer extends ForgeRegistryEntry<RecipeSerializer<?>> implements RecipeSerializer<RepairRecipe> {
         @Override
-        public RepairRecipe read(ResourceLocation recipeId, JsonObject json) {
-            String group = JSONUtils.getString(json, "group", "");
-            String s = JSONUtils.getString(json, "repairable");
+        public RepairRecipe fromJson(ResourceLocation recipeId, JsonObject json) {
+            String group = GsonHelper.getAsString(json, "group", "");
+            String s = GsonHelper.getAsString(json, "repairable");
             Item repairable = ForgeRegistries.ITEMS.getValue(new ResourceLocation(s));
             if (repairable == null) {
                 throw new JsonSyntaxException("Unknown item '" + s + "'");
             }
-            Ingredient material = Ingredient.deserialize(JSONUtils.getJsonObject(json, "material"));
-            int ratio = JSONUtils.getInt(json, "ratio");
+            Ingredient material = Ingredient.fromJson(GsonHelper.getAsJsonObject(json, "material"));
+            int ratio = GsonHelper.getAsInt(json, "ratio");
             return new RepairRecipe(recipeId, group, repairable, material, ratio);
         }
 
         @Override
-        public RepairRecipe read(ResourceLocation recipeId, PacketBuffer buffer) {
-            String group = buffer.readString(32767);
-            Item repairable = Item.getItemById(buffer.readVarInt());
-            Ingredient material = Ingredient.read(buffer);
+        public RepairRecipe fromNetwork(ResourceLocation recipeId, FriendlyByteBuf buffer) {
+            String group = buffer.readUtf(256);
+            Item repairable = Item.byId(buffer.readVarInt());
+            Ingredient material = Ingredient.fromNetwork(buffer);
             int ratio = buffer.readVarInt();
             return new RepairRecipe(recipeId, group, repairable, material, ratio);
         }
 
         @Override
-        public void write(PacketBuffer buffer, RepairRecipe recipe) {
-            buffer.writeString(recipe.group);
-            buffer.writeVarInt(Item.getIdFromItem(recipe.repairable));
-            recipe.material.write(buffer);
+        public void toNetwork(FriendlyByteBuf buffer, RepairRecipe recipe) {
+            buffer.writeUtf(recipe.group);
+            buffer.writeVarInt(Item.getId(recipe.repairable));
+            recipe.material.toNetwork(buffer);
             buffer.writeVarInt(recipe.ratio);
         }
 

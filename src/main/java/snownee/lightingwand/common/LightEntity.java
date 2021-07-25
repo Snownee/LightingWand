@@ -1,73 +1,69 @@
 package snownee.lightingwand.common;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.projectile.ThrowableEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.IPacket;
-import net.minecraft.particles.RedstoneParticleData;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.projectile.ThrowableProjectile;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.fmllegacy.network.NetworkHooks;
 
-public class LightEntity extends ThrowableEntity {
+public class LightEntity extends ThrowableProjectile {
     public int lightValue = 15;
 
-    public LightEntity(EntityType<?> type, World worldIn) {
-    	this(worldIn);
-    }
-    
-    public LightEntity(World worldIn) {
-        super(ModConstants.LIGHT_ENTITY_TYPE, worldIn);
+    public LightEntity(EntityType<?> type, Level levelIn) {
+        this(levelIn);
     }
 
-    public LightEntity(World worldIn, LivingEntity throwerIn) {
-        super(ModConstants.LIGHT_ENTITY_TYPE, throwerIn, worldIn);
+    public LightEntity(Level levelIn) {
+        super(ModConstants.LIGHT_ENTITY_TYPE, levelIn);
     }
 
-    public LightEntity(World worldIn, double x, double y, double z) {
-        super(ModConstants.LIGHT_ENTITY_TYPE, x, y, z, worldIn);
+    public LightEntity(Level levelIn, LivingEntity owner) {
+        super(ModConstants.LIGHT_ENTITY_TYPE, owner, levelIn);
     }
 
     @Override
-    protected float getGravityVelocity() {
+    protected float getGravity() {
         return 0.01F;
     }
 
     @Override
     public void shoot(double x, double y, double z, float velocity, float inaccuracy) {
-        float f = MathHelper.sqrt(x * x + y * y + z * z);
-        setMotion(x / f * velocity, y / f * velocity, z / f * velocity);
+        float f = Mth.sqrt((float) (x * x + y * y + z * z));
+        setDeltaMovement(x / f * velocity, y / f * velocity, z / f * velocity);
     }
 
     @Override
-    protected void onImpact(RayTraceResult result) {
-        if (!world.isRemote && result != null) {
-            remove();
+    protected void onHit(HitResult result) {
+        if (!level.isClientSide && result != null) {
+            discard();
             BlockPos pos = null;
             switch (result.getType()) {
             case MISS:
                 return;
             case ENTITY:
-                pos = new BlockPos(result.getHitVec());
+                pos = new BlockPos(result.getLocation());
                 break;
             case BLOCK:
-                pos = ((BlockRayTraceResult) result).getPos().offset(((BlockRayTraceResult) result).getFace());
+                pos = ((BlockHitResult) result).getBlockPos().relative(((BlockHitResult) result).getDirection());
                 break;
             }
 
-            if (world.getBlockState(pos).getMaterial().isReplaceable()) {
-                FluidState fluidstate = world.getFluidState(pos);
-                if (world.setBlockState(pos, ModConstants.LIGHT.getDefaultState().with(LightBlock.LIGHT, MathHelper.clamp(lightValue, 1, 15)).with(LightBlock.WATERLOGGED, fluidstate.isTagged(FluidTags.WATER) && fluidstate.getLevel() == 8), 11)) {
-                    world.playSound(null, pos, SoundEvents.BLOCK_SLIME_BLOCK_PLACE, SoundCategory.BLOCKS, 1.0F, world.rand.nextFloat() * 0.4F + 0.8F);
+            if (level.getBlockState(pos).getMaterial().isReplaceable()) {
+                FluidState fluidstate = level.getFluidState(pos);
+                if (level.setBlock(pos, ModConstants.LIGHT.defaultBlockState().setValue(LightBlock.LIGHT, Mth.clamp(lightValue, 1, 15)).setValue(LightBlock.WATERLOGGED, fluidstate.is(FluidTags.WATER) && fluidstate.getAmount() == 8), 11)) {
+                    level.playSound(null, pos, SoundEvents.SLIME_BLOCK_PLACE, SoundSource.BLOCKS, 1.0F, level.random.nextFloat() * 0.4F + 0.8F);
                 }
             }
         }
@@ -76,26 +72,26 @@ public class LightEntity extends ThrowableEntity {
     @Override
     public void tick() {
         super.tick();
-        if (world.isRemote && !onGround) {
-            Vector3d motion = getMotion();
+        if (level.isClientSide && !onGround) {
+            Vec3 motion = getDeltaMovement();
             for (int k = 0; k < 2; ++k) {
-                this.world.addParticle(new RedstoneParticleData(1, 1, 0, 1.0F), getPosX() + motion.x * k / 2D, getPosY() + motion.y * k / 2D, getPosZ() + motion.z * k / 2D, 0, 0, 0);
+                level.addParticle(new DustParticleOptions(LightBlock.COLOR_VEC, 1.0F), getX() + motion.x * k / 2D, getY() + motion.y * k / 2D, getZ() + motion.z * k / 2D, 0, 0, 0);
             }
         }
     }
 
     @Override
-    protected void registerData() {
+    protected void defineSynchedData() {
     }
 
     @Override
-    public IPacket<?> createSpawnPacket() {
+    public Packet<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 
     @Override
-    protected void readAdditional(CompoundNBT compound) {
-        super.readAdditional(compound);
+    protected void readAdditionalSaveData(CompoundTag compound) {
+        super.readAdditionalSaveData(compound);
         lightValue = compound.getInt("Light");
         if (lightValue == 0) {
             lightValue = 15;
@@ -103,8 +99,8 @@ public class LightEntity extends ThrowableEntity {
     }
 
     @Override
-    protected void writeAdditional(CompoundNBT compound) {
-        super.writeAdditional(compound);
+    protected void addAdditionalSaveData(CompoundTag compound) {
+        super.addAdditionalSaveData(compound);
         compound.putInt("Light", lightValue);
     }
 }
