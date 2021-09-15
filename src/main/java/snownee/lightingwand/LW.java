@@ -9,12 +9,12 @@ import net.minecraftforge.fml.config.ModConfig;
 
 @Mod(LW.MODID)
 public class LW {
-    public static final String MODID = "lightingwand";
-    public static final String NAME = "Lighting Wand";
+	public static final String MODID = "lightingwand";
+	public static final String NAME = "Lighting Wand";
 
-    public static Logger logger = LogManager.getLogger(LW.NAME);
+	public static Logger logger = LogManager.getLogger(LW.NAME);
 
-    public LW() {
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.spec, MODID + ".toml");
-    }
+	public LW() {
+		ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.spec, MODID + ".toml");
+	}
 }
