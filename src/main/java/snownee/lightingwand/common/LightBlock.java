@@ -119,6 +119,9 @@ public class LightBlock extends Block implements SimpleWaterloggedBlock {
 
 	@Override
 	public InteractionResult use(BlockState state, Level worldIn, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult hit) {
+		if (!player.isCreative()) {
+			return InteractionResult.PASS;
+		}
 		ItemStack stack = player.getItemInHand(handIn);
 		if (stack.getItem() != ModConstants.WAND) {
 			return InteractionResult.PASS;
