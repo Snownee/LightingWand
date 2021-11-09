@@ -19,92 +19,92 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkHooks;
 
 public class LightEntity extends ThrowableEntity {
-    public int lightValue = 15;
+	public int lightValue = 15;
 
-    public LightEntity(EntityType<?> type, World worldIn) {
-    	this(worldIn);
-    }
-    
-    public LightEntity(World worldIn) {
-        super(ModConstants.LIGHT_ENTITY_TYPE, worldIn);
-    }
+	public LightEntity(EntityType<?> type, World worldIn) {
+		this(worldIn);
+	}
 
-    public LightEntity(World worldIn, LivingEntity throwerIn) {
-        super(ModConstants.LIGHT_ENTITY_TYPE, throwerIn, worldIn);
-    }
+	public LightEntity(World worldIn) {
+		super(ModConstants.LIGHT_ENTITY_TYPE, worldIn);
+	}
 
-    public LightEntity(World worldIn, double x, double y, double z) {
-        super(ModConstants.LIGHT_ENTITY_TYPE, x, y, z, worldIn);
-    }
+	public LightEntity(World worldIn, LivingEntity throwerIn) {
+		super(ModConstants.LIGHT_ENTITY_TYPE, throwerIn, worldIn);
+	}
 
-    @Override
-    protected float getGravityVelocity() {
-        return 0.01F;
-    }
+	public LightEntity(World worldIn, double x, double y, double z) {
+		super(ModConstants.LIGHT_ENTITY_TYPE, x, y, z, worldIn);
+	}
 
-    @Override
-    public void shoot(double x, double y, double z, float velocity, float inaccuracy) {
-        float f = MathHelper.sqrt(x * x + y * y + z * z);
-        setMotion(x / f * velocity, y / f * velocity, z / f * velocity);
-    }
+	@Override
+	protected float getGravityVelocity() {
+		return 0.01F;
+	}
 
-    @Override
-    protected void onImpact(RayTraceResult result) {
-        if (!world.isRemote && result != null) {
-            remove();
-            BlockPos pos = null;
-            switch (result.getType()) {
-            case MISS:
-                return;
-            case ENTITY:
-                pos = new BlockPos(result.getHitVec());
-                break;
-            case BLOCK:
-                pos = ((BlockRayTraceResult) result).getPos().offset(((BlockRayTraceResult) result).getFace());
-                break;
-            }
+	@Override
+	public void shoot(double x, double y, double z, float velocity, float inaccuracy) {
+		float f = MathHelper.sqrt(x * x + y * y + z * z);
+		setMotion(x / f * velocity, y / f * velocity, z / f * velocity);
+	}
 
-            if (world.getBlockState(pos).getMaterial().isReplaceable()) {
-                FluidState fluidstate = world.getFluidState(pos);
-                if (world.setBlockState(pos, ModConstants.LIGHT.getDefaultState().with(LightBlock.LIGHT, MathHelper.clamp(lightValue, 1, 15)).with(LightBlock.WATERLOGGED, fluidstate.isTagged(FluidTags.WATER) && fluidstate.getLevel() == 8), 11)) {
-                    world.playSound(null, pos, SoundEvents.BLOCK_SLIME_BLOCK_PLACE, SoundCategory.BLOCKS, 1.0F, world.rand.nextFloat() * 0.4F + 0.8F);
-                }
-            }
-        }
-    }
+	@Override
+	protected void onImpact(RayTraceResult result) {
+		if (!world.isRemote && result != null) {
+			remove();
+			BlockPos pos = null;
+			switch (result.getType()) {
+			case MISS:
+				return;
+			case ENTITY:
+				pos = new BlockPos(result.getHitVec());
+				break;
+			case BLOCK:
+				pos = ((BlockRayTraceResult) result).getPos().offset(((BlockRayTraceResult) result).getFace());
+				break;
+			}
 
-    @Override
-    public void tick() {
-        super.tick();
-        if (world.isRemote && !onGround) {
-            Vector3d motion = getMotion();
-            for (int k = 0; k < 2; ++k) {
-                this.world.addParticle(new RedstoneParticleData(1, 1, 0, 1.0F), getPosX() + motion.x * k / 2D, getPosY() + motion.y * k / 2D, getPosZ() + motion.z * k / 2D, 0, 0, 0);
-            }
-        }
-    }
+			if (world.getBlockState(pos).getMaterial().isReplaceable()) {
+				FluidState fluidstate = world.getFluidState(pos);
+				if (world.setBlockState(pos, ModConstants.LIGHT.getDefaultState().with(LightBlock.LIGHT, MathHelper.clamp(lightValue, 1, 15)).with(LightBlock.WATERLOGGED, fluidstate.isTagged(FluidTags.WATER) && fluidstate.getLevel() == 8), 11)) {
+					world.playSound(null, pos, SoundEvents.BLOCK_SLIME_BLOCK_PLACE, SoundCategory.BLOCKS, 1.0F, world.rand.nextFloat() * 0.4F + 0.8F);
+				}
+			}
+		}
+	}
 
-    @Override
-    protected void registerData() {
-    }
+	@Override
+	public void tick() {
+		super.tick();
+		if (world.isRemote && !onGround) {
+			Vector3d motion = getMotion();
+			for (int k = 0; k < 2; ++k) {
+				this.world.addParticle(new RedstoneParticleData(1, 1, 0, 1.0F), getPosX() + motion.x * k / 2D, getPosY() + motion.y * k / 2D, getPosZ() + motion.z * k / 2D, 0, 0, 0);
+			}
+		}
+	}
 
-    @Override
-    public IPacket<?> createSpawnPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
+	@Override
+	protected void registerData() {
+	}
 
-    @Override
-    protected void readAdditional(CompoundNBT compound) {
-        super.readAdditional(compound);
-        lightValue = compound.getInt("Light");
-        if (lightValue == 0) {
-            lightValue = 15;
-        }
-    }
+	@Override
+	public IPacket<?> createSpawnPacket() {
+		return NetworkHooks.getEntitySpawningPacket(this);
+	}
 
-    @Override
-    protected void writeAdditional(CompoundNBT compound) {
-        super.writeAdditional(compound);
-        compound.putInt("Light", lightValue);
-    }
+	@Override
+	protected void readAdditional(CompoundNBT compound) {
+		super.readAdditional(compound);
+		lightValue = compound.getInt("Light");
+		if (lightValue == 0) {
+			lightValue = 15;
+		}
+	}
+
+	@Override
+	protected void writeAdditional(CompoundNBT compound) {
+		super.writeAdditional(compound);
+		compound.putInt("Light", lightValue);
+	}
 }

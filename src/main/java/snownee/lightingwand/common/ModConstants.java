@@ -12,15 +12,15 @@ import snownee.lightingwand.LW;
 
 @ObjectHolder(LW.MODID)
 public class ModConstants {
-    @ObjectHolder("light")
-    public static final Block LIGHT = Blocks.AIR;
+	@ObjectHolder("light")
+	public static final Block LIGHT = Blocks.AIR;
 
-    @ObjectHolder("light")
-    public static final EntityType<? extends ThrowableEntity> LIGHT_ENTITY_TYPE = null;
+	@ObjectHolder("light")
+	public static final EntityType<? extends ThrowableEntity> LIGHT_ENTITY_TYPE = null;
 
-    @ObjectHolder("wand")
-    public static final Item WAND = Items.AIR;
+	@ObjectHolder("wand")
+	public static final Item WAND = Items.AIR;
 
-    @ObjectHolder("repair")
-    public static final IRecipeSerializer<?> REPAIR = null;
+	@ObjectHolder("repair")
+	public static final IRecipeSerializer<?> REPAIR = null;
 }

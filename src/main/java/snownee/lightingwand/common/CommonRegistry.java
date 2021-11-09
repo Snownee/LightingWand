@@ -34,27 +34,27 @@ import snownee.lightingwand.compat.PsiCompat;
 
 @Mod.EventBusSubscriber(bus = Bus.MOD)
 public class CommonRegistry {
-    private static EntityType<LightEntity> ENTITY;
-    public static boolean psiCompat = false;
+	private static EntityType<LightEntity> ENTITY;
+	public static boolean psiCompat = false;
 
-    @SubscribeEvent
-    public static void onBlockRegister(RegistryEvent.Register<Block> event) {
-        event.getRegistry().register(new LightBlock().setRegistryName(LW.MODID, "light"));
-    }
+	@SubscribeEvent
+	public static void onBlockRegister(RegistryEvent.Register<Block> event) {
+		event.getRegistry().register(new LightBlock().setRegistryName(LW.MODID, "light"));
+	}
 
-    @SubscribeEvent
-    public static void onItemRegister(RegistryEvent.Register<Item> event) {
-        event.getRegistry().register(new WandItem().setRegistryName(LW.MODID, "wand"));
+	@SubscribeEvent
+	public static void onItemRegister(RegistryEvent.Register<Item> event) {
+		event.getRegistry().register(new WandItem().setRegistryName(LW.MODID, "wand"));
 
-        if (ModList.get().isLoaded("psi")) {
-            psiCompat = true;
-            PsiCompat.init();
-        }
-    }
+		if (ModList.get().isLoaded("psi")) {
+			psiCompat = true;
+			PsiCompat.init();
+		}
+	}
 
-    @SubscribeEvent
-    public static void onEntityRegister(RegistryEvent.Register<EntityType<?>> event) {
-        /* off */
+	@SubscribeEvent
+	public static void onEntityRegister(RegistryEvent.Register<EntityType<?>> event) {
+		/* off */
         event.getRegistry().register(ENTITY = (EntityType<LightEntity>) EntityType.Builder.create(LightEntity::new, EntityClassification.MISC)
                 .setCustomClientFactory((
                         spawnEntity, world
@@ -67,49 +67,49 @@ public class CommonRegistry {
                 .build(LW.MODID + ".light")
                 .setRegistryName(LW.MODID, "light"));
         /* on */
-    }
+	}
 
-    @SubscribeEvent
-    public static void onRecipeRegister(RegistryEvent.Register<IRecipeSerializer<?>> event) {
-        event.getRegistry().register(new RepairRecipe.Serializer().setRegistryName(LW.MODID, "repair"));
-    }
+	@SubscribeEvent
+	public static void onRecipeRegister(RegistryEvent.Register<IRecipeSerializer<?>> event) {
+		event.getRegistry().register(new RepairRecipe.Serializer().setRegistryName(LW.MODID, "repair"));
+	}
 
-    @SubscribeEvent
-    public static void init(FMLCommonSetupEvent event) {
-        CraftingHelper.register(new RepairRecipeCondition.Serializer());
+	@SubscribeEvent
+	public static void init(FMLCommonSetupEvent event) {
+		CraftingHelper.register(new RepairRecipeCondition.Serializer());
 
-        if (ModConstants.WAND != Items.AIR) {
-            if (Config.shootProjectile.get()) {
-                DispenserBlock.registerDispenseBehavior(ModConstants.WAND, new IDispenseItemBehavior() {
-                    @Override
-                    public ItemStack dispense(IBlockSource source, ItemStack stack) {
-                        World world = source.getWorld();
-                        if (!world.isRemote && WandItem.isUsable(stack)) {
-                            IPosition iposition = DispenserBlock.getDispensePosition(source);
-                            Direction Direction = source.getBlockState().get(DispenserBlock.FACING);
-                            LightEntity entity = new LightEntity(world, iposition.getX(), iposition.getY(), iposition.getZ());
-                            entity.lightValue = WandItem.getLightValue(stack);
-                            entity.shoot(Direction.getXOffset(), Direction.getYOffset() + 0.1F, Direction.getZOffset(), 1.3F + world.rand.nextFloat() * 0.4F, 0);
-                            Vector3d motion = entity.getMotion();
-                            entity.setMotion(motion.add(world.rand.nextGaussian() * 0.1D, 0, world.rand.nextGaussian() * 0.1D));
-                            world.addEntity(entity);
-                            stack.attemptDamageItem(1, world.rand, null);
-                        }
-                        return stack;
-                    }
-                });
-            }
-            ModConstants.WAND.maxDamage = Config.wandDurability.get();
-        }
-    }
+		if (ModConstants.WAND != Items.AIR) {
+			if (Config.shootProjectile.get()) {
+				DispenserBlock.registerDispenseBehavior(ModConstants.WAND, new IDispenseItemBehavior() {
+					@Override
+					public ItemStack dispense(IBlockSource source, ItemStack stack) {
+						World world = source.getWorld();
+						if (!world.isRemote && WandItem.isUsable(stack)) {
+							IPosition iposition = DispenserBlock.getDispensePosition(source);
+							Direction Direction = source.getBlockState().get(DispenserBlock.FACING);
+							LightEntity entity = new LightEntity(world, iposition.getX(), iposition.getY(), iposition.getZ());
+							entity.lightValue = WandItem.getLightValue(stack);
+							entity.shoot(Direction.getXOffset(), Direction.getYOffset() + 0.1F, Direction.getZOffset(), 1.3F + world.rand.nextFloat() * 0.4F, 0);
+							Vector3d motion = entity.getMotion();
+							entity.setMotion(motion.add(world.rand.nextGaussian() * 0.1D, 0, world.rand.nextGaussian() * 0.1D));
+							world.addEntity(entity);
+							stack.attemptDamageItem(1, world.rand, null);
+						}
+						return stack;
+					}
+				});
+			}
+			ModConstants.WAND.maxDamage = Config.wandDurability.get();
+		}
+	}
 
-    @SubscribeEvent
-    @OnlyIn(Dist.CLIENT)
-    public static void clientInit(FMLClientSetupEvent event) {
-        RenderingRegistry.registerEntityRenderingHandler(ENTITY, EmptyEntityRenderer::new);
+	@SubscribeEvent
+	@OnlyIn(Dist.CLIENT)
+	public static void clientInit(FMLClientSetupEvent event) {
+		RenderingRegistry.registerEntityRenderingHandler(ENTITY, EmptyEntityRenderer::new);
 
-        ItemModelsProperties.func_239418_a_(ModConstants.WAND, new ResourceLocation("broken"), (stack, worldIn, entityIn) -> {
-            return WandItem.isUsable(stack) ? 0 : 1;
-        });
-    }
+		ItemModelsProperties.func_239418_a_(ModConstants.WAND, new ResourceLocation("broken"), (stack, worldIn, entityIn) -> {
+			return WandItem.isUsable(stack) ? 0 : 1;
+		});
+	}
 }

@@ -22,80 +22,80 @@ import vazkii.psi.api.spell.piece.PieceTrick;
 
 public class ConjureInvisibleLightPieceTrick extends PieceTrick {
 
-    SpellParam<Vector3> position;
-    SpellParam<Number> light;
+	SpellParam<Vector3> position;
+	SpellParam<Number> light;
 
-    public ConjureInvisibleLightPieceTrick(Spell spell) {
-        super(spell);
-    }
+	public ConjureInvisibleLightPieceTrick(Spell spell) {
+		super(spell);
+	}
 
-    @Override
-    public void initParams() {
-        addParam(position = new ParamVector(SpellParam.GENERIC_NAME_POSITION, SpellParam.BLUE, false, false));
-        addParam(light = new ParamNumber(SpellParam.GENERIC_NAME_NUMBER, SpellParam.RED, true, false));
-    }
+	@Override
+	public void initParams() {
+		addParam(position = new ParamVector(SpellParam.GENERIC_NAME_POSITION, SpellParam.BLUE, false, false));
+		addParam(light = new ParamNumber(SpellParam.GENERIC_NAME_NUMBER, SpellParam.RED, true, false));
+	}
 
-    @Override
-    public void addToMetadata(SpellMetadata meta) throws SpellCompilationException {
-        super.addToMetadata(meta);
-        double lightVal = ensurePositiveAndNonzero(this, light, 15);
-        if (lightVal > 15) {
-            throw new SpellCompilationException("psi.spellerror.lightingwand.light", x, y);
-        }
-        meta.addStat(EnumSpellStat.POTENCY, 40);
-        meta.addStat(EnumSpellStat.COST, 120);
-    }
+	@Override
+	public void addToMetadata(SpellMetadata meta) throws SpellCompilationException {
+		super.addToMetadata(meta);
+		double lightVal = ensurePositiveAndNonzero(this, light, 15);
+		if (lightVal > 15) {
+			throw new SpellCompilationException("psi.spellerror.lightingwand.light", x, y);
+		}
+		meta.addStat(EnumSpellStat.POTENCY, 40);
+		meta.addStat(EnumSpellStat.COST, 120);
+	}
 
-    @Override
-    public Object execute(SpellContext context) throws SpellRuntimeException {
-        Vector3 positionVal = this.getParamValue(context, position);
-        Number lightVal = this.getParamValue(context, light);
+	@Override
+	public Object execute(SpellContext context) throws SpellRuntimeException {
+		Vector3 positionVal = this.getParamValue(context, position);
+		Number lightVal = this.getParamValue(context, light);
 
-        if (positionVal == null) {
-            throw new SpellRuntimeException(SpellRuntimeException.NULL_VECTOR);
-        }
-        if (!context.isInRadius(positionVal)) {
-            throw new SpellRuntimeException(SpellRuntimeException.OUTSIDE_RADIUS);
-        }
+		if (positionVal == null) {
+			throw new SpellRuntimeException(SpellRuntimeException.NULL_VECTOR);
+		}
+		if (!context.isInRadius(positionVal)) {
+			throw new SpellRuntimeException(SpellRuntimeException.OUTSIDE_RADIUS);
+		}
 
-        BlockPos pos = positionVal.toBlockPos();
+		BlockPos pos = positionVal.toBlockPos();
 
-        World world = context.caster.getEntityWorld();
+		World world = context.caster.getEntityWorld();
 
-        if (!world.isBlockModifiable(context.caster, pos)) {
-            return null;
-        }
+		if (!world.isBlockModifiable(context.caster, pos)) {
+			return null;
+		}
 
-        if (world.getBlockState(pos).getBlock() != ModConstants.LIGHT) {
-            BlockState state = ModConstants.LIGHT.getDefaultState();
-            if (lightVal != null) {
-                state = state.with(LightBlock.LIGHT, MathHelper.ceil(lightVal.doubleValue()));
-            }
-            conjure(world, pos, context.caster, state);
-        }
+		if (world.getBlockState(pos).getBlock() != ModConstants.LIGHT) {
+			BlockState state = ModConstants.LIGHT.getDefaultState();
+			if (lightVal != null) {
+				state = state.with(LightBlock.LIGHT, MathHelper.ceil(lightVal.doubleValue()));
+			}
+			conjure(world, pos, context.caster, state);
+		}
 
-        return null;
-    }
+		return null;
+	}
 
-    public static boolean conjure(World world, BlockPos pos, PlayerEntity player, BlockState state) {
-        if (!world.isBlockPresent(pos) || !world.isBlockModifiable(player, pos)) {
-            return false;
-        }
+	public static boolean conjure(World world, BlockPos pos, PlayerEntity player, BlockState state) {
+		if (!world.isBlockPresent(pos) || !world.isBlockModifiable(player, pos)) {
+			return false;
+		}
 
-        BlockState inWorld = world.getBlockState(pos);
-        if (inWorld.getBlock().isAir(inWorld, world, pos) || inWorld.getMaterial().isReplaceable()) {
-            return world.setBlockState(pos, state);
-        }
-        return false;
-    }
+		BlockState inWorld = world.getBlockState(pos);
+		if (inWorld.getBlock().isAir(inWorld, world, pos) || inWorld.getMaterial().isReplaceable()) {
+			return world.setBlockState(pos, state);
+		}
+		return false;
+	}
 
-    // from SpellHelpers
-    public static double ensurePositiveAndNonzero(SpellPiece piece, SpellParam<Number> param, double def) throws SpellCompilationException {
-        double val = piece.getParamEvaluationeOrDefault(param, def).doubleValue();
-        if (val <= 0) {
-            throw new SpellCompilationException(SpellCompilationException.NON_POSITIVE_VALUE, piece.x, piece.y);
-        }
+	// from SpellHelpers
+	public static double ensurePositiveAndNonzero(SpellPiece piece, SpellParam<Number> param, double def) throws SpellCompilationException {
+		double val = piece.getParamEvaluationeOrDefault(param, def).doubleValue();
+		if (val <= 0) {
+			throw new SpellCompilationException(SpellCompilationException.NON_POSITIVE_VALUE, piece.x, piece.y);
+		}
 
-        return val;
-    }
+		return val;
+	}
 }

@@ -22,36 +22,36 @@ import snownee.lightingwand.common.RepairRecipe;
 @JeiPlugin
 public class JEICompat implements IModPlugin {
 
-    @Override
-    public ResourceLocation getPluginUid() {
-        return new ResourceLocation(LW.MODID, "main");
-    }
+	@Override
+	public ResourceLocation getPluginUid() {
+		return new ResourceLocation(LW.MODID, "main");
+	}
 
-    @Override
-    public void registerVanillaCategoryExtensions(IVanillaCategoryExtensionRegistration registration) {
-        IExtendableRecipeCategory<ICraftingRecipe, ICraftingCategoryExtension> craftingCategory = registration.getCraftingCategory();
-        craftingCategory.addCategoryExtension(RepairRecipe.class, RepairRecipeWrapper::new);
-    }
+	@Override
+	public void registerVanillaCategoryExtensions(IVanillaCategoryExtensionRegistration registration) {
+		IExtendableRecipeCategory<ICraftingRecipe, ICraftingCategoryExtension> craftingCategory = registration.getCraftingCategory();
+		craftingCategory.addCategoryExtension(RepairRecipe.class, RepairRecipeWrapper::new);
+	}
 
-    private static class RepairRecipeWrapper implements ICraftingCategoryExtension {
-        private RepairRecipe recipe;
+	private static class RepairRecipeWrapper implements ICraftingCategoryExtension {
+		private RepairRecipe recipe;
 
-        public RepairRecipeWrapper(RepairRecipe recipe) {
-            this.recipe = recipe;
-        }
+		public RepairRecipeWrapper(RepairRecipe recipe) {
+			this.recipe = recipe;
+		}
 
-        @Override
-        public void setIngredients(IIngredients ingredients) {
-            List<Ingredient> inputs = Lists.newArrayListWithCapacity(2);
-            ItemStack broken = new ItemStack(recipe.getRepairable());
-            int duration = broken.getMaxDamage();
-            broken.setDamage(duration);
-            inputs.add(Ingredient.fromStacks(broken));
-            inputs.add(recipe.getMaterial());
-            ingredients.setInputIngredients(inputs);
-            ItemStack output = new ItemStack(recipe.getRepairable());
-            output.setDamage(MathHelper.clamp(duration - MathHelper.ceil(duration / recipe.getRatio()), 0, duration));
-            ingredients.setOutput(VanillaTypes.ITEM, output);
-        }
-    }
+		@Override
+		public void setIngredients(IIngredients ingredients) {
+			List<Ingredient> inputs = Lists.newArrayListWithCapacity(2);
+			ItemStack broken = new ItemStack(recipe.getRepairable());
+			int duration = broken.getMaxDamage();
+			broken.setDamage(duration);
+			inputs.add(Ingredient.fromStacks(broken));
+			inputs.add(recipe.getMaterial());
+			ingredients.setInputIngredients(inputs);
+			ItemStack output = new ItemStack(recipe.getRepairable());
+			output.setDamage(MathHelper.clamp(duration - MathHelper.ceil(duration / recipe.getRatio()), 0, duration));
+			ingredients.setOutput(VanillaTypes.ITEM, output);
+		}
+	}
 }
