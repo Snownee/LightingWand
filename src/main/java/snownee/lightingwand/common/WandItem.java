@@ -23,6 +23,7 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -92,6 +93,32 @@ public class WandItem extends Item {
 			return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
 		}
 		return new InteractionResultHolder<>(InteractionResult.FAIL, stack);
+	}
+
+	@Override
+	public InteractionResult useOn(UseOnContext context) {
+		if (!context.isSecondaryUseActive()) {
+			return InteractionResult.PASS;
+		}
+		Level worldIn = context.getLevel();
+		BlockPos pos = context.getClickedPos();
+		BlockState state = worldIn.getBlockState(pos);
+		if (!state.is(CommonRegistry.BLOCK)) {
+			return InteractionResult.PASS;
+		}
+		Player player = context.getPlayer();
+		ItemStack stack = context.getItemInHand();
+		int wandLight = WandItem.getLightValue(stack);
+		int blockLight = state.getValue(LightBlock.LIGHT);
+		if (wandLight != blockLight) {
+			worldIn.setBlockAndUpdate(pos, state.setValue(LightBlock.LIGHT, wandLight));
+		} else {
+			wandLight = wandLight % 15 + 1;
+			stack.getOrCreateTag().putInt("Light", wandLight);
+			worldIn.setBlockAndUpdate(pos, state.setValue(LightBlock.LIGHT, wandLight));
+			player.displayClientMessage(new TranslatableComponent("tip.lightingwand.light", wandLight), true);
+		}
+		return InteractionResult.SUCCESS;
 	}
 
 	@OnlyIn(Dist.CLIENT)

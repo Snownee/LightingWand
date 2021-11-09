@@ -7,12 +7,8 @@ import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.DustParticleOptions;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -29,7 +25,6 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -117,25 +112,4 @@ public class LightBlock extends Block implements SimpleWaterloggedBlock {
 		return super.getStateForPlacement(context).setValue(WATERLOGGED, fluidstate.getType() == Fluids.WATER);
 	}
 
-	@Override
-	public InteractionResult use(BlockState state, Level worldIn, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult hit) {
-		if (!player.isCreative()) {
-			return InteractionResult.PASS;
-		}
-		ItemStack stack = player.getItemInHand(handIn);
-		if (stack.getItem() != ModConstants.WAND) {
-			return InteractionResult.PASS;
-		}
-		int wandLight = WandItem.getLightValue(stack);
-		int blockLight = state.getValue(LIGHT);
-		if (wandLight != blockLight) {
-			worldIn.setBlockAndUpdate(pos, state.setValue(LIGHT, wandLight));
-		} else {
-			wandLight = wandLight % 15 + 1;
-			stack.getOrCreateTag().putInt("Light", wandLight);
-			worldIn.setBlockAndUpdate(pos, state.setValue(LIGHT, wandLight));
-			player.displayClientMessage(new TranslatableComponent("tip.lightingwand.light", wandLight), true);
-		}
-		return InteractionResult.SUCCESS;
-	}
 }

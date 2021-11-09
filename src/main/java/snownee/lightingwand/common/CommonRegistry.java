@@ -29,12 +29,13 @@ import snownee.lightingwand.client.EmptyEntityRenderer;
 
 @Mod.EventBusSubscriber(bus = Bus.MOD)
 public class CommonRegistry {
-	private static EntityType<LightEntity> ENTITY;
+	public static Block BLOCK;
+	public static EntityType<LightEntity> ENTITY;
 	public static boolean psiCompat = false;
 
 	@SubscribeEvent
 	public static void onBlockRegister(RegistryEvent.Register<Block> event) {
-		event.getRegistry().register(new LightBlock().setRegistryName(LW.MODID, "light"));
+		event.getRegistry().register(BLOCK = new LightBlock().setRegistryName(LW.MODID, "light"));
 	}
 
 	@SubscribeEvent
