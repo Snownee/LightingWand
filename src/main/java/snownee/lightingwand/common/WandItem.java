@@ -51,7 +51,7 @@ public class WandItem extends Item {
 	@Override
 	public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn) {
 		ItemStack stack = playerIn.getItemInHand(handIn);
-		if (WandItem.isUsable(stack)) {
+		if (isUsable(stack)) {
 			HitResult rayTraceResult = getPlayerPOVHitResult(worldIn, playerIn, ClipContext.Fluid.NONE);
 			if (rayTraceResult.getType() == HitResult.Type.BLOCK) {
 				BlockHitResult blockHitResult = (BlockHitResult) rayTraceResult;
@@ -86,7 +86,7 @@ public class WandItem extends Item {
 					held.setDamageValue(held.getDamageValue() + 1);
 				}
 			}
-			if (!WandItem.isUsable(stack)) {
+			if (!isUsable(stack)) {
 				worldIn.playSound((Player) null, playerIn.getX(), playerIn.getY(), playerIn.getZ(), SoundEvents.ITEM_BREAK, SoundSource.NEUTRAL, 0.5F, 0.8F + worldIn.random.nextFloat() * 0.4F);
 			}
 			playerIn.swing(handIn);
@@ -103,7 +103,7 @@ public class WandItem extends Item {
 		Level worldIn = context.getLevel();
 		BlockPos pos = context.getClickedPos();
 		BlockState state = worldIn.getBlockState(pos);
-		if (!state.is(CommonRegistry.BLOCK)) {
+		if (!state.is(ModConstants.LIGHT)) {
 			return InteractionResult.PASS;
 		}
 		Player player = context.getPlayer();
@@ -124,7 +124,7 @@ public class WandItem extends Item {
 	@OnlyIn(Dist.CLIENT)
 	@Override
 	public void appendHoverText(ItemStack stack, Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
-		if (WandItem.isUsable(stack)) {
+		if (isUsable(stack)) {
 			tooltip.add(new TranslatableComponent("tip.lightingwand.light", getLightValue(stack)).withStyle(ChatFormatting.GRAY));
 		} else {
 			tooltip.add(new TranslatableComponent("tip.lightingwand.uncharged").withStyle(ChatFormatting.DARK_RED));
@@ -151,7 +151,7 @@ public class WandItem extends Item {
 
 	@Override
 	public boolean hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
-		if (WandItem.isUsable(stack)) {
+		if (isUsable(stack)) {
 			target.addEffect(new MobEffectInstance(MobEffects.GLOWING, 200));
 			if (attacker instanceof Player && !((Player) attacker).isCreative()) {
 				stack.setDamageValue(stack.getDamageValue() + 1);
