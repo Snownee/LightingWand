@@ -74,12 +74,7 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
     maven {
-        name = "jei"
-        url = "https://dvs1.progwml6.com/files/maven"
-    }
-    maven {
-        name = "psi"
-        url = "https://maven.blamejared.com/"
+        url = "https://www.cursemaven.com"
     }
 }
 
@@ -92,8 +87,7 @@ dependencies {
     
     //compile fg.deobf("vazkii.psi:Psi:${psi_version}:api")
 
-    //compileOnly fg.deobf("mezz.jei:jei-1.16.2:7.3.2.25:api")
-    //runtimeOnly fg.deobf("mezz.jei:jei-1.16.2:7.3.2.25")
+    implementation fg.deobf("curse.maven:jei-238222:3519345")
 }
 
 // Example for how to get properties into the manifest for reading by the runtime..

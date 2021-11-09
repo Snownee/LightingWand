@@ -127,7 +127,7 @@ public class WandItem extends Item {
 		if (WandItem.isUsable(stack)) {
 			tooltip.add(new TranslatableComponent("tip.lightingwand.light", getLightValue(stack)).withStyle(ChatFormatting.GRAY));
 		} else {
-			tooltip.add(new TranslatableComponent("tip.lightingwand.uncharged").withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD));
+			tooltip.add(new TranslatableComponent("tip.lightingwand.uncharged").withStyle(ChatFormatting.DARK_RED));
 		}
 	}
 
