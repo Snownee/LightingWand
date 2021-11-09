@@ -79,7 +79,7 @@ public class LightEntity extends ThrowableEntity {
 		if (world.isRemote && !onGround) {
 			Vector3d motion = getMotion();
 			for (int k = 0; k < 2; ++k) {
-				this.world.addParticle(new RedstoneParticleData(1, 1, 0, 1.0F), getPosX() + motion.x * k / 2D, getPosY() + motion.y * k / 2D, getPosZ() + motion.z * k / 2D, 0, 0, 0);
+				world.addParticle(new RedstoneParticleData(1, 1, 0, 1.0F), getPosX() + motion.x * k / 2D, getPosY() + motion.y * k / 2D, getPosZ() + motion.z * k / 2D, 0, 0, 0);
 			}
 		}
 	}

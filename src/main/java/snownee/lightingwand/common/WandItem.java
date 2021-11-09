@@ -3,7 +3,6 @@ package snownee.lightingwand.common;
 import java.util.List;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -11,6 +10,7 @@ import net.minecraft.fluid.FluidState;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemUseContext;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
@@ -27,8 +27,8 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceContext.FluidMode;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -38,7 +38,6 @@ import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
 import snownee.lightingwand.Config;
-import snownee.lightingwand.LW;
 
 public class WandItem extends Item {
 	public WandItem() {
@@ -52,7 +51,7 @@ public class WandItem extends Item {
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
 		ItemStack stack = playerIn.getHeldItem(handIn);
-		if (WandItem.isUsable(stack)) {
+		if (isUsable(stack)) {
 			RayTraceResult rayTraceResult = rayTrace(worldIn, playerIn, FluidMode.NONE);
 			if (rayTraceResult.getType() == RayTraceResult.Type.BLOCK) {
 				BlockRayTraceResult blockRayTraceResult = (BlockRayTraceResult) rayTraceResult;
@@ -96,11 +95,39 @@ public class WandItem extends Item {
 		return new ActionResult<>(ActionResultType.FAIL, stack);
 	}
 
+	@Override
+	public ActionResultType onItemUse(ItemUseContext context) {
+		if (!context.func_225518_g_()) {
+			return ActionResultType.PASS;
+		}
+		World worldIn = context.getWorld();
+		BlockPos pos = context.getPos();
+		BlockState state = worldIn.getBlockState(pos);
+		if (state.getBlock() != ModConstants.LIGHT) {
+			return ActionResultType.PASS;
+		}
+		PlayerEntity player = context.getPlayer();
+		ItemStack stack = context.getItem();
+		int wandLight = WandItem.getLightValue(stack);
+		int blockLight = state.get(LightBlock.LIGHT);
+		if (wandLight != blockLight) {
+			worldIn.setBlockState(pos, state.with(LightBlock.LIGHT, wandLight));
+		} else {
+			wandLight = wandLight % 15 + 1;
+			stack.getOrCreateTag().putInt("Light", wandLight);
+			worldIn.setBlockState(pos, state.with(LightBlock.LIGHT, wandLight));
+			player.sendStatusMessage(new TranslationTextComponent("tip.lightingwand.light", wandLight), true);
+		}
+		return ActionResultType.SUCCESS;
+	}
+
 	@OnlyIn(Dist.CLIENT)
 	@Override
 	public void addInformation(ItemStack stack, World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
-		if (!WandItem.isUsable(stack)) {
-			tooltip.add(new StringTextComponent(TextFormatting.DARK_RED + "" + TextFormatting.BOLD + I18n.format("tip." + LW.MODID + ".uncharged")));
+		if (isUsable(stack)) {
+			tooltip.add(new TranslationTextComponent("tip.lightingwand.light", getLightValue(stack)).mergeStyle(TextFormatting.GRAY));
+		} else {
+			tooltip.add(new TranslationTextComponent("tip.lightingwand.uncharged").mergeStyle(TextFormatting.DARK_RED));
 		}
 	}
 
@@ -124,7 +151,7 @@ public class WandItem extends Item {
 
 	@Override
 	public boolean hitEntity(ItemStack stack, LivingEntity target, LivingEntity attacker) {
-		if (WandItem.isUsable(stack)) {
+		if (isUsable(stack)) {
 			target.addPotionEffect(new EffectInstance(Effects.GLOWING, 200));
 			if (attacker instanceof PlayerEntity && !((PlayerEntity) attacker).isCreative()) {
 				stack.setDamage(stack.getDamage() + 1);

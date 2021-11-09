@@ -2,14 +2,11 @@ package snownee.lightingwand.common;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.DispenserBlock;
-import net.minecraft.dispenser.IBlockSource;
-import net.minecraft.dispenser.IDispenseItemBehavior;
 import net.minecraft.dispenser.IPosition;
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemModelsProperties;
-import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.util.Direction;
@@ -80,23 +77,20 @@ public class CommonRegistry {
 
 		if (ModConstants.WAND != Items.AIR) {
 			if (Config.shootProjectile.get()) {
-				DispenserBlock.registerDispenseBehavior(ModConstants.WAND, new IDispenseItemBehavior() {
-					@Override
-					public ItemStack dispense(IBlockSource source, ItemStack stack) {
-						World world = source.getWorld();
-						if (!world.isRemote && WandItem.isUsable(stack)) {
-							IPosition iposition = DispenserBlock.getDispensePosition(source);
-							Direction Direction = source.getBlockState().get(DispenserBlock.FACING);
-							LightEntity entity = new LightEntity(world, iposition.getX(), iposition.getY(), iposition.getZ());
-							entity.lightValue = WandItem.getLightValue(stack);
-							entity.shoot(Direction.getXOffset(), Direction.getYOffset() + 0.1F, Direction.getZOffset(), 1.3F + world.rand.nextFloat() * 0.4F, 0);
-							Vector3d motion = entity.getMotion();
-							entity.setMotion(motion.add(world.rand.nextGaussian() * 0.1D, 0, world.rand.nextGaussian() * 0.1D));
-							world.addEntity(entity);
-							stack.attemptDamageItem(1, world.rand, null);
-						}
-						return stack;
+				DispenserBlock.registerDispenseBehavior(ModConstants.WAND, (source, stack) -> {
+					World world = source.getWorld();
+					if (!world.isRemote && WandItem.isUsable(stack)) {
+						IPosition iposition = DispenserBlock.getDispensePosition(source);
+						Direction Direction = source.getBlockState().get(DispenserBlock.FACING);
+						LightEntity entity = new LightEntity(world, iposition.getX(), iposition.getY(), iposition.getZ());
+						entity.lightValue = WandItem.getLightValue(stack);
+						entity.shoot(Direction.getXOffset(), Direction.getYOffset() + 0.1F, Direction.getZOffset(), 1.3F + world.rand.nextFloat() * 0.4F, 0);
+						Vector3d motion = entity.getMotion();
+						entity.setMotion(motion.add(world.rand.nextGaussian() * 0.1D, 0, world.rand.nextGaussian() * 0.1D));
+						world.addEntity(entity);
+						stack.attemptDamageItem(1, world.rand, null);
 					}
+					return stack;
 				});
 			}
 			ModConstants.WAND.maxDamage = Config.wandDurability.get();
