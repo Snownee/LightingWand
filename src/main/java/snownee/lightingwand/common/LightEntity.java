@@ -16,7 +16,8 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.fmllegacy.network.NetworkHooks;
+import net.minecraftforge.network.NetworkHooks;
+import snownee.lightingwand.CoreModule;
 
 public class LightEntity extends ThrowableProjectile {
 	public int lightValue = 15;
@@ -26,11 +27,11 @@ public class LightEntity extends ThrowableProjectile {
 	}
 
 	public LightEntity(Level levelIn) {
-		super(ModConstants.LIGHT_ENTITY_TYPE, levelIn);
+		super(CoreModule.PROJECTILE, levelIn);
 	}
 
 	public LightEntity(Level levelIn, LivingEntity owner) {
-		super(ModConstants.LIGHT_ENTITY_TYPE, owner, levelIn);
+		super(CoreModule.PROJECTILE, owner, levelIn);
 	}
 
 	@Override
@@ -62,7 +63,7 @@ public class LightEntity extends ThrowableProjectile {
 
 			if (level.getBlockState(pos).getMaterial().isReplaceable()) {
 				FluidState fluidstate = level.getFluidState(pos);
-				if (level.setBlock(pos, ModConstants.LIGHT.defaultBlockState().setValue(LightBlock.LIGHT, Mth.clamp(lightValue, 1, 15)).setValue(LightBlock.WATERLOGGED, fluidstate.is(FluidTags.WATER) && fluidstate.getAmount() == 8), 11)) {
+				if (level.setBlock(pos, CoreModule.LIGHT.defaultBlockState().setValue(LightBlock.LIGHT, Mth.clamp(lightValue, 1, 15)).setValue(LightBlock.WATERLOGGED, fluidstate.is(FluidTags.WATER) && fluidstate.getAmount() == 8), 11)) {
 					level.playSound(null, pos, SoundEvents.SLIME_BLOCK_PLACE, SoundSource.BLOCKS, 1.0F, level.random.nextFloat() * 0.4F + 0.8F);
 				}
 			}

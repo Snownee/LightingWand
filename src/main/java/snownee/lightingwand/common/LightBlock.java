@@ -13,11 +13,8 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
-import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -33,14 +30,15 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.util.thread.EffectiveSide;
+import snownee.lightingwand.CoreModule;
 
 public class LightBlock extends Block implements SimpleWaterloggedBlock {
 	public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 	public static final IntegerProperty LIGHT = IntegerProperty.create("light", 1, 15);
 	public static final Vector3f COLOR_VEC = new Vector3f(1, 1, 0);
 
-	public LightBlock() {
-		super(BlockBehaviour.Properties.copy(Blocks.AIR).lightLevel(state -> state.getValue(LIGHT)).sound(SoundType.SLIME_BLOCK));
+	public LightBlock(Properties properties) {
+		super(properties);
 		registerDefaultState(stateDefinition.any().setValue(WATERLOGGED, false).setValue(LIGHT, 15));
 	}
 
@@ -85,7 +83,7 @@ public class LightBlock extends Block implements SimpleWaterloggedBlock {
 		}
 		Item main = player.getMainHandItem().getItem();
 		Item off = player.getOffhandItem().getItem();
-		if (main == ModConstants.WAND || off == ModConstants.WAND) {
+		if (main == CoreModule.WAND || off == CoreModule.WAND) {
 			return true;
 		}
 		//		if (CommonRegistry.psiCompat) {

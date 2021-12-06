@@ -2,7 +2,7 @@ package snownee.lightingwand.common;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.energy.IEnergyStorage;
-import snownee.lightingwand.Config;
+import snownee.lightingwand.CommonConfig;
 
 public class EnergyRepair implements IEnergyStorage {
 	protected ItemStack container;
@@ -14,10 +14,10 @@ public class EnergyRepair implements IEnergyStorage {
 	@Override
 	public int receiveEnergy(int maxReceive, boolean simulate) {
 		if (canReceive()) {
-			if (!simulate && maxReceive >= Config.energyPerUse.get()) {
+			if (!simulate && maxReceive >= CommonConfig.energyPerUse) {
 				container.setDamageValue(container.getDamageValue() - 1);
 			}
-			return maxReceive >= Config.energyPerUse.get() ? Config.energyPerUse.get() : 0;
+			return maxReceive >= CommonConfig.energyPerUse ? CommonConfig.energyPerUse : 0;
 		}
 		return 0;
 	}
@@ -29,12 +29,12 @@ public class EnergyRepair implements IEnergyStorage {
 
 	@Override
 	public int getEnergyStored() {
-		return Math.max((container.getMaxDamage() - container.getDamageValue()) * Config.energyPerUse.get(), 0);
+		return Math.max((container.getMaxDamage() - container.getDamageValue()) * CommonConfig.energyPerUse, 0);
 	}
 
 	@Override
 	public int getMaxEnergyStored() {
-		return container.getMaxDamage() * Config.energyPerUse.get();
+		return container.getMaxDamage() * CommonConfig.energyPerUse;
 	}
 
 	@Override

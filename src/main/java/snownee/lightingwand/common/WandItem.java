@@ -6,6 +6,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.sounds.SoundEvents;
@@ -19,7 +20,6 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -34,14 +34,14 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
-import snownee.lightingwand.Config;
+import snownee.lightingwand.CommonConfig;
+import snownee.lightingwand.CoreModule;
 
 public class WandItem extends Item {
-	public WandItem() {
-		super(new Item.Properties().tab(CreativeModeTab.TAB_TOOLS).setNoRepair().stacksTo(1));
+	public WandItem(Properties properties) {
+		super(properties);
 	}
 
 	public static boolean isUsable(ItemStack stack) {
@@ -61,17 +61,17 @@ public class WandItem extends Item {
 					return new InteractionResultHolder<>(InteractionResult.FAIL, playerIn.getItemInHand(handIn));
 				}
 				BlockState state = worldIn.getBlockState(pos);
-				if (state.getBlock() != ModConstants.LIGHT && state.getMaterial().isReplaceable()) {
+				if (state.getBlock() != CoreModule.LIGHT && state.getMaterial().isReplaceable()) {
 					if (!playerIn.isCreative()) {
 						stack.setDamageValue(stack.getDamageValue() + 1);
 					}
 					worldIn.playSound(playerIn, pos, SoundEvents.SLIME_BLOCK_PLACE, SoundSource.BLOCKS, 1.0F, playerIn.getRandom().nextFloat() * 0.4F + 0.8F);
 					if (!worldIn.isClientSide) {
 						FluidState fluidstate = worldIn.getFluidState(pos);
-						worldIn.setBlock(pos, ModConstants.LIGHT.defaultBlockState().setValue(LightBlock.LIGHT, getLightValue(stack)).setValue(LightBlock.WATERLOGGED, fluidstate.is(FluidTags.WATER) && fluidstate.getAmount() == 8), 11);
+						worldIn.setBlock(pos, CoreModule.LIGHT.defaultBlockState().setValue(LightBlock.LIGHT, getLightValue(stack)).setValue(LightBlock.WATERLOGGED, fluidstate.is(FluidTags.WATER) && fluidstate.getAmount() == 8), 11);
 					}
 				}
-			} else if (rayTraceResult.getType() == HitResult.Type.MISS && Config.shootProjectile.get()) {
+			} else if (rayTraceResult.getType() == HitResult.Type.MISS && CommonConfig.shootProjectile) {
 				// TODO: Sound subtitle
 				worldIn.playSound((Player) null, playerIn.getX(), playerIn.getY(), playerIn.getZ(), SoundEvents.EGG_THROW, SoundSource.PLAYERS, 0.8F, 0.4F / (playerIn.getRandom().nextFloat() * 0.4F + 0.8F));
 
@@ -103,7 +103,7 @@ public class WandItem extends Item {
 		Level worldIn = context.getLevel();
 		BlockPos pos = context.getClickedPos();
 		BlockState state = worldIn.getBlockState(pos);
-		if (!state.is(ModConstants.LIGHT)) {
+		if (!state.is(CoreModule.LIGHT)) {
 			return InteractionResult.PASS;
 		}
 		Player player = context.getPlayer();
@@ -132,11 +132,11 @@ public class WandItem extends Item {
 	}
 
 	@Override
-	public boolean showDurabilityBar(ItemStack stack) {
+	public boolean isBarVisible(ItemStack stack) {
 		if (!isUsable(stack)) {
 			return false;
 		}
-		return super.showDurabilityBar(stack);
+		return super.isBarVisible(stack);
 	}
 
 	@Override
@@ -169,7 +169,7 @@ public class WandItem extends Item {
 
 			@Override
 			public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-				if (cap == CapabilityEnergy.ENERGY && Config.energyPerUse.get() > 0) {
+				if (cap == CapabilityEnergy.ENERGY && CommonConfig.energyPerUse > 0) {
 					return handler.cast();
 				}
 				return LazyOptional.empty();
@@ -178,7 +178,7 @@ public class WandItem extends Item {
 	}
 
 	public static int getLightValue(ItemStack stack) {
-		if (stack.hasTag() && stack.getTag().contains("Light", NBT.TAG_INT)) {
+		if (stack.hasTag() && stack.getTag().contains("Light", Tag.TAG_INT)) {
 			return Mth.clamp(stack.getTag().getInt("Light"), 1, 15);
 		} else {
 			return 15;

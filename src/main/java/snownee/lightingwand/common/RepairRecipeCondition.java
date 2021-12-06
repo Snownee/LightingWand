@@ -5,7 +5,7 @@ import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.crafting.conditions.ICondition;
 import net.minecraftforge.common.crafting.conditions.IConditionSerializer;
-import snownee.lightingwand.Config;
+import snownee.lightingwand.CommonConfig;
 import snownee.lightingwand.LW;
 
 public class RepairRecipeCondition implements ICondition {
@@ -22,7 +22,7 @@ public class RepairRecipeCondition implements ICondition {
 
 	@Override
 	public boolean test() {
-		return Config.repairRecipe.get();
+		return CommonConfig.repairRecipe;
 	}
 
 	public static class Serializer implements IConditionSerializer<RepairRecipeCondition> {

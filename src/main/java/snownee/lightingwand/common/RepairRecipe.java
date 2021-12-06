@@ -10,15 +10,15 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.ForgeRegistryEntry;
+import snownee.lightingwand.CoreModule;
 
-public class RepairRecipe implements CraftingRecipe {
-	private final ResourceLocation Id;
+public class RepairRecipe extends CustomRecipe {
 	private final String group;
 	private final Item repairable;
 	private final Ingredient material;
@@ -26,7 +26,7 @@ public class RepairRecipe implements CraftingRecipe {
 
 	@SuppressWarnings("deprecation")
 	public RepairRecipe(ResourceLocation Id, String group, Item repairable, Ingredient material, int ratio) {
-		this.Id = Id;
+		super(Id);
 		this.group = group;
 		this.repairable = repairable;
 		this.material = material;
@@ -37,18 +37,8 @@ public class RepairRecipe implements CraftingRecipe {
 	}
 
 	@Override
-	public boolean isSpecial() {
-		return true;
-	}
-
-	@Override
 	public boolean canCraftInDimensions(int width, int height) {
 		return width > 1 || height > 1;
-	}
-
-	@Override
-	public ItemStack getResultItem() {
-		return ItemStack.EMPTY;
 	}
 
 	@Override
@@ -89,20 +79,15 @@ public class RepairRecipe implements CraftingRecipe {
 				}
 			}
 		}
-		int damage = Mth.clamp(wand.getDamageValue() - Mth.ceil(wand.getMaxDamage() / ratio) * dust, 0, ModConstants.WAND.getMaxDamage(wand));
+		int damage = Mth.clamp(wand.getDamageValue() - Mth.ceil(wand.getMaxDamage() / ratio) * dust, 0, CoreModule.WAND.getMaxDamage(wand));
 		ItemStack result = new ItemStack(repairable, 1, wand.getTag());
 		result.setDamageValue(damage);
 		return result;
 	}
 
 	@Override
-	public ResourceLocation getId() {
-		return Id;
-	}
-
-	@Override
 	public RecipeSerializer<?> getSerializer() {
-		return ModConstants.REPAIR;
+		return CoreModule.REPAIR;
 	}
 
 	@Override
