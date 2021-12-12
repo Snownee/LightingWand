@@ -1,0 +1,9 @@
+{
+  "item.lightingwand.wand": "照明魔杖",
+  "block.lightingwand.light": "光源",
+  "tip.lightingwand.uncharged": "無能量",
+  "tip.lightingwand.light": "亮度: %s",
+  "lightingwand.spellpiece.trick_conjure_invisible_light": "能力:召喚無形光源",
+  "lightingwand.spellpiece.trick_conjure_invisible_light.desc": "在指定地點召喚無形光源. 只有手持 CAD 才能看到邊界. 第二個參數是亮度.",
+  "psi.spellerror.lightingwand.light": "ERROR: Volume must be between (0,15]"
+}
