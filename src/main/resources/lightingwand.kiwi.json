@@ -1,0 +1,12 @@
+{
+  "KiwiConfig": [
+    {
+      "target": "snownee.lightingwand.CommonConfig"
+    }
+  ],
+  "KiwiModule": [
+    {
+      "target": "snownee.lightingwand.CoreModule"
+    }
+  ]
+}

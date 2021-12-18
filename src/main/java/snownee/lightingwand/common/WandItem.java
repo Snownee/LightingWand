@@ -2,10 +2,11 @@ package snownee.lightingwand.common;
 
 import java.util.List;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.item.v1.FabricItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -30,16 +31,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.CapabilityEnergy;
 import snownee.lightingwand.CommonConfig;
 import snownee.lightingwand.CoreModule;
 
-public class WandItem extends Item {
+public class WandItem extends Item implements FabricItem {
 	public WandItem(Properties properties) {
 		super(properties);
 	}
@@ -121,7 +116,7 @@ public class WandItem extends Item {
 		return InteractionResult.SUCCESS;
 	}
 
-	@OnlyIn(Dist.CLIENT)
+	@Environment(EnvType.CLIENT)
 	@Override
 	public void appendHoverText(ItemStack stack, Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
 		if (isUsable(stack)) {
@@ -140,8 +135,8 @@ public class WandItem extends Item {
 	}
 
 	@Override
-	public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
-		return slotChanged;
+	public boolean allowNbtUpdateAnimation(Player player, InteractionHand hand, ItemStack oldStack, ItemStack newStack) {
+		return false;
 	}
 
 	@Override
@@ -161,21 +156,21 @@ public class WandItem extends Item {
 		return super.hurtEnemy(stack, target, attacker);
 	}
 
-	@Override
-	public ICapabilityProvider initCapabilities(ItemStack stack, CompoundTag nbt) {
-		return new ICapabilityProvider() {
-
-			private final LazyOptional<EnergyRepair> handler = LazyOptional.of(() -> new EnergyRepair(stack));
-
-			@Override
-			public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-				if (cap == CapabilityEnergy.ENERGY && CommonConfig.energyPerUse > 0) {
-					return handler.cast();
-				}
-				return LazyOptional.empty();
-			}
-		};
-	}
+	//	@Override
+	//	public ICapabilityProvider initCapabilities(ItemStack stack, CompoundTag nbt) {
+	//		return new ICapabilityProvider() {
+	//
+	//			private final LazyOptional<EnergyRepair> handler = LazyOptional.of(() -> new EnergyRepair(stack));
+	//
+	//			@Override
+	//			public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
+	//				if (cap == CapabilityEnergy.ENERGY && CommonConfig.energyPerUse > 0) {
+	//					return handler.cast();
+	//				}
+	//				return LazyOptional.empty();
+	//			}
+	//		};
+	//	}
 
 	public static int getLightValue(ItemStack stack) {
 		if (stack.hasTag() && stack.getTag().contains("Light", Tag.TAG_INT)) {

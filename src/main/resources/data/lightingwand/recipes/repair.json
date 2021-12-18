@@ -1,13 +1,8 @@
 {
   "type": "lightingwand:repair",
-  "conditions": [
-    {
-      "type": "lightingwand:repair_recipe"
-    }
-  ],
   "repairable": "lightingwand:wand",
   "material": {
-    "tag": "forge:dusts/glowstone"
+    "item": "glowstone_dust"
   },
   "ratio": 4
 }

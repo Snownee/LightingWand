@@ -3,7 +3,6 @@ package snownee.lightingwand.common;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.Packet;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
@@ -16,7 +15,6 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.NetworkHooks;
 import snownee.lightingwand.CoreModule;
 
 public class LightEntity extends ThrowableProjectile {
@@ -85,10 +83,10 @@ public class LightEntity extends ThrowableProjectile {
 	protected void defineSynchedData() {
 	}
 
-	@Override
-	public Packet<?> getAddEntityPacket() {
-		return NetworkHooks.getEntitySpawningPacket(this);
-	}
+	//	@Override
+	//	public Packet<?> getAddEntityPacket() {
+	//		return NetworkHooks.getEntitySpawningPacket(this);
+	//	}
 
 	@Override
 	protected void readAdditionalSaveData(CompoundTag compound) {

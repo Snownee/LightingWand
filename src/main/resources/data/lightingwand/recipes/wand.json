@@ -10,10 +10,10 @@
   ],
   "key": {
     "*": {
-      "item": "minecraft:glowstone"
+      "item": "glowstone"
     },
     "/": {
-      "item": "minecraft:blaze_rod"
+      "item": "blaze_rod"
     }
   }
 }

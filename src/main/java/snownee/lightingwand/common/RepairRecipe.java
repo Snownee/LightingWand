@@ -3,6 +3,7 @@ package snownee.lightingwand.common;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
+import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -14,8 +15,6 @@ import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.ForgeRegistryEntry;
 import snownee.lightingwand.CoreModule;
 
 public class RepairRecipe extends CustomRecipe {
@@ -24,7 +23,6 @@ public class RepairRecipe extends CustomRecipe {
 	private final Ingredient material;
 	private final int ratio;
 
-	@SuppressWarnings("deprecation")
 	public RepairRecipe(ResourceLocation Id, String group, Item repairable, Ingredient material, int ratio) {
 		super(Id);
 		this.group = group;
@@ -32,7 +30,7 @@ public class RepairRecipe extends CustomRecipe {
 		this.material = material;
 		this.ratio = ratio;
 		if (repairable.getMaxDamage() == 0) {
-			throw new IllegalArgumentException(String.format("Recipe: %s, Item %s is not repairable", Id, repairable.getRegistryName()));
+			throw new IllegalArgumentException(String.format("Recipe: %s, Item %s is not repairable", Id, repairable));
 		}
 	}
 
@@ -70,7 +68,7 @@ public class RepairRecipe extends CustomRecipe {
 
 		for (int i = 0; i < inv.getContainerSize(); ++i) {
 			ItemStack itemstack = inv.getItem(i);
-			if (itemstack.getItem() == repairable) {
+			if (itemstack.is(repairable)) {
 				wand = itemstack;
 			} else if (!itemstack.isEmpty() && material.test(itemstack)) {
 				int count = itemstack.getCount();
@@ -79,8 +77,9 @@ public class RepairRecipe extends CustomRecipe {
 				}
 			}
 		}
-		int damage = Mth.clamp(wand.getDamageValue() - Mth.ceil(wand.getMaxDamage() / ratio) * dust, 0, CoreModule.WAND.getMaxDamage(wand));
-		ItemStack result = new ItemStack(repairable, 1, wand.getTag());
+		int damage = Mth.clamp(wand.getDamageValue() - Mth.ceil(wand.getMaxDamage() / ratio) * dust, 0, CoreModule.WAND.getMaxDamage());
+		ItemStack result = wand.copy();
+		result.setCount(1);
 		result.setDamageValue(damage);
 		return result;
 	}
@@ -107,12 +106,12 @@ public class RepairRecipe extends CustomRecipe {
 		return ratio;
 	}
 
-	public static class Serializer extends ForgeRegistryEntry<RecipeSerializer<?>> implements RecipeSerializer<RepairRecipe> {
+	public static class Serializer implements RecipeSerializer<RepairRecipe> {
 		@Override
 		public RepairRecipe fromJson(ResourceLocation recipeId, JsonObject json) {
 			String group = GsonHelper.getAsString(json, "group", "");
 			String s = GsonHelper.getAsString(json, "repairable");
-			Item repairable = ForgeRegistries.ITEMS.getValue(new ResourceLocation(s));
+			Item repairable = Registry.ITEM.get(new ResourceLocation(s));
 			if (repairable == null) {
 				throw new JsonSyntaxException("Unknown item '" + s + "'");
 			}

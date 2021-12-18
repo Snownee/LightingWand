@@ -4,11 +4,12 @@ import java.util.Random;
 
 import com.mojang.math.Vector3f;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -25,14 +26,11 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.loading.FMLEnvironment;
-import net.minecraftforge.fml.util.thread.EffectiveSide;
+import snownee.kiwi.block.ModBlock;
+import snownee.kiwi.loader.Platform;
 import snownee.lightingwand.CoreModule;
 
-public class LightBlock extends Block implements SimpleWaterloggedBlock {
+public class LightBlock extends ModBlock implements SimpleWaterloggedBlock {
 	public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 	public static final IntegerProperty LIGHT = IntegerProperty.create("light", 1, 15);
 	public static final Vector3f COLOR_VEC = new Vector3f(1, 1, 0);
@@ -48,13 +46,8 @@ public class LightBlock extends Block implements SimpleWaterloggedBlock {
 	}
 
 	@Override
-	public boolean isAir(BlockState state) {
-		return false;
-	}
-
-	@Override
 	public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext ctx) {
-		return (FMLEnvironment.dist.isClient() && EffectiveSide.get() == LogicalSide.CLIENT && hasItem()) ? Shapes.block() : Shapes.empty();
+		return (Platform.isPhysicalClient() && /*EffectiveSide.get() == LogicalSide.CLIENT &&*/ hasItem()) ? Shapes.block() : Shapes.empty();
 	}
 
 	@Override
@@ -63,7 +56,7 @@ public class LightBlock extends Block implements SimpleWaterloggedBlock {
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
+	@Environment(EnvType.CLIENT)
 	public void animateTick(BlockState stateIn, Level worldIn, BlockPos pos, Random rand) {
 		if (hasItem()) {
 			float x = pos.getX() + 0.3F + rand.nextFloat() * 0.4F;
@@ -75,15 +68,13 @@ public class LightBlock extends Block implements SimpleWaterloggedBlock {
 		super.animateTick(stateIn, worldIn, pos, rand);
 	}
 
-	@OnlyIn(Dist.CLIENT)
+	@Environment(EnvType.CLIENT)
 	public static boolean hasItem() {
 		Player player = Minecraft.getInstance().player;
 		if (player == null) {
 			return false;
 		}
-		Item main = player.getMainHandItem().getItem();
-		Item off = player.getOffhandItem().getItem();
-		if (main == CoreModule.WAND || off == CoreModule.WAND) {
+		if (player.isHolding(CoreModule.WAND)) {
 			return true;
 		}
 		//		if (CommonRegistry.psiCompat) {
