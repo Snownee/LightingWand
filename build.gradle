@@ -22,6 +22,14 @@ repositories {
     // for more information about repositories.
 }
 
+/*
+loom {
+    mixin {
+        defaultRefmapName = "${project.mod_id}.refmap.json"
+    }
+}
+*/
+
 dependencies {
     // To change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
@@ -42,7 +50,7 @@ dependencies {
 	modCompileOnly "me.shedaniel:RoughlyEnoughItems-fabric:${project.rei_version}"
     modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-fabric:${project.rei_version}"
 	
-	modImplementation "libs:Kiwi-1.18.1-fabric:${project.kiwi_version}-dev"
+	modImplementation "libs:Kiwi-1.18.1-fabric:${project.kiwi_version}"
 }
 
 processResources {
