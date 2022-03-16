@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.Vec3;
 import snownee.kiwi.AbstractModule;
+import snownee.kiwi.KiwiGO;
 import snownee.kiwi.KiwiModule;
 import snownee.kiwi.KiwiModule.Name;
 import snownee.kiwi.KiwiModule.NoItem;
@@ -35,31 +36,32 @@ import snownee.lightingwand.common.WandItem;
 public class CoreModule extends AbstractModule {
 
 	@NoItem
-	public static Block LIGHT = new LightBlock(blockProp(Material.AIR).noCollission().noDrops().lightLevel(state -> state.getValue(LightBlock.LIGHT)).sound(SoundType.SLIME_BLOCK));
+	public static final KiwiGO<Block> LIGHT = go(() -> new LightBlock(blockProp(Material.AIR).noCollission().noDrops().lightLevel(state -> state.getValue(LightBlock.LIGHT)).sound(SoundType.SLIME_BLOCK)));
 
 	/* off */
 	@Name("light")
-	public static EntityType<LightEntity> PROJECTILE = FabricEntityTypeBuilder.<LightEntity>create(MobCategory.MISC, LightEntity::new)
+	public static final KiwiGO<EntityType<LightEntity>> PROJECTILE = go(() -> FabricEntityTypeBuilder.<LightEntity>create(MobCategory.MISC, LightEntity::new)
 			.entityFactory((spawnEntity, world) -> new LightEntity(world))
 			//.sized(0.0001F, 0.0001F)
 			.fireImmune()
 			.trackRangeBlocks(64)
 			.trackedUpdateRate(20)
 			.forceTrackedVelocityUpdates(true)
-			.build();
+			.build()
+	);
 	/* on */
 
-	public static Item WAND = new WandItem(itemProp().tab(CreativeModeTab.TAB_TOOLS).durability(CommonConfig.wandDurability));
+	public static final KiwiGO<Item> WAND = go(() -> new WandItem(itemProp().tab(CreativeModeTab.TAB_TOOLS).durability(CommonConfig.wandDurability)));
 
-	public static RecipeSerializer<?> REPAIR = new RepairRecipe.Serializer();
+	public static final KiwiGO<RecipeSerializer<RepairRecipe>> REPAIR = go(() -> new RepairRecipe.Serializer());
 
 	//	public static boolean psiCompat = Platform.isModLoaded("psi");
 
 	@Override
 	@Environment(EnvType.CLIENT)
 	protected void clientInit(ClientInitEvent event) {
-		FabricModelPredicateProviderRegistry.register(WAND, new ResourceLocation("broken"), (stack, worldIn, entityIn, seed) -> (WandItem.isUsable(stack) ? 0 : 1));
-		EntityRendererRegistry.register(PROJECTILE, EmptyEntityRenderer::new);
+		FabricModelPredicateProviderRegistry.register(WAND.get(), new ResourceLocation("broken"), (stack, worldIn, entityIn, seed) -> (WandItem.isUsable(stack) ? 0 : 1));
+		EntityRendererRegistry.register(PROJECTILE.get(), EmptyEntityRenderer::new);
 	}
 
 	@Override
@@ -70,7 +72,7 @@ public class CoreModule extends AbstractModule {
 
 		//		CraftingHelper.register(new RepairRecipeCondition.Serializer());
 		if (CommonConfig.shootProjectile) {
-			DispenserBlock.registerBehavior(WAND, (source, stack) -> {
+			DispenserBlock.registerBehavior(WAND.get(), (source, stack) -> {
 				Level world = source.getLevel();
 				if (!world.isClientSide && WandItem.isUsable(stack)) {
 					Position iposition = DispenserBlock.getDispensePosition(source);

@@ -74,7 +74,7 @@ public class LightBlock extends ModBlock implements SimpleWaterloggedBlock {
 		if (player == null) {
 			return false;
 		}
-		if (player.isHolding(CoreModule.WAND)) {
+		if (player.isHolding(CoreModule.WAND.get())) {
 			return true;
 		}
 		//		if (CommonRegistry.psiCompat) {

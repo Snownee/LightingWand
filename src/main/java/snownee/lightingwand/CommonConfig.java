@@ -20,7 +20,7 @@ public class CommonConfig {
 	//	public static boolean repairRecipe = true;
 
 	@GameRestart
-	@Comment("Max durability of wand.")
+	@Comment("Max durability of the wand.")
 	@Range(min = 1)
 	public static int wandDurability = 255;
 

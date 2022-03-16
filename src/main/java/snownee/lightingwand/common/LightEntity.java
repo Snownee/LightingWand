@@ -25,11 +25,11 @@ public class LightEntity extends ThrowableProjectile {
 	}
 
 	public LightEntity(Level levelIn) {
-		super(CoreModule.PROJECTILE, levelIn);
+		super(CoreModule.PROJECTILE.get(), levelIn);
 	}
 
 	public LightEntity(Level levelIn, LivingEntity owner) {
-		super(CoreModule.PROJECTILE, owner, levelIn);
+		super(CoreModule.PROJECTILE.get(), owner, levelIn);
 	}
 
 	@Override
