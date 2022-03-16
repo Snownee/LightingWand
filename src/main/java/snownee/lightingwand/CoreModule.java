@@ -21,6 +21,7 @@ import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import snownee.kiwi.AbstractModule;
+import snownee.kiwi.KiwiGO;
 import snownee.kiwi.KiwiModule;
 import snownee.kiwi.KiwiModule.Name;
 import snownee.kiwi.KiwiModule.NoItem;
@@ -40,7 +41,7 @@ import snownee.lightingwand.common.WandItem;
 public class CoreModule extends AbstractModule {
 
 	@NoItem
-	public static Block LIGHT = new LightBlock(blockProp(Blocks.AIR).lightLevel(state -> state.getValue(LightBlock.LIGHT)).sound(SoundType.SLIME_BLOCK));
+	public static final KiwiGO<Block> LIGHT = go(() -> new LightBlock(blockProp(Blocks.AIR).lightLevel(state -> state.getValue(LightBlock.LIGHT)).sound(SoundType.SLIME_BLOCK)));
 
 	/* off */
 	@Name("light")
@@ -54,9 +55,9 @@ public class CoreModule extends AbstractModule {
 			.build(LW.MODID + ".light");
 	/* on */
 
-	public static Item WAND = new WandItem(itemProp().tab(CreativeModeTab.TAB_TOOLS).setNoRepair().durability(CommonConfig.wandDurability));
+	public static final KiwiGO<Item> WAND = go(() -> new WandItem(itemProp().tab(CreativeModeTab.TAB_TOOLS).setNoRepair().durability(CommonConfig.wandDurability)));
 
-	public static RecipeSerializer<?> REPAIR = new RepairRecipe.Serializer();
+	public static final KiwiGO<RecipeSerializer<?>> REPAIR = go(() -> new RepairRecipe.Serializer());
 
 	public static boolean psiCompat = Platform.isModLoaded("psi");
 
@@ -67,7 +68,7 @@ public class CoreModule extends AbstractModule {
 		//		}
 		CraftingHelper.register(new RepairRecipeCondition.Serializer());
 		if (CommonConfig.shootProjectile) {
-			DispenserBlock.registerBehavior(WAND, (source, stack) -> {
+			DispenserBlock.registerBehavior(WAND.get(), (source, stack) -> {
 				Level world = source.getLevel();
 				if (!world.isClientSide && WandItem.isUsable(stack)) {
 					Position iposition = DispenserBlock.getDispensePosition(source);
@@ -89,7 +90,7 @@ public class CoreModule extends AbstractModule {
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	protected void clientInit(ClientInitEvent event) {
-		ItemProperties.register(WAND, new ResourceLocation("broken"), (stack, worldIn, entityIn, seed) -> (WandItem.isUsable(stack) ? 0 : 1));
+		ItemProperties.register(WAND.get(), new ResourceLocation("broken"), (stack, worldIn, entityIn, seed) -> (WandItem.isUsable(stack) ? 0 : 1));
 	}
 
 	@SubscribeEvent

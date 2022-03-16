@@ -79,7 +79,7 @@ public class RepairRecipe extends CustomRecipe {
 				}
 			}
 		}
-		int damage = Mth.clamp(wand.getDamageValue() - Mth.ceil(wand.getMaxDamage() / ratio) * dust, 0, CoreModule.WAND.getMaxDamage(wand));
+		int damage = Mth.clamp(wand.getDamageValue() - Mth.ceil(wand.getMaxDamage() / ratio) * dust, 0, CoreModule.WAND.get().getMaxDamage(wand));
 		ItemStack result = new ItemStack(repairable, 1, wand.getTag());
 		result.setDamageValue(damage);
 		return result;
@@ -87,7 +87,7 @@ public class RepairRecipe extends CustomRecipe {
 
 	@Override
 	public RecipeSerializer<?> getSerializer() {
-		return CoreModule.REPAIR;
+		return CoreModule.REPAIR.get();
 	}
 
 	@Override

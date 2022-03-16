@@ -83,7 +83,7 @@ public class LightBlock extends Block implements SimpleWaterloggedBlock {
 		}
 		Item main = player.getMainHandItem().getItem();
 		Item off = player.getOffhandItem().getItem();
-		if (main == CoreModule.WAND || off == CoreModule.WAND) {
+		if (CoreModule.WAND.is(main) || CoreModule.WAND.is(off)) {
 			return true;
 		}
 		//		if (CommonRegistry.psiCompat) {
