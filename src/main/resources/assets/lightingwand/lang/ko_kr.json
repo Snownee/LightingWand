@@ -1,0 +1,9 @@
+{
+  "item.lightingwand.wand": "조명 완드",
+  "block.lightingwand.light": "광원",
+  "tip.lightingwand.uncharged": "충전되지 않음",
+  "tip.lightingwand.light": "빛: %s",
+  "lightingwand.spellpiece.trick_conjure_invisible_light": "트릭: 보이지 않는 빛을 불러일으키다.",
+  "lightingwand.spellpiece.trick_conjure_invisible_light.desc": "해당 위치에 빛을 불러일으킵니다. 손에 CAD를 들고 있을 때만 바운딩 상자를 볼 수 있습니다. 세 번째 매개변수는 밝기입니다.",
+  "psi.spellerror.lightingwand.light": "에러: 볼륨은 (0,15] 사이여야만 합니다."
+}
