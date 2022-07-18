@@ -3,8 +3,8 @@ package snownee.lightingwand;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
-import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
+import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
 import net.minecraft.resources.ResourceLocation;
@@ -36,7 +36,7 @@ import snownee.lightingwand.common.WandItem;
 public class CoreModule extends AbstractModule {
 
 	@NoItem
-	public static final KiwiGO<Block> LIGHT = go(() -> new LightBlock(blockProp(Material.AIR).noCollission().noDrops().lightLevel(state -> state.getValue(LightBlock.LIGHT)).sound(SoundType.SLIME_BLOCK)));
+	public static final KiwiGO<Block> LIGHT = go(() -> new LightBlock(blockProp(Material.AIR).noCollission().noLootTable().lightLevel(state -> state.getValue(LightBlock.LIGHT)).sound(SoundType.FROGLIGHT)));
 
 	/* off */
 	@Name("light")
@@ -60,7 +60,7 @@ public class CoreModule extends AbstractModule {
 	@Override
 	@Environment(EnvType.CLIENT)
 	protected void clientInit(ClientInitEvent event) {
-		FabricModelPredicateProviderRegistry.register(WAND.get(), new ResourceLocation("broken"), (stack, worldIn, entityIn, seed) -> (WandItem.isUsable(stack) ? 0 : 1));
+		ItemProperties.register(WAND.get(), new ResourceLocation("broken"), (stack, worldIn, entityIn, seed) -> (WandItem.isUsable(stack) ? 0 : 1));
 		EntityRendererRegistry.register(PROJECTILE.get(), EmptyEntityRenderer::new);
 	}
 

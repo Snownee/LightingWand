@@ -62,7 +62,7 @@ public class LightEntity extends ThrowableProjectile {
 			if (level.getBlockState(pos).getMaterial().isReplaceable()) {
 				FluidState fluidstate = level.getFluidState(pos);
 				if (level.setBlock(pos, CoreModule.LIGHT.defaultBlockState().setValue(LightBlock.LIGHT, Mth.clamp(lightValue, 1, 15)).setValue(LightBlock.WATERLOGGED, fluidstate.is(FluidTags.WATER) && fluidstate.getAmount() == 8), 11)) {
-					level.playSound(null, pos, SoundEvents.SLIME_BLOCK_PLACE, SoundSource.BLOCKS, 1.0F, level.random.nextFloat() * 0.4F + 0.8F);
+					level.playSound(null, pos, SoundEvents.FROGLIGHT_PLACE, SoundSource.BLOCKS, 1.0F, level.random.nextFloat() * 0.4F + 0.8F);
 				}
 			}
 		}

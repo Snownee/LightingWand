@@ -15,17 +15,20 @@
   "license": "MIT",
 
   "entrypoints": {
-    "rei": [
+    "rei_client": [
       "snownee.lightingwand.compat.REICompat"
+    ],
+    "jei_mod_plugin": [
+      "snownee.lightingwand.compat.JEICompat"
     ]
   },
   "mixins": [],
 
   "depends": {
-    "fabricloader": ">=0.13",
-    "minecraft": ">=1.18.2",
+    "fabric": "*",
+    "minecraft": ">=1.19",
     "java": ">=17",
-    "kiwi": ">=6"
+    "kiwi": ">=7"
   },
 
   "custom": {

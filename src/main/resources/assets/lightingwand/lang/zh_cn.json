@@ -1,6 +1,7 @@
 {
   "item.lightingwand.wand": "照明魔杖",
   "block.lightingwand.light": "光源",
+  "entity.lightingwand.light": "光源",
   "tip.lightingwand.uncharged": "未充能",
   "tip.lightingwand.light": "亮度：%s",
   "lightingwand.spellpiece.trick_conjure_invisible_light": "启动式: 构筑隐藏光线",

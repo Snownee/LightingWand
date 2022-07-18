@@ -1,6 +1,7 @@
 {
   "item.lightingwand.wand": "Lighting Wand",
   "block.lightingwand.light": "Light Source",
+  "entity.lightingwand.light": "Light Source",
   "tip.lightingwand.uncharged": "Uncharged",
   "tip.lightingwand.light": "Light: %s",
   "lightingwand.spellpiece.trick_conjure_invisible_light": "Trick: Conjure Invisible Light",
