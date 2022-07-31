@@ -14,7 +14,6 @@ repositories {
     maven { url = "https://maven.parchmentmc.org" }
     maven { url "https://maven.shedaniel.me/" }
     maven { url "https://maven.terraformersmc.com/releases/" }
-    maven { url "https://maven.bai.lol" }
 	maven { url = "https://dvs1.progwml6.com/files/maven/" }
     maven {
         url "https://cursemaven.com"
