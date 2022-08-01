@@ -1,12 +1,11 @@
 package snownee.lightingwand.common;
 
-import java.util.Random;
-
 import com.mojang.math.Vector3f;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -64,7 +63,7 @@ public class LightBlock extends Block implements SimpleWaterloggedBlock {
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void animateTick(BlockState stateIn, Level worldIn, BlockPos pos, Random rand) {
+	public void animateTick(BlockState stateIn, Level worldIn, BlockPos pos, RandomSource rand) {
 		if (hasItem()) {
 			float x = pos.getX() + 0.3F + rand.nextFloat() * 0.4F;
 			float y = pos.getY() + 0.5F;

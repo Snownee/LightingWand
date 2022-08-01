@@ -8,7 +8,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -66,7 +65,7 @@ public class WandItem extends Item {
 				}
 				BlockState state = worldIn.getBlockState(pos);
 				if (!CoreModule.LIGHT.is(state) && state.getMaterial().isReplaceable()) {
-					worldIn.playSound(null, pos, SoundEvents.SLIME_BLOCK_PLACE, SoundSource.BLOCKS, 1.0F, playerIn.getRandom().nextFloat() * 0.4F + 0.8F);
+					worldIn.playSound(null, pos, SoundEvents.FROGLIGHT_PLACE, SoundSource.BLOCKS, 1.0F, playerIn.getRandom().nextFloat() * 0.4F + 0.8F);
 					FluidState fluidstate = worldIn.getFluidState(pos);
 					worldIn.setBlock(pos, CoreModule.LIGHT.defaultBlockState().setValue(LightBlock.LIGHT, getLightValue(stack)).setValue(LightBlock.WATERLOGGED, fluidstate.is(FluidTags.WATER) && fluidstate.getAmount() == 8), 11);
 				}
@@ -108,7 +107,7 @@ public class WandItem extends Item {
 			wandLight = wandLight % 15 + 1;
 			stack.getOrCreateTag().putInt("Light", wandLight);
 			worldIn.setBlockAndUpdate(pos, state.setValue(LightBlock.LIGHT, wandLight));
-			player.displayClientMessage(new TranslatableComponent("tip.lightingwand.light", wandLight), true);
+			player.displayClientMessage(Component.translatable("tip.lightingwand.light", wandLight), true);
 		}
 		return InteractionResult.SUCCESS;
 	}
@@ -117,9 +116,9 @@ public class WandItem extends Item {
 	@Override
 	public void appendHoverText(ItemStack stack, Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
 		if (isUsable(stack)) {
-			tooltip.add(new TranslatableComponent("tip.lightingwand.light", getLightValue(stack)).withStyle(ChatFormatting.GRAY));
+			tooltip.add(Component.translatable("tip.lightingwand.light", getLightValue(stack)).withStyle(ChatFormatting.GRAY));
 		} else {
-			tooltip.add(new TranslatableComponent("tip.lightingwand.uncharged").withStyle(ChatFormatting.DARK_RED));
+			tooltip.add(Component.translatable("tip.lightingwand.uncharged").withStyle(ChatFormatting.DARK_RED));
 		}
 	}
 

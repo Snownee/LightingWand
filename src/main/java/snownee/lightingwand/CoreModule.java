@@ -25,7 +25,6 @@ import snownee.kiwi.KiwiGO;
 import snownee.kiwi.KiwiModule;
 import snownee.kiwi.KiwiModule.Name;
 import snownee.kiwi.KiwiModule.NoItem;
-import snownee.kiwi.KiwiModule.Subscriber.Bus;
 import snownee.kiwi.loader.Platform;
 import snownee.kiwi.loader.event.ClientInitEvent;
 import snownee.kiwi.loader.event.InitEvent;
@@ -37,11 +36,11 @@ import snownee.lightingwand.common.RepairRecipeCondition;
 import snownee.lightingwand.common.WandItem;
 
 @KiwiModule
-@KiwiModule.Subscriber(Bus.MOD)
+@KiwiModule.Subscriber(modBus = true)
 public class CoreModule extends AbstractModule {
 
 	@NoItem
-	public static final KiwiGO<Block> LIGHT = go(() -> new LightBlock(blockProp(Blocks.AIR).lightLevel(state -> state.getValue(LightBlock.LIGHT)).sound(SoundType.SLIME_BLOCK)));
+	public static final KiwiGO<Block> LIGHT = go(() -> new LightBlock(blockProp(Blocks.AIR).noCollission().noLootTable().lightLevel(state -> state.getValue(LightBlock.LIGHT)).sound(SoundType.FROGLIGHT)));
 
 	/* off */
 	@Name("light")

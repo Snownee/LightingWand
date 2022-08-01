@@ -4,7 +4,6 @@ import java.util.List;
 
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
-import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.ingredient.ICraftingGridHelper;
 import mezz.jei.api.recipe.IFocusGroup;
@@ -45,10 +44,10 @@ public class JEICompat implements IModPlugin {
 			ItemStack broken = new ItemStack(recipe.getRepairable());
 			int duration = broken.getMaxDamage();
 			broken.setDamageValue(duration);
-			craftingGridHelper.setInputs(builder, VanillaTypes.ITEM, List.of(List.of(broken), List.of(recipe.getMaterial().getItems())), 0, 0);
+			craftingGridHelper.createAndSetInputs(builder, List.of(List.of(broken), List.of(recipe.getMaterial().getItems())), 0, 0);
 			ItemStack output = new ItemStack(recipe.getRepairable());
 			output.setDamageValue(Mth.clamp(duration - Mth.ceil(duration / recipe.getRatio()), 0, duration));
-			craftingGridHelper.setOutputs(builder, VanillaTypes.ITEM, List.of(output));
+			craftingGridHelper.createAndSetOutputs(builder, List.of(output));
 		}
 	}
 }

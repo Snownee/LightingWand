@@ -21,7 +21,7 @@ public class RepairRecipeCondition implements ICondition {
 	}
 
 	@Override
-	public boolean test() {
+	public boolean test(IContext context) {
 		return CommonConfig.repairRecipe;
 	}
 
