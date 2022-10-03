@@ -1,8 +1,13 @@
 {
   "item.lightingwand.wand": "照明魔杖",
   "block.lightingwand.light": "光源",
+  "block.lightingwand.colored_light": "光源",
+  "entity.lightingwand.light": "光源",
   "tip.lightingwand.uncharged": "未充能",
   "tip.lightingwand.light": "亮度：%s",
+  "tip.lightingwand.color": "颜色：%s",
+  "tip.lightingwand.opacity": "不透明度：%s%%",
+  "tip.lightingwand.noShimmer": "Shimmer未安装。自定义颜色不可用。",
   "lightingwand.spellpiece.trick_conjure_invisible_light": "启动式: 构筑隐藏光线",
   "lightingwand.spellpiece.trick_conjure_invisible_light.desc": "在指定位置构筑一团亮光，只有手持CAD时才能看到方块边框。第二个参数是光源强度。"
 }
