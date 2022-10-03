@@ -154,6 +154,9 @@ repositories {
     maven {
         url = "https://www.cursemaven.com"
     }
+	maven {
+		url "https://maven.firstdarkdev.xyz/snapshots"
+	}
 }
 
 /*
@@ -183,6 +186,8 @@ dependencies {
     implementation fg.deobf("curse.maven:jade-324717:3671210")
     implementation fg.deobf("curse.maven:kiwi-303657:3680819")
     annotationProcessor fg.deobf("curse.maven:kiwi-303657:3680819")
+	
+	implementation fg.deobf("com.lowdragmc.shimmer:Shimmer-forge-1.18.2:0.1.10")
 
     // For more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html

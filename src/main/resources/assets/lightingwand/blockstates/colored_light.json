@@ -1,0 +1,5 @@
+{
+  "variants": {
+	"": { "model": "lightingwand:block/light" }
+  }
+}
