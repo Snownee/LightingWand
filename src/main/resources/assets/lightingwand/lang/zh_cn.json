@@ -9,5 +9,6 @@
   "tip.lightingwand.opacity": "不透明度：%s%%",
   "tip.lightingwand.noShimmer": "Shimmer未安装。自定义颜色不可用。",
   "lightingwand.spellpiece.trick_conjure_invisible_light": "启动式: 构筑隐藏光线",
-  "lightingwand.spellpiece.trick_conjure_invisible_light.desc": "在指定位置构筑一团亮光，只有手持CAD时才能看到方块边框。第二个参数是光源强度。"
+  "lightingwand.spellpiece.trick_conjure_invisible_light.desc": "在指定位置构筑一团亮光，只有手持CAD时才能看到方块边框。第二个参数是光源强度。",
+  "psi.spellerror.lightingwand.light": "错误:数值必须处于(0~15)之间"
 }
