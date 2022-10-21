@@ -1,6 +1,7 @@
 {
   "item.lightingwand.wand": "Жезл освещения",
   "block.lightingwand.light": "Источник света",
+  "block.lightingwand.colored_light": "Источник света",
   "entity.lightingwand.light": "Источник света",
   "tip.lightingwand.uncharged": "Незаряженный",
   "lightingwand.spellpiece.trick_conjure_invisible_light": "Фокус: Наколдовать невидимый свет",

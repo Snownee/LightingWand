@@ -14,6 +14,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -29,15 +30,15 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.util.thread.EffectiveSide;
+import snownee.lightingwand.CommonConfig;
 import snownee.lightingwand.CoreModule;
 
 public class LightBlock extends Block implements SimpleWaterloggedBlock {
 	public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 	public static final IntegerProperty LIGHT = IntegerProperty.create("light", 1, 15);
-	public static final Vector3f COLOR_VEC = new Vector3f(1, 1, 0);
 
 	public LightBlock(Properties properties) {
-		super(properties);
+		super(properties.sound(SoundType.FROGLIGHT));
 		registerDefaultState(stateDefinition.any().setValue(WATERLOGGED, false).setValue(LIGHT, 15));
 	}
 
@@ -69,9 +70,16 @@ public class LightBlock extends Block implements SimpleWaterloggedBlock {
 			float y = pos.getY() + 0.5F;
 			float z = pos.getZ() + 0.3F + rand.nextFloat() * 0.4F;
 
-			worldIn.addParticle(new DustParticleOptions(COLOR_VEC, 1.0F), x, y, z, 0, 0, 0);
+			Vector3f colorVector = CommonConfig.getDefaultLightColor();
+			if (CoreModule.COLORED_LIGHT.is(stateIn) && worldIn.getBlockEntity(pos) instanceof ColoredLightBlockEntity be) {
+				colorVector = CommonConfig.intColorToVector3(be.getColor());
+			}
+			worldIn.addParticle(new DustParticleOptions(colorVector, 1.0F), x, y, z, 0, 0, 0);
 		}
-		super.animateTick(stateIn, worldIn, pos, rand);
+	}
+
+	public int getColor(BlockState stateIn, Level worldIn, BlockPos pos) {
+		return CommonConfig.defaultLightColor;
 	}
 
 	@OnlyIn(Dist.CLIENT)

@@ -1,9 +1,14 @@
 package snownee.lightingwand.common;
 
+import com.mojang.math.Vector3f;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
@@ -12,15 +17,21 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.ThrowableProjectile;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkHooks;
+import snownee.lightingwand.CommonConfig;
 import snownee.lightingwand.CoreModule;
+import snownee.lightingwand.compat.ShimmerCompat;
 
 public class LightEntity extends ThrowableProjectile {
-	public int lightValue = 15;
+	private static final EntityDataAccessor<Integer> DATA_LIGHT = SynchedEntityData.defineId(LightEntity.class, EntityDataSerializers.INT);
+	private static final EntityDataAccessor<Integer> DATA_COLOR = SynchedEntityData.defineId(LightEntity.class, EntityDataSerializers.INT);
+
+	public Object shimmerLight;
 
 	public LightEntity(EntityType<?> type, Level levelIn) {
 		this(levelIn);
@@ -63,7 +74,12 @@ public class LightEntity extends ThrowableProjectile {
 
 			if (level.getBlockState(pos).getMaterial().isReplaceable()) {
 				FluidState fluidstate = level.getFluidState(pos);
-				if (level.setBlock(pos, CoreModule.LIGHT.defaultBlockState().setValue(LightBlock.LIGHT, Mth.clamp(lightValue, 1, 15)).setValue(LightBlock.WATERLOGGED, fluidstate.is(FluidTags.WATER) && fluidstate.getAmount() == 8), 11)) {
+				int color = getColor();
+				Block block = color == 0 ? CoreModule.LIGHT.get() : CoreModule.COLORED_LIGHT.get();
+				if (level.setBlock(pos, block.defaultBlockState().setValue(LightBlock.LIGHT, Mth.clamp(getLightValue(), 1, 15)).setValue(LightBlock.WATERLOGGED, fluidstate.is(FluidTags.WATER) && fluidstate.getAmount() == 8), 11)) {
+					if (color != 0 && level.getBlockEntity(pos) instanceof ColoredLightBlockEntity be) {
+						be.setColor(color);
+					}
 					level.playSound(null, pos, SoundEvents.FROGLIGHT_PLACE, SoundSource.BLOCKS, 1.0F, level.random.nextFloat() * 0.4F + 0.8F);
 				}
 			}
@@ -75,14 +91,21 @@ public class LightEntity extends ThrowableProjectile {
 		super.tick();
 		if (level.isClientSide && !onGround) {
 			Vec3 motion = getDeltaMovement();
+			int color = getColor();
+			Vector3f colorVec = color == 0 ? CommonConfig.getDefaultLightColor() : CommonConfig.intColorToVector3(color);
 			for (int k = 0; k < 2; ++k) {
-				level.addParticle(new DustParticleOptions(LightBlock.COLOR_VEC, 1.0F), getX() + motion.x * k / 2D, getY() + motion.y * k / 2D, getZ() + motion.z * k / 2D, 0, 0, 0);
+				level.addParticle(new DustParticleOptions(colorVec, 1.0F), getX() + motion.x * k / 2D, getY() + motion.y * k / 2D, getZ() + motion.z * k / 2D, 0, 0, 0);
+			}
+			if (shimmerLight != null) {
+				ShimmerCompat.updateLight(this);
 			}
 		}
 	}
 
 	@Override
 	protected void defineSynchedData() {
+		this.entityData.define(DATA_LIGHT, 15);
+		this.entityData.define(DATA_COLOR, 0);
 	}
 
 	@Override
@@ -93,15 +116,52 @@ public class LightEntity extends ThrowableProjectile {
 	@Override
 	protected void readAdditionalSaveData(CompoundTag compound) {
 		super.readAdditionalSaveData(compound);
-		lightValue = compound.getInt("Light");
-		if (lightValue == 0) {
-			lightValue = 15;
-		}
+		setLightValue(compound.getInt("Light"));
+		setColor(compound.getInt("Color"));
 	}
 
 	@Override
 	protected void addAdditionalSaveData(CompoundTag compound) {
 		super.addAdditionalSaveData(compound);
-		compound.putInt("Light", lightValue);
+		compound.putInt("Light", getLightValue());
+		int color = getColor();
+		if (color != 0) {
+			compound.putInt("Color", color);
+		}
+	}
+
+	@Override
+	public void onAddedToWorld() {
+		super.onAddedToWorld();
+		if (level.isClientSide && CoreModule.shimmerCompat && shimmerLight == null) {
+			ShimmerCompat.addLight(this);
+		}
+	}
+
+	@Override
+	public void onClientRemoval() {
+		super.onClientRemoval();
+		if (shimmerLight != null) {
+			ShimmerCompat.removeLight(this);
+		}
+	}
+
+	public void setLightValue(int lightValue) {
+		if (lightValue == 0) {
+			lightValue = 15;
+		}
+		entityData.set(DATA_LIGHT, lightValue);
+	}
+
+	public void setColor(int color) {
+		entityData.set(DATA_COLOR, color);
+	}
+
+	public int getLightValue() {
+		return entityData.get(DATA_LIGHT);
+	}
+
+	public int getColor() {
+		return entityData.get(DATA_COLOR);
 	}
 }
