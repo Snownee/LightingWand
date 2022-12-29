@@ -10,7 +10,6 @@ import net.minecraft.core.Position;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
@@ -22,6 +21,7 @@ import net.minecraft.world.phys.Vec3;
 import snownee.kiwi.AbstractModule;
 import snownee.kiwi.KiwiGO;
 import snownee.kiwi.KiwiModule;
+import snownee.kiwi.KiwiModule.Category;
 import snownee.kiwi.KiwiModule.Name;
 import snownee.kiwi.KiwiModule.NoItem;
 import snownee.kiwi.loader.event.ClientInitEvent;
@@ -51,7 +51,8 @@ public class CoreModule extends AbstractModule {
 	);
 	/* on */
 
-	public static final KiwiGO<Item> WAND = go(() -> new WandItem(itemProp().tab(CreativeModeTab.TAB_TOOLS).durability(CommonConfig.wandDurability)));
+	@Category("tools")
+	public static final KiwiGO<Item> WAND = go(() -> new WandItem(itemProp().durability(CommonConfig.wandDurability)));
 
 	public static final KiwiGO<RecipeSerializer<RepairRecipe>> REPAIR = go(() -> new RepairRecipe.Serializer());
 

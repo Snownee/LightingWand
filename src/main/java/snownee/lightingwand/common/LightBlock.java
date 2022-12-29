@@ -1,6 +1,6 @@
 package snownee.lightingwand.common;
 
-import com.mojang.math.Vector3f;
+import org.joml.Vector3f;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
