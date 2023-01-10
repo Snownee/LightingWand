@@ -1,0 +1,14 @@
+{
+    "item.lightingwand.wand": "varinha de iluminação",
+    "block.lightingwand.light": "Fonte de luz",
+    "block.lightingwand.colored_light": "Fonte de luz",
+    "entity.lightingwand.light": "Fonte de luz",
+    "tip.lightingwand.uncharged": "Descarregado",
+    "tip.lightingwand.light": "Alcance: %s",
+    "tip.lightingwand.color": "Cor: %s",
+    "tip.lightingwand.opacity": "Opacidade: %s%%",
+    "tip.lightingwand.noShimmer": "Shimmer não instalado. A cor personalizada não está disponível.",
+    "lightingwand.spellpiece.trick_conjure_invisible_light": "Truque: Conjurar Luz Invisível",
+    "lightingwand.spellpiece.trick_conjure_invisible_light.desc": "Conjura uma luz na posição dada. Somente tendo o CAD em mãos é possível ver a caixa delimitadora. O segundo parâmetro é o valor da luz.",
+    "psi.spellerror.lightingwand.light": "ERRO: O volume deve estar entre (0,15]"
+}
