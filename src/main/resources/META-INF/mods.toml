@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[42,)"
+loaderVersion="[44,)"
 license="MIT"
 
 [[mods]]
@@ -13,14 +13,14 @@ description="Lighting up!"
 [[dependencies.lightingwand]]
     modId="forge"
     mandatory=true
-    versionRange="[42,)"
+    versionRange="[44,)"
     ordering="NONE"
     side="BOTH"
 
 [[dependencies.lightingwand]]
     modId="kiwi"
     mandatory=true
-    versionRange="[8,)"
+    versionRange="[9,)"
     ordering="NONE"
     side="BOTH"
 

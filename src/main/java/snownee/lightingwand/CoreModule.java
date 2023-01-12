@@ -7,7 +7,6 @@ import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -22,8 +21,10 @@ import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import snownee.kiwi.AbstractModule;
+import snownee.kiwi.Categories;
 import snownee.kiwi.KiwiGO;
 import snownee.kiwi.KiwiModule;
+import snownee.kiwi.KiwiModule.Category;
 import snownee.kiwi.KiwiModule.Name;
 import snownee.kiwi.KiwiModule.NoItem;
 import snownee.kiwi.loader.Platform;
@@ -67,7 +68,8 @@ public class CoreModule extends AbstractModule {
 			.build(LW.MODID + ".light");
 	/* on */
 
-	public static final KiwiGO<WandItem> WAND = go(() -> new WandItem(itemProp().tab(CreativeModeTab.TAB_TOOLS).setNoRepair().durability(CommonConfig.wandDurability)));
+	@Category(Categories.TOOLS_AND_UTILITIES)
+	public static final KiwiGO<WandItem> WAND = go(() -> new WandItem(itemProp().setNoRepair().durability(CommonConfig.wandDurability)));
 
 	public static final KiwiGO<RecipeSerializer<?>> REPAIR = go(() -> new RepairRecipe.Serializer());
 

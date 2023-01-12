@@ -1,6 +1,6 @@
 package snownee.lightingwand.common;
 
-import com.mojang.math.Vector3f;
+import org.joml.Vector3f;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -72,7 +72,7 @@ public class LightBlock extends Block implements SimpleWaterloggedBlock {
 
 			Vector3f colorVector = CommonConfig.getDefaultLightColor();
 			if (CoreModule.COLORED_LIGHT.is(stateIn) && worldIn.getBlockEntity(pos) instanceof ColoredLightBlockEntity be) {
-				colorVector = CommonConfig.intColorToVector3(be.getColor());
+				colorVector = CommonConfig.intColorToVector3(colorVector, be.getColor());
 			}
 			worldIn.addParticle(new DustParticleOptions(colorVector, 1.0F), x, y, z, 0, 0, 0);
 		}

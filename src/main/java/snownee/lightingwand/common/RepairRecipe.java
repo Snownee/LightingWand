@@ -3,7 +3,7 @@ package snownee.lightingwand.common;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -11,6 +11,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -26,13 +27,13 @@ public class RepairRecipe extends CustomRecipe {
 
 	@SuppressWarnings("deprecation")
 	public RepairRecipe(ResourceLocation Id, String group, Item repairable, Ingredient material, int ratio) {
-		super(Id);
+		super(Id, CraftingBookCategory.MISC);
 		this.group = group;
 		this.repairable = repairable;
 		this.material = material;
 		this.ratio = ratio;
 		if (repairable.getMaxDamage() == 0) {
-			throw new IllegalArgumentException(String.format("Recipe: %s, Item %s is not repairable", Id, Registry.ITEM.getKey(repairable)));
+			throw new IllegalArgumentException(String.format("Recipe: %s, Item %s is not repairable", Id, BuiltInRegistries.ITEM.getKey(repairable)));
 		}
 	}
 

@@ -37,9 +37,9 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.CapabilityEnergy;
 import snownee.lightingwand.CommonConfig;
 import snownee.lightingwand.CoreModule;
 
@@ -198,7 +198,7 @@ public class WandItem extends Item implements DyeableLeatherItem {
 
 			@Override
 			public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-				if (cap == CapabilityEnergy.ENERGY && CommonConfig.energyPerUse > 0) {
+				if (cap == ForgeCapabilities.ENERGY && CommonConfig.energyPerUse > 0) {
 					return handler.cast();
 				}
 				return LazyOptional.empty();

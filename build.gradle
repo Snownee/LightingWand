@@ -12,6 +12,11 @@ buildscript {
         classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
     }
 }
+
+plugins {
+    id "com.modrinth.minotaur" version "2.+"
+}
+
 apply plugin: 'net.minecraftforge.gradle'
 //apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'org.spongepowered.mixin'
@@ -147,13 +152,14 @@ repositories {
     //flatDir {
     //    dir 'libs'
     //}
-    //maven {
-    //    name = "jei"
-    //    url = "https://dvs1.progwml6.com/files/maven"
-    //}
+    maven {
+        name = "jei"
+        url = "https://dvs1.progwml6.com/files/maven"
+    }
     maven {
         url = "https://www.cursemaven.com"
     }
+    maven { url "https://maven.shedaniel.me/" }
 }
 
 /*
@@ -174,17 +180,15 @@ dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     annotationProcessor "org.spongepowered:mixin:${mixin_version}:processor"
     
-    // Real mod deobf dependency examples - these get remapped to your current mappings
-    //compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}:${jei_version}") // Adds JEI API as a compile dependency
-    //runtimeOnly fg.deobf("mezz.jei:jei-${minecraft_version}:${jei_version}") // Adds the full JEI mod as a runtime dependency
-    // implementation fg.deobf("com.tterrag.registrate:Registrate:MC${mc_version}-${registrate_version}") // Adds registrate as a dependency
+    compileOnly "mezz.jei:jei-1.19.2-common-api:${jei_version}"
+    compileOnly "mezz.jei:jei-1.19.2-forge-api:${jei_version}"
 	
-    implementation fg.deobf("curse.maven:jei-238222:3905244")
-    implementation fg.deobf("curse.maven:jade-324717:3903693")
-    implementation fg.deobf("curse.maven:kiwi-303657:3908296")
-    annotationProcessor "curse.maven:kiwi-303657:3908296"
+	implementation fg.deobf("curse.maven:jade-324717:4318720")
+    implementation fg.deobf("curse.maven:kiwi-303657:4287363")
+    annotationProcessor "curse.maven:kiwi-303657:4287363"
     
-    implementation fg.deobf("curse.maven:shimmer-627824:4028644")
+    //implementation fg.deobf("curse.maven:shimmer-627824:4028644")
+    implementation fg.deobf("me.shedaniel.cloth:cloth-config-forge:${project.cloth_config_version}")
 }
 
 processResources {

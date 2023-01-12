@@ -1,11 +1,12 @@
 package snownee.lightingwand.common;
 
-import com.mojang.math.Vector3f;
+import org.joml.Vector3f;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -92,7 +93,7 @@ public class LightEntity extends ThrowableProjectile {
 		if (level.isClientSide && !onGround) {
 			Vec3 motion = getDeltaMovement();
 			int color = getColor();
-			Vector3f colorVec = color == 0 ? CommonConfig.getDefaultLightColor() : CommonConfig.intColorToVector3(color);
+			Vector3f colorVec = color == 0 ? CommonConfig.getDefaultLightColor() : CommonConfig.intColorToVector3(new Vector3f(), color);
 			for (int k = 0; k < 2; ++k) {
 				level.addParticle(new DustParticleOptions(colorVec, 1.0F), getX() + motion.x * k / 2D, getY() + motion.y * k / 2D, getZ() + motion.z * k / 2D, 0, 0, 0);
 			}
@@ -109,7 +110,7 @@ public class LightEntity extends ThrowableProjectile {
 	}
 
 	@Override
-	public Packet<?> getAddEntityPacket() {
+	public Packet<ClientGamePacketListener> getAddEntityPacket() {
 		return NetworkHooks.getEntitySpawningPacket(this);
 	}
 
