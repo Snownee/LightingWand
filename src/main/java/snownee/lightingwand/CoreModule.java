@@ -107,12 +107,12 @@ public class CoreModule extends AbstractModule {
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	protected void clientInit(ClientInitEvent event) {
-		ItemProperties.register(WAND.get(), new ResourceLocation("broken"), (stack, worldIn, entityIn, seed) -> (WandItem.isUsable(stack) ? 0 : 1));
-		if (shimmerCompat) {
-			event.enqueueWork(() -> {
+		event.enqueueWork(() -> {
+			ItemProperties.register(WAND.get(), new ResourceLocation("broken"), (stack, worldIn, entityIn, seed) -> (WandItem.isUsable(stack) ? 0 : 1));
+			if (shimmerCompat) {
 				ShimmerCompat.init();
-			});
-		}
+			}
+		});
 	}
 
 	@SubscribeEvent
