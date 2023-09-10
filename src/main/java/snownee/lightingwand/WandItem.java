@@ -167,11 +167,6 @@ public class WandItem extends Item implements DyeableLeatherItem {
 	}
 
 	@Override
-	public boolean allowNbtUpdateAnimation(Player player, InteractionHand hand, ItemStack oldStack, ItemStack newStack) {
-		return false;
-	}
-
-	@Override
 	public boolean isEnchantable(ItemStack stack) {
 		return false;
 	}
