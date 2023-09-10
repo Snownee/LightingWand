@@ -11,16 +11,9 @@ displayURL="https://minecraft.curseforge.com/projects/lighting-wand"
 description="Lighting up!"
 
 [[dependencies.lightingwand]]
-    modId="forge"
-    mandatory=true
-    versionRange="[44,)"
-    ordering="NONE"
-    side="BOTH"
-
-[[dependencies.lightingwand]]
     modId="kiwi"
     mandatory=true
-    versionRange="[9,)"
+    versionRange="[11, 12)"
     ordering="NONE"
     side="BOTH"
 

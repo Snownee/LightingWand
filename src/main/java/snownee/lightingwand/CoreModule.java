@@ -1,25 +1,17 @@
 package snownee.lightingwand;
 
-import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
 import net.minecraft.core.cauldron.CauldronInteraction;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.common.crafting.CraftingHelper;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import snownee.kiwi.AbstractModule;
 import snownee.kiwi.Categories;
 import snownee.kiwi.KiwiGO;
@@ -27,60 +19,28 @@ import snownee.kiwi.KiwiModule;
 import snownee.kiwi.KiwiModule.Category;
 import snownee.kiwi.KiwiModule.Name;
 import snownee.kiwi.KiwiModule.NoItem;
-import snownee.kiwi.loader.Platform;
-import snownee.kiwi.loader.event.ClientInitEvent;
 import snownee.kiwi.loader.event.InitEvent;
-import snownee.lightingwand.client.EmptyEntityRenderer;
-import snownee.lightingwand.common.ColoredLightBlock;
-import snownee.lightingwand.common.ColoredLightBlockEntity;
-import snownee.lightingwand.common.LightBlock;
-import snownee.lightingwand.common.LightEntity;
-import snownee.lightingwand.common.RepairRecipe;
-import snownee.lightingwand.common.RepairRecipeCondition;
-import snownee.lightingwand.common.WandItem;
-import snownee.lightingwand.compat.ShimmerCompat;
+import snownee.lightingwand.forge.ForgeWandItem;
+import snownee.lightingwand.util.CommonProxy;
 
 @KiwiModule
-@KiwiModule.Subscriber(modBus = true)
 public class CoreModule extends AbstractModule {
 
-	public static boolean psiCompat = Platform.isModLoaded("psi");
-	public static boolean shimmerCompat = Platform.isModLoaded("shimmer");
-
 	@NoItem
-	public static final KiwiGO<Block> LIGHT = go(() -> new LightBlock(blockProp(Blocks.AIR).lightLevel(state -> state.getValue(LightBlock.LIGHT))));
-
+	public static final KiwiGO<Block> LIGHT = go(() -> new LightBlock(blockProp().noCollission().noLootTable().lightLevel(state -> state.getValue(LightBlock.LIGHT))));
 	@NoItem
-	public static final KiwiGO<Block> COLORED_LIGHT = go(() -> new ColoredLightBlock(shimmerCompat ? blockProp(Blocks.AIR) : blockProp(Blocks.AIR).lightLevel(state -> state.getValue(LightBlock.LIGHT))));
-
-	@Name("light")
-	public static final KiwiGO<BlockEntityType<ColoredLightBlockEntity>> LIGHT_TILE = blockEntity(ColoredLightBlockEntity::new, null, COLORED_LIGHT);
-
-	/* off */
-	@Name("light")
-	public static EntityType<LightEntity> PROJECTILE = EntityType.Builder.<LightEntity>of(LightEntity::new, MobCategory.MISC)
-			.setCustomClientFactory((spawnEntity, world) -> new LightEntity(world))
-			.sized(0.0001F, 0.0001F)
-			.fireImmune()
-			.setTrackingRange(64)
-			.setUpdateInterval(20)
-			.setShouldReceiveVelocityUpdates(true)
-			.build(LW.MODID + ".light");
-	/* on */
-
+	public static final KiwiGO<Block> COLORED_LIGHT = go(() -> new ColoredLightBlock(CommonProxy.shimmerCompat ? blockProp() : blockProp().lightLevel(state -> state.getValue(LightBlock.LIGHT))));
 	@Category(Categories.TOOLS_AND_UTILITIES)
-	public static final KiwiGO<WandItem> WAND = go(() -> new WandItem(itemProp().setNoRepair().durability(CommonConfig.wandDurability)));
+	public static final KiwiGO<WandItem> WAND = go(() -> new ForgeWandItem(itemProp().durability(CommonConfig.wandDurability)));
+	public static final KiwiGO<RecipeSerializer<RepairRecipe>> REPAIR = go(RepairRecipe.Serializer::new);
 
-	public static final KiwiGO<RecipeSerializer<?>> REPAIR = go(() -> new RepairRecipe.Serializer());
+	public static boolean isLightBlock(BlockState state) {
+		return LIGHT.is(state) || COLORED_LIGHT.is(state);
+	}
 
 	@Override
 	protected void init(InitEvent event) {
-		//		if (psiCompat) {
-		//			PsiCompat.init();
-		//		}
-
 		event.enqueueWork(() -> {
-			CraftingHelper.register(new RepairRecipeCondition.Serializer());
 			if (CommonConfig.shootProjectile) {
 				DispenserBlock.registerBehavior(WAND.get(), (source, stack) -> {
 					Level world = source.getLevel();
@@ -90,7 +50,7 @@ public class CoreModule extends AbstractModule {
 						LightEntity entity = new LightEntity(world);
 						entity.setPos(iposition.x(), iposition.y(), iposition.z());
 						entity.setLightValue(WandItem.getLightValue(stack));
-						entity.setColor(WAND.get().getCustomColor(stack));
+						entity.setColor(WAND.get().getCustomColor(stack).orElse(0));
 						entity.shoot(Direction.getStepX(), Direction.getStepY() + 0.1F, Direction.getStepZ(), 1.3F + world.random.nextFloat() * 0.4F, 0);
 						Vec3 motion = entity.getDeltaMovement();
 						entity.setDeltaMovement(motion.add(world.random.nextGaussian() * 0.1D, 0, world.random.nextGaussian() * 0.1D));
@@ -101,27 +61,24 @@ public class CoreModule extends AbstractModule {
 				});
 			}
 			CauldronInteraction.WATER.put(WAND.get(), CauldronInteraction.DYED_ITEM);
+			CommonProxy.postRegister();
 		});
 	}
 
-	@Override
-	@OnlyIn(Dist.CLIENT)
-	protected void clientInit(ClientInitEvent event) {
-		event.enqueueWork(() -> {
-			ItemProperties.register(WAND.get(), new ResourceLocation("broken"), (stack, worldIn, entityIn, seed) -> (WandItem.isUsable(stack) ? 0 : 1));
-			if (shimmerCompat) {
-				ShimmerCompat.init();
-			}
-		});
-	}
+	@KiwiModule.Skip
+	public static final EntityType<LightEntity> RAW_PROJECTILE = EntityType.Builder.<LightEntity>of(LightEntity::new, MobCategory.MISC)
+			.setCustomClientFactory((spawnEntity, world) -> new LightEntity(world))
+			//.sized(0.0001F, 0.0001F)
+			.fireImmune()
+			.setTrackingRange(64)
+			.setUpdateInterval(20)
+			.setShouldReceiveVelocityUpdates(true)
+			.build(LW.ID + ".light");
 
-	@SubscribeEvent
-	@OnlyIn(Dist.CLIENT)
-	public void entityRenderers(EntityRenderersEvent.RegisterRenderers event) {
-		event.registerEntityRenderer(PROJECTILE, EmptyEntityRenderer::new);
-	}
+	@Name("light")
+	public static final KiwiGO<BlockEntityType<ColoredLightBlockEntity>> LIGHT_TILE = blockEntity(ColoredLightBlockEntity::new, null, COLORED_LIGHT);
 
-	public static boolean isLightBlock(BlockState state) {
-		return LIGHT.is(state) || COLORED_LIGHT.is(state);
-	}
+	@Name("light")
+	public static final KiwiGO<EntityType<LightEntity>> PROJECTILE = go(() -> RAW_PROJECTILE);
+
 }

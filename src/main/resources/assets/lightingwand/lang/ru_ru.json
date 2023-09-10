@@ -1,10 +1,10 @@
 {
-  "item.lightingwand.wand": "Жезл освещения",
-  "block.lightingwand.light": "Источник света",
-  "block.lightingwand.colored_light": "Источник света",
-  "entity.lightingwand.light": "Источник света",
-  "tip.lightingwand.uncharged": "Незаряженный",
-  "lightingwand.spellpiece.trick_conjure_invisible_light": "Фокус: Наколдовать невидимый свет",
-  "lightingwand.spellpiece.trick_conjure_invisible_light.desc": "Наколдовывает свет в данной позиции. Имея только CAD в руке, можно увидеть обрамляющую рамку. Второй параметр - значение свера.",
-  "psi.spellerror.lightingwand.light": "ОШИБКА: Уровень может быть между (0,15]"
+	"item.lightingwand.wand": "Жезл освещения",
+	"block.lightingwand.light": "Источник света",
+	"block.lightingwand.colored_light": "Источник света",
+	"entity.lightingwand.light": "Источник света",
+	"tip.lightingwand.uncharged": "Незаряженный",
+	"lightingwand.spellpiece.trick_conjure_invisible_light": "Фокус: Наколдовать невидимый свет",
+	"lightingwand.spellpiece.trick_conjure_invisible_light.desc": "Наколдовывает свет в данной позиции. Имея только CAD в руке, можно увидеть обрамляющую рамку. Второй параметр - значение свера.",
+	"psi.spellerror.lightingwand.light": "ОШИБКА: Уровень может быть между (0,15]"
 }

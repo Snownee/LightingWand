@@ -1,13 +1,10 @@
-package snownee.lightingwand.common;
+package snownee.lightingwand;
 
 import org.joml.Vector3f;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -25,15 +22,11 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.loading.FMLEnvironment;
-import net.minecraftforge.fml.util.thread.EffectiveSide;
-import snownee.lightingwand.CommonConfig;
-import snownee.lightingwand.CoreModule;
+import snownee.kiwi.block.ModBlock;
+import snownee.kiwi.loader.Platform;
+import snownee.lightingwand.util.ClientProxy;
 
-public class LightBlock extends Block implements SimpleWaterloggedBlock {
+public class LightBlock extends ModBlock implements SimpleWaterloggedBlock {
 	public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 	public static final IntegerProperty LIGHT = IntegerProperty.create("light", 1, 15);
 
@@ -48,13 +41,8 @@ public class LightBlock extends Block implements SimpleWaterloggedBlock {
 	}
 
 	@Override
-	public boolean isAir(BlockState state) {
-		return false;
-	}
-
-	@Override
 	public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext ctx) {
-		return (FMLEnvironment.dist.isClient() && EffectiveSide.get() == LogicalSide.CLIENT && hasItem()) ? Shapes.block() : Shapes.empty();
+		return (Platform.isPhysicalClient() && /*EffectiveSide.get() == LogicalSide.CLIENT &&*/ ClientProxy.hasItem()) ? Shapes.block() : Shapes.empty();
 	}
 
 	@Override
@@ -63,16 +51,15 @@ public class LightBlock extends Block implements SimpleWaterloggedBlock {
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public void animateTick(BlockState stateIn, Level worldIn, BlockPos pos, RandomSource rand) {
-		if (hasItem()) {
+		if (ClientProxy.hasItem()) {
 			float x = pos.getX() + 0.3F + rand.nextFloat() * 0.4F;
 			float y = pos.getY() + 0.5F;
 			float z = pos.getZ() + 0.3F + rand.nextFloat() * 0.4F;
 
-			Vector3f colorVector = CommonConfig.getDefaultLightColor();
+			Vector3f colorVector = CommonConfig.defaultLightColorVector;
 			if (CoreModule.COLORED_LIGHT.is(stateIn) && worldIn.getBlockEntity(pos) instanceof ColoredLightBlockEntity be) {
-				colorVector = CommonConfig.intColorToVector3(colorVector, be.getColor());
+				colorVector = CommonConfig.intColorToVector3(be.getColor());
 			}
 			worldIn.addParticle(new DustParticleOptions(colorVector, 1.0F), x, y, z, 0, 0, 0);
 		}
@@ -80,25 +67,6 @@ public class LightBlock extends Block implements SimpleWaterloggedBlock {
 
 	public int getColor(BlockState stateIn, Level worldIn, BlockPos pos) {
 		return CommonConfig.defaultLightColor;
-	}
-
-	@OnlyIn(Dist.CLIENT)
-	public static boolean hasItem() {
-		Player player = Minecraft.getInstance().player;
-		if (player == null) {
-			return false;
-		}
-		Item main = player.getMainHandItem().getItem();
-		Item off = player.getOffhandItem().getItem();
-		if (CoreModule.WAND.is(main) || CoreModule.WAND.is(off)) {
-			return true;
-		}
-		//		if (CommonRegistry.psiCompat) {
-//			if (main instanceof ICAD || off instanceof ICAD) {
-//				return true;
-//			}
-//		}
-		return false;
 	}
 
 	@Override

@@ -1,11 +1,10 @@
-package snownee.lightingwand.common;
+package snownee.lightingwand;
 
 import java.util.List;
+import java.util.OptionalInt;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -34,14 +33,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.common.util.LazyOptional;
-import snownee.lightingwand.CommonConfig;
-import snownee.lightingwand.CoreModule;
+import snownee.lightingwand.util.CommonProxy;
 
 public class WandItem extends Item implements DyeableLeatherItem {
 	public WandItem(Properties properties) {
@@ -52,6 +44,14 @@ public class WandItem extends Item implements DyeableLeatherItem {
 		return stack.getDamageValue() < stack.getMaxDamage();
 	}
 
+	public static int getLightValue(ItemStack stack) {
+		if (stack.hasTag() && stack.getTag().contains("Light", Tag.TAG_INT)) {
+			return Mth.clamp(stack.getTag().getInt("Light"), 1, 15);
+		} else {
+			return 15;
+		}
+	}
+
 	@Override
 	public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn) {
 		ItemStack stack = playerIn.getItemInHand(handIn);
@@ -59,30 +59,29 @@ public class WandItem extends Item implements DyeableLeatherItem {
 			return InteractionResultHolder.fail(stack);
 		}
 		if (!worldIn.isClientSide) {
-			HitResult rayTraceResult = getPlayerPOVHitResult(worldIn, playerIn, ClipContext.Fluid.NONE);
+			BlockHitResult rayTraceResult = getPlayerPOVHitResult(worldIn, playerIn, ClipContext.Fluid.NONE);
 			if (rayTraceResult.getType() == HitResult.Type.BLOCK) {
-				BlockHitResult blockHitResult = (BlockHitResult) rayTraceResult;
-				BlockPos pos = blockHitResult.getBlockPos().relative(blockHitResult.getDirection());
+				BlockPos pos = rayTraceResult.getBlockPos().relative(rayTraceResult.getDirection());
 				if (!playerIn.mayUseItemAt(pos, playerIn.getMotionDirection(), stack)) {
 					return new InteractionResultHolder<>(InteractionResult.FAIL, playerIn.getItemInHand(handIn));
 				}
 				BlockState state = worldIn.getBlockState(pos);
-				int color = getCustomColor(stack);
-				if (!CoreModule.isLightBlock(state) && state.getMaterial().isReplaceable()) {
+				if (!CoreModule.isLightBlock(state) && state.canBeReplaced()) {
 					worldIn.playSound(null, pos, SoundEvents.FROGLIGHT_PLACE, SoundSource.BLOCKS, 1.0F, playerIn.getRandom().nextFloat() * 0.4F + 0.8F);
 					FluidState fluidstate = worldIn.getFluidState(pos);
-					Block block = color == 0 ? CoreModule.LIGHT.get() : CoreModule.COLORED_LIGHT.get();
-					worldIn.setBlock(pos, block.defaultBlockState().setValue(LightBlock.LIGHT, getLightValue(stack)).setValue(LightBlock.WATERLOGGED, fluidstate.is(FluidTags.WATER) && fluidstate.getAmount() == 8), 3);
-					if (color != 0 && worldIn.getBlockEntity(pos) instanceof ColoredLightBlockEntity be) {
-						be.setColor(color);
+					OptionalInt color = getCustomColor(stack);
+					Block block = color.isEmpty() ? CoreModule.LIGHT.get() : CoreModule.COLORED_LIGHT.get();
+					worldIn.setBlock(pos, block.defaultBlockState().setValue(LightBlock.LIGHT, getLightValue(stack)).setValue(LightBlock.WATERLOGGED, fluidstate.is(FluidTags.WATER) && fluidstate.getAmount() == 8), 11);
+					if (color.isPresent() && worldIn.getBlockEntity(pos) instanceof ColoredLightBlockEntity be) {
+						be.setColor(color.getAsInt());
 					}
 				}
 			} else if (rayTraceResult.getType() == HitResult.Type.MISS && CommonConfig.shootProjectile) {
 				// TODO: Sound subtitle
-				worldIn.playSound((Player) null, playerIn.getX(), playerIn.getY(), playerIn.getZ(), SoundEvents.EGG_THROW, SoundSource.PLAYERS, 0.8F, 0.4F / (playerIn.getRandom().nextFloat() * 0.4F + 0.8F));
+				worldIn.playSound(null, playerIn.getX(), playerIn.getY(), playerIn.getZ(), SoundEvents.EGG_THROW, SoundSource.PLAYERS, 0.8F, 0.4F / (playerIn.getRandom().nextFloat() * 0.4F + 0.8F));
 				LightEntity entity = new LightEntity(worldIn, playerIn);
 				entity.setLightValue(getLightValue(stack));
-				entity.setColor(getCustomColor(stack));
+				entity.setColor(getCustomColor(stack).orElse(0));
 				entity.shootFromRotation(playerIn, playerIn.getXRot(), playerIn.getYRot(), 0, 1.5F, 0);
 				worldIn.addFreshEntity(entity);
 			}
@@ -144,15 +143,14 @@ public class WandItem extends Item implements DyeableLeatherItem {
 		return InteractionResult.SUCCESS;
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	@Override
 	public void appendHoverText(ItemStack stack, Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
 		if (!isUsable(stack)) {
 			tooltip.add(Component.translatable("tip.lightingwand.uncharged").withStyle(ChatFormatting.DARK_RED));
 		}
 		if (hasCustomColor(stack)) {
-			if (CoreModule.shimmerCompat) {
-				tooltip.add(Component.translatable("tip.lightingwand.color", Component.literal("■").withStyle($ -> $.withColor(getCustomColor(stack)))).withStyle(ChatFormatting.GRAY));
+			if (CommonProxy.shimmerCompat) {
+				tooltip.add(Component.translatable("tip.lightingwand.color", Component.literal("■").withStyle($ -> $.withColor(getColor(stack)))).withStyle(ChatFormatting.GRAY));
 			} else {
 				tooltip.add(Component.translatable("tip.lightingwand.noShimmer").withStyle(ChatFormatting.DARK_RED));
 			}
@@ -166,11 +164,6 @@ public class WandItem extends Item implements DyeableLeatherItem {
 			return false;
 		}
 		return super.isBarVisible(stack);
-	}
-
-	@Override
-	public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
-		return slotChanged;
 	}
 
 	@Override
@@ -191,52 +184,24 @@ public class WandItem extends Item implements DyeableLeatherItem {
 	}
 
 	@Override
-	public ICapabilityProvider initCapabilities(ItemStack stack, CompoundTag nbt) {
-		return new ICapabilityProvider() {
-
-			private final LazyOptional<EnergyRepair> handler = LazyOptional.of(() -> new EnergyRepair(stack));
-
-			@Override
-			public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-				if (cap == ForgeCapabilities.ENERGY && CommonConfig.energyPerUse > 0) {
-					return handler.cast();
-				}
-				return LazyOptional.empty();
-			}
-		};
-	}
-
-	public static int getLightValue(ItemStack stack) {
-		if (stack.hasTag() && stack.getTag().contains("Light", Tag.TAG_INT)) {
-			return Mth.clamp(stack.getTag().getInt("Light"), 1, 15);
-		} else {
-			return 15;
-		}
-	}
-
-	@Override
 	public boolean hasCustomColor(ItemStack stack) {
-		return stack.hasTag() && stack.getTag().contains("Color");
+		return stack.hasTag() && stack.getTag().contains("Color", Tag.TAG_ANY_NUMERIC);
 	}
 
 	@Override
 	public int getColor(ItemStack stack) {
-		if (hasCustomColor(stack)) {
-			return getCustomColor(stack);
-		} else {
-			return CommonConfig.defaultLightColor;
-		}
+		return getCustomColor(stack).orElse(CommonConfig.defaultLightColor);
 	}
 
-	public int getCustomColor(ItemStack stack) {
-		if (stack.hasTag() && stack.getTag().contains("Color", Tag.TAG_INT)) {
+	public OptionalInt getCustomColor(ItemStack stack) {
+		if (hasCustomColor(stack)) {
 			float alpha = stack.getTag().getFloat("Alpha");
 			if (alpha == 0) {
 				alpha = 1;
 			}
-			return ((int) (alpha * 255) << 24) + stack.getTag().getInt("Color");
+			return OptionalInt.of(((int) (alpha * 255) << 24) + stack.getTag().getInt("Color"));
 		}
-		return 0;
+		return OptionalInt.empty();
 	}
 
 	@Override

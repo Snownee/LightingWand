@@ -1,17 +1,16 @@
-package snownee.lightingwand.common;
+package snownee.lightingwand;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.state.BlockState;
-import snownee.kiwi.block.entity.BaseBlockEntity;
-import snownee.lightingwand.CommonConfig;
-import snownee.lightingwand.CoreModule;
+import snownee.kiwi.block.entity.ModBlockEntity;
 import snownee.lightingwand.compat.ShimmerCompat;
+import snownee.lightingwand.util.CommonProxy;
 
-public class ColoredLightBlockEntity extends BaseBlockEntity {
+public class ColoredLightBlockEntity extends ModBlockEntity {
 
-	private int color = CommonConfig.defaultLightColor;
 	public Object shimmerLight;
+	private int color = CommonConfig.defaultLightColor;
 
 	public ColoredLightBlockEntity(BlockPos pos, BlockState state) {
 		super(CoreModule.LIGHT_TILE.get(), pos, state);
@@ -20,7 +19,7 @@ public class ColoredLightBlockEntity extends BaseBlockEntity {
 	@Override
 	protected void readPacketData(CompoundTag data) {
 		color = data.getInt("Color");
-		if (CoreModule.shimmerCompat && level != null && level.isClientSide) {
+		if (CommonProxy.shimmerCompat && level != null && level.isClientSide) {
 			ShimmerCompat.addLight(this);
 		}
 	}
@@ -43,20 +42,20 @@ public class ColoredLightBlockEntity extends BaseBlockEntity {
 		super.saveAdditional(data);
 	}
 
+	public int getColor() {
+		return color;
+	}
+
 	public void setColor(int color) {
 		this.color = color;
 		refresh();
-	}
-
-	public int getColor() {
-		return color;
 	}
 
 	@SuppressWarnings("deprecation")
 	@Override
 	public void setBlockState(BlockState newState) {
 		super.setBlockState(newState);
-		if (CoreModule.shimmerCompat && level != null && level.isClientSide) {
+		if (CommonProxy.shimmerCompat && level != null && level.isClientSide) {
 			ShimmerCompat.addLight(this);
 		}
 	}

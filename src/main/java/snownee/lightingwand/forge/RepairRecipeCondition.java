@@ -1,4 +1,4 @@
-package snownee.lightingwand.common;
+package snownee.lightingwand.forge;
 
 import com.google.gson.JsonObject;
 
@@ -9,7 +9,7 @@ import snownee.lightingwand.CommonConfig;
 import snownee.lightingwand.LW;
 
 public class RepairRecipeCondition implements ICondition {
-	private static final ResourceLocation NAME = new ResourceLocation(LW.MODID, "repair_recipe");
+	private static final ResourceLocation NAME = new ResourceLocation(LW.ID, "repair_recipe");
 	private static final RepairRecipeCondition INSTANCE = new RepairRecipeCondition();
 
 	private RepairRecipeCondition() {

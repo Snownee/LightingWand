@@ -1,4 +1,4 @@
-package snownee.lightingwand.common;
+package snownee.lightingwand;
 
 import org.joml.Vector3f;
 
@@ -21,29 +21,28 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.NetworkHooks;
-import snownee.lightingwand.CommonConfig;
-import snownee.lightingwand.CoreModule;
 import snownee.lightingwand.compat.ShimmerCompat;
+import snownee.lightingwand.util.CommonProxy;
 
 public class LightEntity extends ThrowableProjectile {
 	private static final EntityDataAccessor<Integer> DATA_LIGHT = SynchedEntityData.defineId(LightEntity.class, EntityDataSerializers.INT);
 	private static final EntityDataAccessor<Integer> DATA_COLOR = SynchedEntityData.defineId(LightEntity.class, EntityDataSerializers.INT);
 
 	public Object shimmerLight;
+	private boolean discardNextTick;
 
 	public LightEntity(EntityType<?> type, Level levelIn) {
 		this(levelIn);
 	}
 
 	public LightEntity(Level levelIn) {
-		super(CoreModule.PROJECTILE, levelIn);
+		super(CoreModule.PROJECTILE.get(), levelIn);
 	}
 
 	public LightEntity(Level levelIn, LivingEntity owner) {
-		super(CoreModule.PROJECTILE, owner, levelIn);
+		super(CoreModule.PROJECTILE.get(), owner, levelIn);
 	}
 
 	@Override
@@ -58,47 +57,51 @@ public class LightEntity extends ThrowableProjectile {
 	}
 
 	@Override
-	protected void onHit(HitResult result) {
-		if (!level.isClientSide && result != null) {
-			discard();
-			BlockPos pos = null;
-			switch (result.getType()) {
-			case MISS:
-				return;
-			case ENTITY:
-				pos = new BlockPos(result.getLocation());
-				break;
-			case BLOCK:
-				pos = ((BlockHitResult) result).getBlockPos().relative(((BlockHitResult) result).getDirection());
-				break;
-			}
+	protected void onHitBlock(BlockHitResult blockHitResult) {
+		super.onHitBlock(blockHitResult);
+		placeLight(blockHitResult.getBlockPos().relative(blockHitResult.getDirection()));
+	}
 
-			if (level.getBlockState(pos).getMaterial().isReplaceable()) {
-				FluidState fluidstate = level.getFluidState(pos);
-				int color = getColor();
-				Block block = color == 0 ? CoreModule.LIGHT.get() : CoreModule.COLORED_LIGHT.get();
-				if (level.setBlock(pos, block.defaultBlockState().setValue(LightBlock.LIGHT, Mth.clamp(getLightValue(), 1, 15)).setValue(LightBlock.WATERLOGGED, fluidstate.is(FluidTags.WATER) && fluidstate.getAmount() == 8), 11)) {
-					if (color != 0 && level.getBlockEntity(pos) instanceof ColoredLightBlockEntity be) {
-						be.setColor(color);
-					}
-					level.playSound(null, pos, SoundEvents.FROGLIGHT_PLACE, SoundSource.BLOCKS, 1.0F, level.random.nextFloat() * 0.4F + 0.8F);
-				}
-			}
+	@Override
+	protected void onHitEntity(EntityHitResult entityHitResult) {
+		super.onHitEntity(entityHitResult);
+		placeLight(BlockPos.containing(entityHitResult.getLocation()));
+	}
+
+	private void placeLight(BlockPos pos) {
+		Level level = level();
+		if (discardNextTick || level.isClientSide || !level.getBlockState(pos).canBeReplaced()) {
+			return;
 		}
+		FluidState fluidstate = level.getFluidState(pos);
+		int color = getColor();
+		Block block = color == 0 ? CoreModule.LIGHT.get() : CoreModule.COLORED_LIGHT.get();
+		if (level.setBlock(pos, block.defaultBlockState().setValue(LightBlock.LIGHT, Mth.clamp(getLightValue(), 1, 15)).setValue(LightBlock.WATERLOGGED, fluidstate.is(FluidTags.WATER) && fluidstate.getAmount() == 8), 11)) {
+			if (color != 0 && level.getBlockEntity(pos) instanceof ColoredLightBlockEntity be) {
+				be.setColor(color);
+			}
+			level.playSound(null, pos, SoundEvents.FROGLIGHT_PLACE, SoundSource.BLOCKS, 1.0F, level.random.nextFloat() * 0.4F + 0.8F);
+		}
+		discardNextTick = true;
 	}
 
 	@Override
 	public void tick() {
+		if (discardNextTick) {
+			discard();
+			return;
+		}
 		super.tick();
-		if (level.isClientSide && !onGround) {
-			Vec3 motion = getDeltaMovement();
-			int color = getColor();
-			Vector3f colorVec = color == 0 ? CommonConfig.getDefaultLightColor() : CommonConfig.intColorToVector3(new Vector3f(), color);
-			for (int k = 0; k < 2; ++k) {
-				level.addParticle(new DustParticleOptions(colorVec, 1.0F), getX() + motion.x * k / 2D, getY() + motion.y * k / 2D, getZ() + motion.z * k / 2D, 0, 0, 0);
-			}
-			if (shimmerLight != null) {
+		if (level().isClientSide && !onGround()) {
+			if (CommonProxy.shimmerCompat && shimmerLight == null) {
+				ShimmerCompat.addLight(this);
+			} else if (shimmerLight != null) {
 				ShimmerCompat.updateLight(this);
+			}
+			Vec3 motion = getDeltaMovement();
+			Vector3f color = CommonConfig.intColorToVector3(getColor());
+			for (int k = 0; k < 2; ++k) {
+				level().addParticle(new DustParticleOptions(color, 1.0F), getX() + motion.x * k / 2D, getY() + motion.y * k / 2D, getZ() + motion.z * k / 2D, 0, 0, 0);
 			}
 		}
 	}
@@ -111,7 +114,7 @@ public class LightEntity extends ThrowableProjectile {
 
 	@Override
 	public Packet<ClientGamePacketListener> getAddEntityPacket() {
-		return NetworkHooks.getEntitySpawningPacket(this);
+		return CommonProxy.getAddEntityPacket(this);
 	}
 
 	@Override
@@ -119,6 +122,7 @@ public class LightEntity extends ThrowableProjectile {
 		super.readAdditionalSaveData(compound);
 		setLightValue(compound.getInt("Light"));
 		setColor(compound.getInt("Color"));
+		discardNextTick = compound.getBoolean("Discard");
 	}
 
 	@Override
@@ -129,13 +133,8 @@ public class LightEntity extends ThrowableProjectile {
 		if (color != 0) {
 			compound.putInt("Color", color);
 		}
-	}
-
-	@Override
-	public void onAddedToWorld() {
-		super.onAddedToWorld();
-		if (level.isClientSide && CoreModule.shimmerCompat && shimmerLight == null) {
-			ShimmerCompat.addLight(this);
+		if (discardNextTick) {
+			compound.putBoolean("Discard", true);
 		}
 	}
 
@@ -147,6 +146,10 @@ public class LightEntity extends ThrowableProjectile {
 		}
 	}
 
+	public int getLightValue() {
+		return entityData.get(DATA_LIGHT);
+	}
+
 	public void setLightValue(int lightValue) {
 		if (lightValue == 0) {
 			lightValue = 15;
@@ -154,15 +157,11 @@ public class LightEntity extends ThrowableProjectile {
 		entityData.set(DATA_LIGHT, lightValue);
 	}
 
-	public void setColor(int color) {
-		entityData.set(DATA_COLOR, color);
-	}
-
-	public int getLightValue() {
-		return entityData.get(DATA_LIGHT);
-	}
-
 	public int getColor() {
 		return entityData.get(DATA_COLOR);
+	}
+
+	public void setColor(int color) {
+		entityData.set(DATA_COLOR, color);
 	}
 }
