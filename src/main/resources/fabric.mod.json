@@ -14,9 +14,6 @@
 	},
 	"license": "MIT",
 	"entrypoints": {
-		"client": [
-			"snownee.lightingwand.util.ClientProxy"
-		],
 		"main": [
 			"snownee.lightingwand.util.CommonProxy"
 		],

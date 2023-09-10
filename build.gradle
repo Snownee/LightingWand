@@ -15,19 +15,20 @@ repositories {
     maven { url "https://maven.parchmentmc.org" }
     maven { url "https://maven.shedaniel.me/" }
     maven { url "https://maven.terraformersmc.com/releases/" }
-	
-	// JEI
-	maven { url "https://modmaven.dev" }
-	maven { url "https://dvs1.progwml6.com/files/maven/" }
-    
-	// maven {
+    maven { url "https://jitpack.io" }
+
+    // JEI
+    maven { url "https://modmaven.dev" }
+    maven { url "https://dvs1.progwml6.com/files/maven/" }
+
+    // maven {
     //     url "https://cursemaven.com"
     //     content {
     //         includeGroup "curse.maven"
     //     }
     // }
-    maven { url = "https://api.modrinth.com/maven" }
-	flatDir { dir 'libs' }
+    maven { url "https://api.modrinth.com/maven" }
+    flatDir { dir 'libs' }
     // Add repositories to retrieve artifacts from in here.
     // You should only use this when depending on other mods because
     // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
@@ -72,33 +73,38 @@ dependencies {
 
     // PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
     // You may need to force-disable transitiveness on them.
-    
+
     modApi("me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}") {
         exclude(group: "net.fabricmc.fabric-api")
     }
     modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}"
-	
-	modCompileOnly "me.shedaniel:RoughlyEnoughItems-fabric:${project.rei_version}"
+
+    modCompileOnly "me.shedaniel:RoughlyEnoughItems-fabric:${project.rei_version}"
     modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-fabric:${project.rei_version}"
-	
-	// compile against the JEI API but do not include it at runtime
-	modCompileOnlyApi "mezz.jei:jei-1.20.1-common-api:${jei_version}"
-	modCompileOnlyApi "mezz.jei:jei-1.20.1-fabric-api:${jei_version}"
-	// at runtime, use the full JEI jar for Fabric
-	//modRuntimeOnly "mezz.jei:jei-${minecraft_version}-fabric:${jei_version}"
-	
-	// https://modrinth.com/mod/jade/versions
+
+    // compile against the JEI API but do not include it at runtime
+    modCompileOnlyApi "mezz.jei:jei-1.20.1-common-api:${jei_version}"
+    modCompileOnlyApi "mezz.jei:jei-1.20.1-fabric-api:${jei_version}"
+    // at runtime, use the full JEI jar for Fabric
+    //modRuntimeOnly "mezz.jei:jei-${minecraft_version}-fabric:${jei_version}"
+
+    // https://modrinth.com/mod/jade/versions
     //modRuntimeOnly "curse.maven:jade-324717:3879361"
     modRuntimeOnly "maven.modrinth:jade:SlsObyHn"
-    
-	// https://modrinth.com/mod/kiwi/versions
+
+    // https://modrinth.com/mod/kiwi/versions
     //modImplementation "curse.maven:kiwi-549404:3878011"
     modImplementation "maven.modrinth:kiwi:a8jR4pPa"
     //modImplementation "libs:Kiwi-1.18.1-fabric:${project.kiwi_version}"
-    
+
     modApi("teamreborn:energy:${project.tr_energy_version}") {
         exclude(group: "net.fabricmc.fabric-api")
     }
+
+    // https://modrinth.com/mod/shimmer!/versions
+    modImplementation "maven.modrinth:uBKACKpl:cToQAyi1"
+    modImplementation("com.github.LlamaLad7:MixinExtras:0.1.1")
+    annotationProcessor("com.github.LlamaLad7:MixinExtras:0.1.1")
 }
 
 processResources {
@@ -132,7 +138,7 @@ jar {
     exclude '**/*.bat'
     exclude("/assets/${project.mod_id}/lang/en_us.existing.json")
     from("LICENSE") {
-        rename { "${it}_${project.archivesBaseName}"}
+        rename { "${it}_${project.archivesBaseName}" }
     }
 }
 
@@ -160,9 +166,11 @@ publishing {
 }
 
 modrinth {
-    token = System.getenv("MODRINTH_TOKEN") // This is the default. Remember to have the MODRINTH_TOKEN environment variable set or else this will fail, or set it to whatever you want - just make sure it stays private!
+    token = System.getenv("MODRINTH_TOKEN")
+    // This is the default. Remember to have the MODRINTH_TOKEN environment variable set or else this will fail, or set it to whatever you want - just make sure it stays private!
     projectId = "lak1V0eP" // This can be the project ID or the slug. Either will work!
-    versionNumber = project.mod_version // You don't need to set this manually. Will fail if Modrinth has this version already
+    versionNumber = project.mod_version
+    // You don't need to set this manually. Will fail if Modrinth has this version already
     versionType = "release" // This is the default -- can also be `beta` or `alpha`
     uploadFile = remapJar // With Loom, this MUST be set to `remapJar` instead of `jar`!
     gameVersions = ["1.19.3"] // Must be an array, even with only one version

@@ -1,6 +1,7 @@
 package snownee.lightingwand;
 
 import java.util.List;
+import java.util.OptionalInt;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -19,18 +20,22 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DyeableLeatherItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import snownee.lightingwand.util.CommonProxy;
 
-public class WandItem extends Item {
+public class WandItem extends Item implements DyeableLeatherItem {
 	public WandItem(Properties properties) {
 		super(properties);
 	}
@@ -61,16 +66,22 @@ public class WandItem extends Item {
 					return new InteractionResultHolder<>(InteractionResult.FAIL, playerIn.getItemInHand(handIn));
 				}
 				BlockState state = worldIn.getBlockState(pos);
-				if (!CoreModule.LIGHT.is(state) && state.canBeReplaced()) {
+				if (!CoreModule.isLightBlock(state) && state.canBeReplaced()) {
 					worldIn.playSound(null, pos, SoundEvents.FROGLIGHT_PLACE, SoundSource.BLOCKS, 1.0F, playerIn.getRandom().nextFloat() * 0.4F + 0.8F);
 					FluidState fluidstate = worldIn.getFluidState(pos);
-					worldIn.setBlock(pos, CoreModule.LIGHT.defaultBlockState().setValue(LightBlock.LIGHT, getLightValue(stack)).setValue(LightBlock.WATERLOGGED, fluidstate.is(FluidTags.WATER) && fluidstate.getAmount() == 8), 11);
+					OptionalInt color = getCustomColor(stack);
+					Block block = color.isEmpty() ? CoreModule.LIGHT.get() : CoreModule.COLORED_LIGHT.get();
+					worldIn.setBlock(pos, block.defaultBlockState().setValue(LightBlock.LIGHT, getLightValue(stack)).setValue(LightBlock.WATERLOGGED, fluidstate.is(FluidTags.WATER) && fluidstate.getAmount() == 8), 11);
+					if (color.isPresent() && worldIn.getBlockEntity(pos) instanceof ColoredLightBlockEntity be) {
+						be.setColor(color.getAsInt());
+					}
 				}
 			} else if (rayTraceResult.getType() == HitResult.Type.MISS && CommonConfig.shootProjectile) {
 				// TODO: Sound subtitle
-				worldIn.playSound((Player) null, playerIn.getX(), playerIn.getY(), playerIn.getZ(), SoundEvents.EGG_THROW, SoundSource.PLAYERS, 0.8F, 0.4F / (playerIn.getRandom().nextFloat() * 0.4F + 0.8F));
+				worldIn.playSound(null, playerIn.getX(), playerIn.getY(), playerIn.getZ(), SoundEvents.EGG_THROW, SoundSource.PLAYERS, 0.8F, 0.4F / (playerIn.getRandom().nextFloat() * 0.4F + 0.8F));
 				LightEntity entity = new LightEntity(worldIn, playerIn);
-				entity.lightValue = getLightValue(stack);
+				entity.setLightValue(getLightValue(stack));
+				entity.setColor(getCustomColor(stack).orElse(0));
 				entity.shootFromRotation(playerIn, playerIn.getXRot(), playerIn.getYRot(), 0, 1.5F, 0);
 				worldIn.addFreshEntity(entity);
 			}
@@ -91,31 +102,60 @@ public class WandItem extends Item {
 		Level worldIn = context.getLevel();
 		BlockPos pos = context.getClickedPos();
 		BlockState state = worldIn.getBlockState(pos);
-		if (!CoreModule.LIGHT.is(state)) {
+		if (!CoreModule.isLightBlock(state)) {
 			return InteractionResult.PASS;
 		}
 		Player player = context.getPlayer();
+		if (player == null) {
+			return InteractionResult.PASS;
+		}
 		ItemStack stack = context.getItemInHand();
-		int wandLight = WandItem.getLightValue(stack);
-		int blockLight = state.getValue(LightBlock.LIGHT);
-		if (wandLight != blockLight) {
-			worldIn.setBlockAndUpdate(pos, state.setValue(LightBlock.LIGHT, wandLight));
+		if (CoreModule.COLORED_LIGHT.is(state) && context.getHand() == InteractionHand.MAIN_HAND && player.getOffhandItem().is(Items.GLASS_PANE)) {
+			float alpha = 1;
+			if (stack.hasTag() && stack.getOrCreateTag().contains("Alpha")) {
+				alpha = stack.getTag().getFloat("Alpha");
+			}
+			if (alpha > .91F) {
+				alpha = 0;
+			}
+			alpha = Mth.clamp(alpha + .1F, 0, 1);
+			if (alpha == 1) {
+				stack.removeTagKey("Alpha");
+			} else {
+				stack.getOrCreateTag().putFloat("Alpha", alpha);
+			}
+			if (worldIn.getBlockEntity(pos) instanceof ColoredLightBlockEntity be) {
+				be.setColor(getColor(stack));
+			}
+			player.displayClientMessage(Component.translatable("tip.lightingwand.opacity", (int) (alpha * 100)), true);
 		} else {
-			wandLight = wandLight % 15 + 1;
-			stack.getOrCreateTag().putInt("Light", wandLight);
-			worldIn.setBlockAndUpdate(pos, state.setValue(LightBlock.LIGHT, wandLight));
-			player.displayClientMessage(Component.translatable("tip.lightingwand.light", wandLight), true);
+			int wandLight = WandItem.getLightValue(stack);
+			int blockLight = state.getValue(LightBlock.LIGHT);
+			if (wandLight != blockLight) {
+				worldIn.setBlockAndUpdate(pos, state.setValue(LightBlock.LIGHT, wandLight));
+			} else {
+				wandLight = wandLight % 15 + 1;
+				stack.getOrCreateTag().putInt("Light", wandLight);
+				worldIn.setBlockAndUpdate(pos, state.setValue(LightBlock.LIGHT, wandLight));
+				player.displayClientMessage(Component.translatable("tip.lightingwand.light", wandLight), true);
+			}
 		}
 		return InteractionResult.SUCCESS;
 	}
 
 	@Override
 	public void appendHoverText(ItemStack stack, Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
-		if (isUsable(stack)) {
-			tooltip.add(Component.translatable("tip.lightingwand.light", getLightValue(stack)).withStyle(ChatFormatting.GRAY));
-		} else {
+		if (!isUsable(stack)) {
 			tooltip.add(Component.translatable("tip.lightingwand.uncharged").withStyle(ChatFormatting.DARK_RED));
 		}
+		if (hasCustomColor(stack)) {
+			if (CommonProxy.shimmerCompat) {
+				tooltip.add(Component.translatable("tip.lightingwand.color", Component.literal("■").withStyle($ -> $.withColor(getColor(stack)))).withStyle(ChatFormatting.GRAY));
+			} else {
+				tooltip.add(Component.translatable("tip.lightingwand.noShimmer").withStyle(ChatFormatting.DARK_RED));
+			}
+		}
+		tooltip.add(Component.translatable("tip.lightingwand.light", getLightValue(stack)).withStyle(ChatFormatting.GRAY));
 	}
 
 	@Override
@@ -146,5 +186,37 @@ public class WandItem extends Item {
 			return true;
 		}
 		return super.hurtEnemy(stack, target, attacker);
+	}
+
+	@Override
+	public boolean hasCustomColor(ItemStack stack) {
+		return stack.hasTag() && stack.getTag().contains("Color", Tag.TAG_ANY_NUMERIC);
+	}
+
+	@Override
+	public int getColor(ItemStack stack) {
+		return getCustomColor(stack).orElse(CommonConfig.defaultLightColor);
+	}
+
+	public OptionalInt getCustomColor(ItemStack stack) {
+		if (hasCustomColor(stack)) {
+			float alpha = stack.getTag().getFloat("Alpha");
+			if (alpha == 0) {
+				alpha = 1;
+			}
+			return OptionalInt.of(((int) (alpha * 255) << 24) + stack.getTag().getInt("Color"));
+		}
+		return OptionalInt.empty();
+	}
+
+	@Override
+	public void setColor(ItemStack stack, int color) {
+		stack.getOrCreateTag().putInt("Color", color);
+	}
+
+	@Override
+	public void clearColor(ItemStack stack) {
+		stack.removeTagKey("Color");
+		stack.removeTagKey("Alpha");
 	}
 }
