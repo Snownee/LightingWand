@@ -1,4 +1,4 @@
-package snownee.lightingwand.common;
+package snownee.lightingwand;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.DustParticleOptions;
@@ -15,7 +15,6 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import snownee.lightingwand.CoreModule;
 
 public class LightEntity extends ThrowableProjectile {
 	public int lightValue = 15;
@@ -45,21 +44,20 @@ public class LightEntity extends ThrowableProjectile {
 
 	@Override
 	protected void onHit(HitResult result) {
+		Level level = level();
 		if (!level.isClientSide && result != null) {
 			discard();
 			BlockPos pos = null;
 			switch (result.getType()) {
-			case MISS:
-				return;
-			case ENTITY:
-				pos = new BlockPos(result.getLocation());
-				break;
-			case BLOCK:
-				pos = ((BlockHitResult) result).getBlockPos().relative(((BlockHitResult) result).getDirection());
-				break;
+				case MISS -> {
+					return;
+				}
+				case ENTITY -> pos = BlockPos.containing(result.getLocation());
+				case BLOCK ->
+						pos = ((BlockHitResult) result).getBlockPos().relative(((BlockHitResult) result).getDirection());
 			}
 
-			if (level.getBlockState(pos).getMaterial().isReplaceable()) {
+			if (level.getBlockState(pos).canBeReplaced()) {
 				FluidState fluidstate = level.getFluidState(pos);
 				if (level.setBlock(pos, CoreModule.LIGHT.defaultBlockState().setValue(LightBlock.LIGHT, Mth.clamp(lightValue, 1, 15)).setValue(LightBlock.WATERLOGGED, fluidstate.is(FluidTags.WATER) && fluidstate.getAmount() == 8), 11)) {
 					level.playSound(null, pos, SoundEvents.FROGLIGHT_PLACE, SoundSource.BLOCKS, 1.0F, level.random.nextFloat() * 0.4F + 0.8F);
@@ -71,10 +69,10 @@ public class LightEntity extends ThrowableProjectile {
 	@Override
 	public void tick() {
 		super.tick();
-		if (level.isClientSide && !onGround) {
+		if (level().isClientSide && !onGround()) {
 			Vec3 motion = getDeltaMovement();
 			for (int k = 0; k < 2; ++k) {
-				level.addParticle(new DustParticleOptions(LightBlock.COLOR_VEC, 1.0F), getX() + motion.x * k / 2D, getY() + motion.y * k / 2D, getZ() + motion.z * k / 2D, 0, 0, 0);
+				level().addParticle(new DustParticleOptions(LightBlock.COLOR_VEC, 1.0F), getX() + motion.x * k / 2D, getY() + motion.y * k / 2D, getZ() + motion.z * k / 2D, 0, 0, 0);
 			}
 		}
 	}

@@ -1,7 +1,6 @@
 package snownee.lightingwand;
 
 import snownee.kiwi.config.KiwiConfig;
-import snownee.kiwi.config.KiwiConfig.Comment;
 import snownee.kiwi.config.KiwiConfig.GameRestart;
 import snownee.kiwi.config.KiwiConfig.Range;
 
@@ -9,18 +8,14 @@ import snownee.kiwi.config.KiwiConfig.Range;
 public class CommonConfig {
 
 	@GameRestart
-	@Comment("Should wand be able to shoot projectile.")
 	public static boolean shootProjectile = true;
 
-	//	@Comment("How much FE to repair one use of wand. Zero to disable.")
-	//	@Range(min = 0)
-	//	public static int energyPerUse = 50;
+	@Range(min = 0)
+	public static int energyPerUse = 200;
 
-	//	@Comment("Should use glowstone dust to repair wand.")
-	//	public static boolean repairRecipe = true;
+	public static boolean repairRecipe = true;
 
 	@GameRestart
-	@Comment("Max durability of the wand.")
 	@Range(min = 1)
 	public static int wandDurability = 255;
 

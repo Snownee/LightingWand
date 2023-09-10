@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '0.12-SNAPSHOT'
+    id 'fabric-loom' version '1.0-SNAPSHOT'
     id 'maven-publish'
     id "com.modrinth.minotaur" version "2.+"
 }
@@ -12,16 +12,20 @@ version = project.minecraft_version + "-fabric-" + project.mod_version
 group = project.maven_group
 
 repositories {
-    maven { url = "https://maven.parchmentmc.org" }
+    maven { url "https://maven.parchmentmc.org" }
     maven { url "https://maven.shedaniel.me/" }
     maven { url "https://maven.terraformersmc.com/releases/" }
-	maven { url = "https://dvs1.progwml6.com/files/maven/" }
-    maven {
-        url "https://cursemaven.com"
-        content {
-            includeGroup "curse.maven"
-        }
-    }
+	
+	// JEI
+	maven { url "https://modmaven.dev" }
+	maven { url "https://dvs1.progwml6.com/files/maven/" }
+    
+	// maven {
+    //     url "https://cursemaven.com"
+    //     content {
+    //         includeGroup "curse.maven"
+    //     }
+    // }
     maven { url = "https://api.modrinth.com/maven" }
 	flatDir { dir 'libs' }
     // Add repositories to retrieve artifacts from in here.
@@ -31,13 +35,31 @@ repositories {
     // for more information about repositories.
 }
 
-/*
+sourceSets {
+    main.resources.srcDirs += "$rootDir/src/generated/resources"
+}
+
 loom {
+/*
     mixin {
         defaultRefmapName = "${project.mod_id}.refmap.json"
     }
-}
 */
+    runs {
+        //
+        // This adds a new gradle task that runs the datagen API: "gradlew runDatagenClient"
+        //
+        datagenClient {
+            inherit client
+            name "Data Generation"
+            vmArg "-Dfabric-api.datagen"
+            vmArg "-Dfabric-api.datagen.output-dir=${file("src/generated/resources")}"
+            vmArg "-Dfabric-api.datagen.modid=${mod_id}"
+
+            runDir "build/datagen"
+        }
+    }
+}
 
 dependencies {
     // To change the versions see the gradle.properties file
@@ -60,17 +82,23 @@ dependencies {
     modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-fabric:${project.rei_version}"
 	
 	// compile against the JEI API but do not include it at runtime
-	modCompileOnlyApi "mezz.jei:jei-1.19-common-api:${jei_version}"
-	modCompileOnlyApi "mezz.jei:jei-1.19-fabric-api:${jei_version}"
+	modCompileOnlyApi "mezz.jei:jei-1.20.1-common-api:${jei_version}"
+	modCompileOnlyApi "mezz.jei:jei-1.20.1-fabric-api:${jei_version}"
 	// at runtime, use the full JEI jar for Fabric
 	//modRuntimeOnly "mezz.jei:jei-${minecraft_version}-fabric:${jei_version}"
 	
+	// https://modrinth.com/mod/jade/versions
     //modRuntimeOnly "curse.maven:jade-324717:3879361"
-    modRuntimeOnly "maven.modrinth:jade:Nt1CVXe1"
+    modRuntimeOnly "maven.modrinth:jade:SlsObyHn"
     
+	// https://modrinth.com/mod/kiwi/versions
     //modImplementation "curse.maven:kiwi-549404:3878011"
-    modImplementation "maven.modrinth:kiwi:VnB53KXO"
+    modImplementation "maven.modrinth:kiwi:a8jR4pPa"
     //modImplementation "libs:Kiwi-1.18.1-fabric:${project.kiwi_version}"
+    
+    modApi("teamreborn:energy:${project.tr_energy_version}") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
 }
 
 processResources {
@@ -100,7 +128,9 @@ java {
 }
 
 jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     exclude '**/*.bat'
+    exclude("/assets/${project.mod_id}/lang/en_us.existing.json")
     from("LICENSE") {
         rename { "${it}_${project.archivesBaseName}"}
     }

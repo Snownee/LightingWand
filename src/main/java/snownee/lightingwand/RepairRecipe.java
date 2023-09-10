@@ -1,8 +1,9 @@
-package snownee.lightingwand.common;
+package snownee.lightingwand;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -11,12 +12,12 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
-import snownee.lightingwand.CoreModule;
 
 public class RepairRecipe extends CustomRecipe {
 	private final String group;
@@ -63,7 +64,7 @@ public class RepairRecipe extends CustomRecipe {
 	}
 
 	@Override
-	public ItemStack assemble(CraftingContainer inv) {
+	public ItemStack assemble(CraftingContainer inv, RegistryAccess registryAccess) {
 		int dust = 0;
 		ItemStack wand = ItemStack.EMPTY;
 
@@ -113,7 +114,7 @@ public class RepairRecipe extends CustomRecipe {
 			String group = GsonHelper.getAsString(json, "group", "");
 			String s = GsonHelper.getAsString(json, "repairable");
 			Item repairable = BuiltInRegistries.ITEM.get(new ResourceLocation(s));
-			if (repairable == null) {
+			if (repairable == Items.AIR) {
 				throw new JsonSyntaxException("Unknown item '" + s + "'");
 			}
 			Ingredient material = Ingredient.fromJson(GsonHelper.getAsJsonObject(json, "material"));

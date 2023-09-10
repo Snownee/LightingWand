@@ -12,7 +12,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeType;
-import snownee.lightingwand.common.RepairRecipe;
+import snownee.lightingwand.RepairRecipe;
 
 public class REICompat implements REIClientPlugin {
 

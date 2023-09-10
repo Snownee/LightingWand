@@ -1,8 +1,13 @@
 {
-  "type": "lightingwand:repair",
-  "repairable": "lightingwand:wand",
-  "material": {
-    "item": "glowstone_dust"
-  },
-  "ratio": 4
+	"fabric:load_conditions": [
+		{
+			"condition": "lightingwand:repair_recipe"
+		}
+	],
+	"type": "lightingwand:repair",
+	"repairable": "lightingwand:wand",
+	"material": {
+		"item": "glowstone_dust"
+	},
+	"ratio": 4
 }

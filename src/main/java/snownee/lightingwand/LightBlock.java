@@ -1,14 +1,10 @@
-package snownee.lightingwand.common;
+package snownee.lightingwand;
 
 import org.joml.Vector3f;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -27,7 +23,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import snownee.kiwi.block.ModBlock;
 import snownee.kiwi.loader.Platform;
-import snownee.lightingwand.CoreModule;
+import snownee.lightingwand.util.ClientProxy;
 
 public class LightBlock extends ModBlock implements SimpleWaterloggedBlock {
 	public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
@@ -46,7 +42,7 @@ public class LightBlock extends ModBlock implements SimpleWaterloggedBlock {
 
 	@Override
 	public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext ctx) {
-		return (Platform.isPhysicalClient() && /*EffectiveSide.get() == LogicalSide.CLIENT &&*/ hasItem()) ? Shapes.block() : Shapes.empty();
+		return (Platform.isPhysicalClient() && /*EffectiveSide.get() == LogicalSide.CLIENT &&*/ ClientProxy.hasItem()) ? Shapes.block() : Shapes.empty();
 	}
 
 	@Override
@@ -55,9 +51,8 @@ public class LightBlock extends ModBlock implements SimpleWaterloggedBlock {
 	}
 
 	@Override
-	@Environment(EnvType.CLIENT)
 	public void animateTick(BlockState stateIn, Level worldIn, BlockPos pos, RandomSource rand) {
-		if (hasItem()) {
+		if (ClientProxy.hasItem()) {
 			float x = pos.getX() + 0.3F + rand.nextFloat() * 0.4F;
 			float y = pos.getY() + 0.5F;
 			float z = pos.getZ() + 0.3F + rand.nextFloat() * 0.4F;
@@ -65,23 +60,6 @@ public class LightBlock extends ModBlock implements SimpleWaterloggedBlock {
 			worldIn.addParticle(new DustParticleOptions(COLOR_VEC, 1.0F), x, y, z, 0, 0, 0);
 		}
 		super.animateTick(stateIn, worldIn, pos, rand);
-	}
-
-	@Environment(EnvType.CLIENT)
-	public static boolean hasItem() {
-		Player player = Minecraft.getInstance().player;
-		if (player == null) {
-			return false;
-		}
-		if (player.isHolding(CoreModule.WAND.get())) {
-			return true;
-		}
-		//		if (CommonRegistry.psiCompat) {
-//			if (main instanceof ICAD || off instanceof ICAD) {
-//				return true;
-//			}
-//		}
-		return false;
 	}
 
 	@Override

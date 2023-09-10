@@ -1,10 +1,10 @@
 package snownee.lightingwand;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+
+import com.mojang.logging.LogUtils;
 
 public class LW {
-	public static final String MODID = "lightingwand";
-	public static final String NAME = "Lighting Wand";
-	public static final Logger logger = LogManager.getLogger(LW.NAME);
+	public static final String ID = "lightingwand";
+	public static final Logger LOGGER = LogUtils.getLogger();
 }

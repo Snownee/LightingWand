@@ -1,41 +1,45 @@
 {
-  "schemaVersion": 1,
-  "id": "lightingwand",
-  "version": "${version}",
-
-  "name": "Lighting Wand",
-  "description": "Wand that can place invisible light source!",
-  "authors": ["Snownee"],
-  "contact": {
-    "homepage": "https://www.curseforge.com/minecraft/mc-mods/lighting-wand-fabric",
-    "sources": "https://github.com/Snownee/LightingWand",
-    "issues": "https://github.com/Snownee/LightingWand/issues"
-  },
-
-  "license": "MIT",
-
-  "entrypoints": {
-    "rei_client": [
-      "snownee.lightingwand.compat.REICompat"
-    ],
-    "jei_mod_plugin": [
-      "snownee.lightingwand.compat.JEICompat"
-    ]
-  },
-  "mixins": [],
-
-  "depends": {
-    "fabric": "*",
-    "minecraft": ">=1.19.3",
-    "java": ">=17",
-    "kiwi": ">=9"
-  },
-
-  "custom": {
-    "modmenu": {
-      "links": {
-        "modmenu.discord": "https://discord.gg/rRBvGkz"
-      }
-    }
-  }
+	"schemaVersion": 1,
+	"id": "lightingwand",
+	"version": "${version}",
+	"name": "Lighting Wand",
+	"description": "Wand that can place invisible light source!",
+	"authors": [
+		"Snownee"
+	],
+	"contact": {
+		"homepage": "https://www.curseforge.com/minecraft/mc-mods/lighting-wand-fabric",
+		"sources": "https://github.com/Snownee/LightingWand",
+		"issues": "https://github.com/Snownee/LightingWand/issues"
+	},
+	"license": "MIT",
+	"entrypoints": {
+		"client": [
+			"snownee.lightingwand.util.ClientProxy"
+		],
+		"main": [
+			"snownee.lightingwand.util.CommonProxy"
+		],
+		"fabric-datagen": [
+			"snownee.lightingwand.datagen.LWDatagen"
+		],
+		"rei_client": [
+			"snownee.lightingwand.compat.REICompat"
+		],
+		"jei_mod_plugin": [
+			"snownee.lightingwand.compat.JEICompat"
+		]
+	},
+	"mixins": [],
+	"depends": {
+		"minecraft": ">=1.20",
+		"kiwi": ">=11.1.1"
+	},
+	"custom": {
+		"modmenu": {
+			"links": {
+				"modmenu.discord": "https://discord.gg/rRBvGkz"
+			}
+		}
+	}
 }

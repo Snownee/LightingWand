@@ -16,14 +16,14 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import snownee.lightingwand.LW;
-import snownee.lightingwand.common.RepairRecipe;
+import snownee.lightingwand.RepairRecipe;
 
 @JeiPlugin
 public class JEICompat implements IModPlugin {
 
 	@Override
 	public ResourceLocation getPluginUid() {
-		return new ResourceLocation(LW.MODID, "main");
+		return new ResourceLocation(LW.ID, "main");
 	}
 
 	@Override
@@ -45,10 +45,10 @@ public class JEICompat implements IModPlugin {
 			ItemStack broken = new ItemStack(recipe.getRepairable());
 			int duration = broken.getMaxDamage();
 			broken.setDamageValue(duration);
-			craftingGridHelper.setInputs(builder, VanillaTypes.ITEM_STACK, List.of(List.of(broken), List.of(recipe.getMaterial().getItems())), 0, 0);
+			craftingGridHelper.createAndSetInputs(builder, VanillaTypes.ITEM_STACK, List.of(List.of(broken), List.of(recipe.getMaterial().getItems())), 0, 0);
 			ItemStack output = new ItemStack(recipe.getRepairable());
 			output.setDamageValue(Mth.clamp(duration - Mth.ceil(duration / recipe.getRatio()), 0, duration));
-			craftingGridHelper.setOutputs(builder, VanillaTypes.ITEM_STACK, List.of(output));
+			craftingGridHelper.createAndSetOutputs(builder, VanillaTypes.ITEM_STACK, List.of(output));
 		}
 	}
 }
