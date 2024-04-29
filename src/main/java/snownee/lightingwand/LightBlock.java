@@ -42,11 +42,17 @@ public class LightBlock extends ModBlock implements SimpleWaterloggedBlock {
 
 	@Override
 	public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext ctx) {
-		return (Platform.isPhysicalClient() && /*EffectiveSide.get() == LogicalSide.CLIENT &&*/ ClientProxy.hasItem()) ? Shapes.block() : Shapes.empty();
+		return (Platform.isPhysicalClient() && /*EffectiveSide.get() == LogicalSide.CLIENT &&*/ ClientProxy.hasItem()) ?
+				Shapes.block() :
+				Shapes.empty();
 	}
 
 	@Override
-	public VoxelShape getCollisionShape(BlockState p_220071_1_, BlockGetter p_220071_2_, BlockPos p_220071_3_, CollisionContext p_220071_4_) {
+	public VoxelShape getCollisionShape(
+			BlockState p_220071_1_,
+			BlockGetter p_220071_2_,
+			BlockPos p_220071_3_,
+			CollisionContext p_220071_4_) {
 		return Shapes.empty();
 	}
 

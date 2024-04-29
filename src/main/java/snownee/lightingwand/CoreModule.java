@@ -1,11 +1,9 @@
 package snownee.lightingwand;
 
-import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -21,19 +19,40 @@ import snownee.kiwi.KiwiModule.Category;
 import snownee.kiwi.KiwiModule.Name;
 import snownee.kiwi.KiwiModule.NoItem;
 import snownee.kiwi.loader.event.InitEvent;
-import snownee.lightingwand.fabric.FabricWandItem;
+import snownee.kiwi.util.KiwiEntityTypeBuilder;
 import snownee.lightingwand.util.CommonProxy;
 
 @KiwiModule
 public class CoreModule extends AbstractModule {
 
 	@NoItem
-	public static final KiwiGO<Block> LIGHT = go(() -> new LightBlock(blockProp().noCollission().noLootTable().lightLevel(state -> state.getValue(LightBlock.LIGHT))));
+	public static final KiwiGO<Block> LIGHT = go(() -> new LightBlock(blockProp().replaceable()
+			.noCollission()
+			.noLootTable()
+			.instabreak()
+			.noParticlesOnBreak()
+			.lightLevel(state -> state.getValue(LightBlock.LIGHT))));
 	@NoItem
-	public static final KiwiGO<Block> COLORED_LIGHT = go(() -> new ColoredLightBlock(CommonProxy.shimmerCompat ? blockProp() : blockProp().lightLevel(state -> state.getValue(LightBlock.LIGHT))));
+	public static final KiwiGO<Block> COLORED_LIGHT = go(() -> new ColoredLightBlock(CommonProxy.shimmerCompat ?
+			blockProp(LIGHT.getOrCreate()).lightLevel($ -> 0) :
+			blockProp(LIGHT.getOrCreate())));
 	@Category(Categories.TOOLS_AND_UTILITIES)
-	public static final KiwiGO<WandItem> WAND = go(() -> new FabricWandItem(itemProp().durability(CommonConfig.wandDurability)));
+	public static final KiwiGO<WandItem> WAND = go(() -> new WandItem(itemProp().durability(CommonConfig.wandDurability)));
 	public static final KiwiGO<RecipeSerializer<RepairRecipe>> REPAIR = go(RepairRecipe.Serializer::new);
+	@Name("light")
+	public static final KiwiGO<BlockEntityType<ColoredLightBlockEntity>> LIGHT_TILE = blockEntity(
+			ColoredLightBlockEntity::new,
+			null,
+			COLORED_LIGHT);
+
+	@Name("light")
+	public static final KiwiGO<EntityType<LightEntity>> PROJECTILE = go(() -> KiwiEntityTypeBuilder.<LightEntity>create()
+			.entityFactory((spawnEntity, world) -> new LightEntity(world))
+			.fireImmune()
+			.trackRangeChunks(4)
+			.trackedUpdateRate(20)
+			.forceTrackedVelocityUpdates(true)
+			.build());
 
 	public static boolean isLightBlock(BlockState state) {
 		return LIGHT.is(state) || COLORED_LIGHT.is(state);
@@ -52,7 +71,12 @@ public class CoreModule extends AbstractModule {
 						entity.setPos(iposition.x(), iposition.y(), iposition.z());
 						entity.setLightValue(WandItem.getLightValue(stack));
 						entity.setColor(WAND.get().getCustomColor(stack).orElse(0));
-						entity.shoot(Direction.getStepX(), Direction.getStepY() + 0.1F, Direction.getStepZ(), 1.3F + world.random.nextFloat() * 0.4F, 0);
+						entity.shoot(
+								Direction.getStepX(),
+								Direction.getStepY() + 0.1F,
+								Direction.getStepZ(),
+								1.3F + world.random.nextFloat() * 0.4F,
+								0);
 						Vec3 motion = entity.getDeltaMovement();
 						entity.setDeltaMovement(motion.add(world.random.nextGaussian() * 0.1D, 0, world.random.nextGaussian() * 0.1D));
 						world.addFreshEntity(entity);
@@ -65,20 +89,6 @@ public class CoreModule extends AbstractModule {
 			CommonProxy.postRegister();
 		});
 	}
-
-	@Name("light")
-	public static final KiwiGO<BlockEntityType<ColoredLightBlockEntity>> LIGHT_TILE = blockEntity(ColoredLightBlockEntity::new, null, COLORED_LIGHT);
-
-	@Name("light")
-	public static final KiwiGO<EntityType<LightEntity>> PROJECTILE = go(() -> FabricEntityTypeBuilder.<LightEntity>create(MobCategory.MISC, LightEntity::new)
-			.entityFactory((spawnEntity, world) -> new LightEntity(world))
-			//.sized(0.0001F, 0.0001F)
-			.fireImmune()
-			.trackRangeBlocks(64)
-			.trackedUpdateRate(20)
-			.forceTrackedVelocityUpdates(true)
-			.build()
-	);
 
 
 }

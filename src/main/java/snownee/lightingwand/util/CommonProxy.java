@@ -18,10 +18,12 @@ public class CommonProxy implements ModInitializer {
 	public static final boolean shimmerCompat = Platform.isModLoaded("shimmer");
 
 	public static void postRegister() {
-		if (Platform.isModLoaded("team_reborn_energy"))
+		if (Platform.isModLoaded("team_reborn_energy")) {
 			TREnergyCompat.init();
-		if (Platform.isPhysicalClient())
+		}
+		if (Platform.isPhysicalClient()) {
 			ClientProxy.postRegister();
+		}
 	}
 
 	public static Packet<ClientGamePacketListener> getAddEntityPacket(LightEntity entity) {

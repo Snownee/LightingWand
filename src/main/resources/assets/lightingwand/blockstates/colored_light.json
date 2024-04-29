@@ -1,5 +1,7 @@
 {
-  "variants": {
-	"": { "model": "lightingwand:block/light" }
-  }
+	"variants": {
+		"": {
+			"model": "lightingwand:block/light"
+		}
+	}
 }

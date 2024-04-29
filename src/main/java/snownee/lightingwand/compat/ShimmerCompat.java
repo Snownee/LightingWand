@@ -62,7 +62,10 @@ public interface ShimmerCompat {
 		}
 		if (lightEntity.shimmerLight == null) {
 			BlockPos pos = lightEntity.getBlockPos();
-			lightEntity.shimmerLight = LightManager.INSTANCE.addLight(new Vector3f(pos.getX() + .5F, pos.getY() + .5F, pos.getZ() + .5F), color, lightEntity.getBlockState().getValue(LightBlock.LIGHT) / 2F);
+			lightEntity.shimmerLight = LightManager.INSTANCE.addLight(
+					new Vector3f(pos.getX() + .5F, pos.getY() + .5F, pos.getZ() + .5F),
+					color,
+					lightEntity.getBlockState().getValue(LightBlock.LIGHT) / 2F);
 		} else {
 			ColorPointLight light = (ColorPointLight) lightEntity.shimmerLight;
 			light.setColor(color);
