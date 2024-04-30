@@ -1,6 +1,6 @@
 {
-  "parent": "block/air",
-  "textures": {
-    "particle": "block/glowstone"
-  }
+	"parent": "block/air",
+	"textures": {
+		"particle": "block/glowstone"
+	}
 }

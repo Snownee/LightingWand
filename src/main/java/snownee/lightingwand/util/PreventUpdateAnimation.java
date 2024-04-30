@@ -1,4 +1,4 @@
-package snownee.lightingwand.forge;
+package snownee.lightingwand.util;
 
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -6,17 +6,20 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.extensions.IForgeItem;
 import net.minecraftforge.common.util.LazyOptional;
 import snownee.lightingwand.CommonConfig;
-import snownee.lightingwand.WandItem;
+import snownee.lightingwand.forge.EnergyRepair;
 
-public class ForgeWandItem extends WandItem {
-	public ForgeWandItem(Properties properties) {
-		super(properties);
+//TODO(1.21) use Kiwi method
+public interface PreventUpdateAnimation extends IForgeItem {
+	@Override
+	default boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+		return slotChanged;
 	}
 
 	@Override
-	public ICapabilityProvider initCapabilities(ItemStack stack, CompoundTag nbt) {
+	default ICapabilityProvider initCapabilities(ItemStack stack, CompoundTag nbt) {
 		return new ICapabilityProvider() {
 			private final LazyOptional<EnergyRepair> handler = LazyOptional.of(() -> new EnergyRepair(stack));
 
@@ -28,10 +31,5 @@ public class ForgeWandItem extends WandItem {
 				return LazyOptional.empty();
 			}
 		};
-	}
-
-	@Override
-	public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
-		return slotChanged;
 	}
 }

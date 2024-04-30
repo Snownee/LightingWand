@@ -76,7 +76,12 @@ public class LightEntity extends ThrowableProjectile {
 		FluidState fluidstate = level.getFluidState(pos);
 		int color = getColor();
 		Block block = color == 0 ? CoreModule.LIGHT.get() : CoreModule.COLORED_LIGHT.get();
-		if (level.setBlock(pos, block.defaultBlockState().setValue(LightBlock.LIGHT, Mth.clamp(getLightValue(), 1, 15)).setValue(LightBlock.WATERLOGGED, fluidstate.is(FluidTags.WATER) && fluidstate.getAmount() == 8), 11)) {
+		if (level.setBlock(
+				pos,
+				block.defaultBlockState()
+						.setValue(LightBlock.LIGHT, Mth.clamp(getLightValue(), 1, 15))
+						.setValue(LightBlock.WATERLOGGED, fluidstate.is(FluidTags.WATER) && fluidstate.getAmount() == 8),
+				11)) {
 			if (color != 0 && level.getBlockEntity(pos) instanceof ColoredLightBlockEntity be) {
 				be.setColor(color);
 			}
@@ -101,7 +106,14 @@ public class LightEntity extends ThrowableProjectile {
 			Vec3 motion = getDeltaMovement();
 			Vector3f color = CommonConfig.intColorToVector3(getColor());
 			for (int k = 0; k < 2; ++k) {
-				level().addParticle(new DustParticleOptions(color, 1.0F), getX() + motion.x * k / 2D, getY() + motion.y * k / 2D, getZ() + motion.z * k / 2D, 0, 0, 0);
+				level().addParticle(
+						new DustParticleOptions(color, 1.0F),
+						getX() + motion.x * k / 2D,
+						getY() + motion.y * k / 2D,
+						getZ() + motion.z * k / 2D,
+						0,
+						0,
+						0);
 			}
 		}
 	}

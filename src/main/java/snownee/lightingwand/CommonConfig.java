@@ -27,7 +27,7 @@ public class CommonConfig {
 	static {
 		updateColorVector(null);
 	}
-	
+
 	@KiwiConfig.Listen("defaultLightColor")
 	public static void updateColorVector(String path) {
 		LW.LOGGER.debug("Updating default light color vector");

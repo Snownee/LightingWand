@@ -15,14 +15,16 @@ public class CommonProxy {
 	public static final boolean shimmerCompat = Platform.isModLoaded("shimmer");
 
 	public CommonProxy() {
-		if (Platform.isPhysicalClient())
+		if (Platform.isPhysicalClient()) {
 			ClientProxy.init();
+		}
 	}
 
 	public static void postRegister() {
 		CraftingHelper.register(new RepairRecipeCondition.Serializer());
-		if (Platform.isPhysicalClient())
+		if (Platform.isPhysicalClient()) {
 			ClientProxy.postRegister();
+		}
 	}
 
 	public static Packet<ClientGamePacketListener> getAddEntityPacket(LightEntity entity) {

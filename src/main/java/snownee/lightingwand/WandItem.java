@@ -67,18 +67,37 @@ public class WandItem extends Item implements DyeableLeatherItem {
 				}
 				BlockState state = worldIn.getBlockState(pos);
 				if (!CoreModule.isLightBlock(state) && state.canBeReplaced()) {
-					worldIn.playSound(null, pos, SoundEvents.FROGLIGHT_PLACE, SoundSource.BLOCKS, 1.0F, playerIn.getRandom().nextFloat() * 0.4F + 0.8F);
+					worldIn.playSound(
+							null,
+							pos,
+							SoundEvents.FROGLIGHT_PLACE,
+							SoundSource.BLOCKS,
+							1.0F,
+							playerIn.getRandom().nextFloat() * 0.4F + 0.8F);
 					FluidState fluidstate = worldIn.getFluidState(pos);
 					OptionalInt color = getCustomColor(stack);
 					Block block = color.isEmpty() ? CoreModule.LIGHT.get() : CoreModule.COLORED_LIGHT.get();
-					worldIn.setBlock(pos, block.defaultBlockState().setValue(LightBlock.LIGHT, getLightValue(stack)).setValue(LightBlock.WATERLOGGED, fluidstate.is(FluidTags.WATER) && fluidstate.getAmount() == 8), 11);
+					worldIn.setBlock(
+							pos,
+							block.defaultBlockState()
+									.setValue(LightBlock.LIGHT, getLightValue(stack))
+									.setValue(LightBlock.WATERLOGGED, fluidstate.is(FluidTags.WATER) && fluidstate.getAmount() == 8),
+							11);
 					if (color.isPresent() && worldIn.getBlockEntity(pos) instanceof ColoredLightBlockEntity be) {
 						be.setColor(color.getAsInt());
 					}
 				}
 			} else if (rayTraceResult.getType() == HitResult.Type.MISS && CommonConfig.shootProjectile) {
 				// TODO: Sound subtitle
-				worldIn.playSound(null, playerIn.getX(), playerIn.getY(), playerIn.getZ(), SoundEvents.EGG_THROW, SoundSource.PLAYERS, 0.8F, 0.4F / (playerIn.getRandom().nextFloat() * 0.4F + 0.8F));
+				worldIn.playSound(
+						null,
+						playerIn.getX(),
+						playerIn.getY(),
+						playerIn.getZ(),
+						SoundEvents.EGG_THROW,
+						SoundSource.PLAYERS,
+						0.8F,
+						0.4F / (playerIn.getRandom().nextFloat() * 0.4F + 0.8F));
 				LightEntity entity = new LightEntity(worldIn, playerIn);
 				entity.setLightValue(getLightValue(stack));
 				entity.setColor(getCustomColor(stack).orElse(0));
@@ -87,7 +106,15 @@ public class WandItem extends Item implements DyeableLeatherItem {
 			}
 			stack.hurt(1, playerIn.getRandom(), (ServerPlayer) playerIn);
 			if (!isUsable(stack)) {
-				worldIn.playSound(null, playerIn.getX(), playerIn.getY(), playerIn.getZ(), SoundEvents.ITEM_BREAK, SoundSource.NEUTRAL, 0.5F, 0.8F + worldIn.random.nextFloat() * 0.4F);
+				worldIn.playSound(
+						null,
+						playerIn.getX(),
+						playerIn.getY(),
+						playerIn.getZ(),
+						SoundEvents.ITEM_BREAK,
+						SoundSource.NEUTRAL,
+						0.5F,
+						0.8F + worldIn.random.nextFloat() * 0.4F);
 			}
 			playerIn.awardStat(Stats.ITEM_USED.get(this));
 		}
@@ -110,7 +137,8 @@ public class WandItem extends Item implements DyeableLeatherItem {
 			return InteractionResult.PASS;
 		}
 		ItemStack stack = context.getItemInHand();
-		if (CoreModule.COLORED_LIGHT.is(state) && context.getHand() == InteractionHand.MAIN_HAND && player.getOffhandItem().is(Items.GLASS_PANE)) {
+		if (CoreModule.COLORED_LIGHT.is(state) && context.getHand() == InteractionHand.MAIN_HAND &&
+				player.getOffhandItem().is(Items.GLASS_PANE)) {
 			float alpha = 1;
 			if (stack.hasTag() && stack.getOrCreateTag().contains("Alpha")) {
 				alpha = stack.getTag().getFloat("Alpha");
@@ -150,7 +178,9 @@ public class WandItem extends Item implements DyeableLeatherItem {
 		}
 		if (hasCustomColor(stack)) {
 			if (CommonProxy.shimmerCompat) {
-				tooltip.add(Component.translatable("tip.lightingwand.color", Component.literal("■").withStyle($ -> $.withColor(getColor(stack)))).withStyle(ChatFormatting.GRAY));
+				tooltip.add(Component.translatable(
+						"tip.lightingwand.color",
+						Component.literal("■").withStyle($ -> $.withColor(getColor(stack)))).withStyle(ChatFormatting.GRAY));
 			} else {
 				tooltip.add(Component.translatable("tip.lightingwand.noShimmer").withStyle(ChatFormatting.DARK_RED));
 			}

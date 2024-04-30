@@ -45,7 +45,12 @@ public class JEICompat implements IModPlugin {
 			ItemStack broken = new ItemStack(recipe.getRepairable());
 			int duration = broken.getMaxDamage();
 			broken.setDamageValue(duration);
-			craftingGridHelper.createAndSetInputs(builder, VanillaTypes.ITEM_STACK, List.of(List.of(broken), List.of(recipe.getMaterial().getItems())), 0, 0);
+			craftingGridHelper.createAndSetInputs(
+					builder,
+					VanillaTypes.ITEM_STACK,
+					List.of(List.of(broken), List.of(recipe.getMaterial().getItems())),
+					0,
+					0);
 			ItemStack output = new ItemStack(recipe.getRepairable());
 			output.setDamageValue(Mth.clamp(duration - Mth.ceil(duration / recipe.getRatio()), 0, duration));
 			craftingGridHelper.createAndSetOutputs(builder, VanillaTypes.ITEM_STACK, List.of(output));

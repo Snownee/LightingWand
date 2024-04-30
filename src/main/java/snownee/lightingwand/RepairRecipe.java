@@ -60,7 +60,8 @@ public class RepairRecipe extends CustomRecipe {
 				return false;
 			}
 		}
-		return !wand.isEmpty() && dust > 0 && wand.getDamageValue() - Mth.ceil(wand.getMaxDamage() / ratio) * dust > -Mth.ceil(wand.getMaxDamage() / ratio);
+		return !wand.isEmpty() && dust > 0 && wand.getDamageValue() - Mth.ceil(wand.getMaxDamage() / ratio) * dust > -Mth.ceil(
+				wand.getMaxDamage() / ratio);
 	}
 
 	@Override
@@ -79,7 +80,10 @@ public class RepairRecipe extends CustomRecipe {
 				}
 			}
 		}
-		int damage = Mth.clamp(wand.getDamageValue() - Mth.ceil(wand.getMaxDamage() / ratio) * dust, 0, CoreModule.WAND.get().getMaxDamage());
+		int damage = Mth.clamp(
+				wand.getDamageValue() - Mth.ceil(wand.getMaxDamage() / ratio) * dust,
+				0,
+				CoreModule.WAND.get().getMaxDamage());
 		ItemStack result = wand.copy();
 		result.setCount(1);
 		result.setDamageValue(damage);

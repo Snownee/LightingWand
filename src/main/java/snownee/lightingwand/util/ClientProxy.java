@@ -30,13 +30,17 @@ public class ClientProxy {
 
 	public static void init() {
 		FMLJavaModLoadingContext.get().getModEventBus().addListener((EntityRenderersEvent.RegisterRenderers event) -> {
-			event.registerEntityRenderer(CoreModule.RAW_PROJECTILE, EmptyEntityRenderer::new);
+			event.registerEntityRenderer(CoreModule.PROJECTILE.getOrCreate(), EmptyEntityRenderer::new);
 		});
 	}
 
 	public static void postRegister() {
-		ItemProperties.register(CoreModule.WAND.get(), new ResourceLocation("broken"), (stack, worldIn, entityIn, seed) -> (WandItem.isUsable(stack) ? 0 : 1));
-		if (CommonProxy.shimmerCompat)
+		ItemProperties.register(
+				CoreModule.WAND.get(),
+				new ResourceLocation("broken"),
+				(stack, worldIn, entityIn, seed) -> (WandItem.isUsable(stack) ? 0 : 1));
+		if (CommonProxy.shimmerCompat) {
 			ShimmerCompat.init();
+		}
 	}
 }
