@@ -35,6 +35,9 @@ public class CommonConfig {
 	}
 
 	public static Vector3f intColorToVector3(int color) {
+		if (color == 0) {
+			return defaultLightColorVector;
+		}
 		float r = ((color >> 16) & 255) / 255F;
 		float g = ((color >> 8) & 255) / 255F;
 		float b = (color & 255) / 255F;

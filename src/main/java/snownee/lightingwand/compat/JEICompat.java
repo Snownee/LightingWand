@@ -1,3 +1,4 @@
+/*
 package snownee.lightingwand.compat;
 
 import java.util.List;
@@ -56,4 +57,4 @@ public class JEICompat implements IModPlugin {
 			craftingGridHelper.createAndSetOutputs(builder, VanillaTypes.ITEM_STACK, List.of(output));
 		}
 	}
-}
+}*/

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "*": {
+      "item": "minecraft:glowstone"
+    },
+    "/": {
+      "item": "minecraft:blaze_rod"
+    }
+  },
+  "pattern": [
+    "  *",
+    " / ",
+    "/  "
+  ],
+  "result": {
+    "count": 1,
+    "id": "lightingwand:wand"
+  }
+}

@@ -15,6 +15,8 @@
   "lightingwand.config.wandDurability.desc": "Max durability of the wand.",
   "lightingwand.spellpiece.trick_conjure_invisible_light": "Trick: Conjure Invisible Light",
   "lightingwand.spellpiece.trick_conjure_invisible_light.desc": "Conjures a light in the given position. Only having CAD in hand can see the bounding box. The second parameter is light value.",
+  "modmenu.descriptionTranslation.lightingwand": "Wand that can place invisible light source!",
+  "modmenu.nameTranslation.lightingwand": "Lighting Wand",
   "psi.spellerror.lightingwand.light": "ERROR: Volume must be between (0,15]",
   "tip.lightingwand.color": "Color: %s",
   "tip.lightingwand.light": "Range: %s",

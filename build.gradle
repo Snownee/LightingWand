@@ -1,11 +1,11 @@
 plugins {
-    id 'fabric-loom' version '1.0-SNAPSHOT'
+    id 'fabric-loom' version '1.6-SNAPSHOT'
     id 'maven-publish'
     id "me.shedaniel.unified-publishing" version "0.1.+"
 }
 
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
+sourceCompatibility = JavaVersion.VERSION_21
+targetCompatibility = JavaVersion.VERSION_21
 
 archivesBaseName = project.archives_base_name
 version = project.minecraft_version + "-Fabric-" + project.mod_version
@@ -42,11 +42,10 @@ sourceSets {
 }
 
 loom {
-/*
     mixin {
         defaultRefmapName = "${project.mod_id}.refmap.json"
     }
-*/
+
     runs {
         //
         // This adds a new gradle task that runs the datagen API: "gradlew runDatagenClient"
@@ -60,6 +59,12 @@ loom {
 
             runDir "build/datagen"
         }
+    }
+}
+
+configurations.all {
+    resolutionStrategy {
+        force("net.fabricmc:fabric-loader:$loader_version")
     }
 }
 
@@ -84,18 +89,18 @@ dependencies {
     modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-fabric:${project.rei_version}"
 
     // compile against the JEI API but do not include it at runtime
-    modCompileOnlyApi "mezz.jei:jei-1.20.1-common-api:${jei_version}"
-    modCompileOnlyApi "mezz.jei:jei-1.20.1-fabric-api:${jei_version}"
+//    modCompileOnlyApi "mezz.jei:jei-1.20.1-common-api:${jei_version}"
+//    modCompileOnlyApi "mezz.jei:jei-1.20.1-fabric-api:${jei_version}"
     // at runtime, use the full JEI jar for Fabric
     //modRuntimeOnly "mezz.jei:jei-${minecraft_version}-fabric:${jei_version}"
 
     // https://modrinth.com/mod/jade/versions
     //modRuntimeOnly "curse.maven:jade-324717:3879361"
-    modRuntimeOnly "maven.modrinth:jade:yksHdZ4j"
+    modRuntimeOnly "maven.modrinth:jade:15.0.4+fabric"
 
     // https://modrinth.com/mod/kiwi/versions
     //modImplementation "curse.maven:kiwi-549404:3878011"
-    modImplementation "maven.modrinth:kiwi:PeDa5Y5Z"
+    modImplementation(annotationProcessor("maven.modrinth:kiwi:15.0.1+fabric"))
     //modImplementation "libs:Kiwi-1.18.1-fabric:${project.kiwi_version}"
 
     modApi("teamreborn:energy:${project.tr_energy_version}") {
@@ -103,8 +108,8 @@ dependencies {
     }
 
     // https://modrinth.com/mod/shimmer!/versions
-    modImplementation "maven.modrinth:uBKACKpl:zh7cZkGa"
-    implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:0.3.2"))
+//    modImplementation "maven.modrinth:uBKACKpl:zh7cZkGa"
+    implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:0.3.5"))
 }
 
 processResources {
@@ -123,7 +128,7 @@ tasks.withType(JavaCompile).configureEach {
     it.options.encoding = "UTF-8"
 
     // Minecraft 1.18 (1.18-pre2) upwards uses Java 17.
-    it.options.release = 17
+    it.options.release = 21
 }
 
 java {
@@ -171,7 +176,7 @@ unifiedPublishing {
         version = realVersion // Optional, Inferred from project by default
         changelog = file("CHANGELOG.md").exists() ? file("CHANGELOG.md").text : "" // Optional, in markdown format
         releaseType = project.release_type // Optional, use "release", "beta" or "alpha"
-        gameVersions = ["1.20", "1.20.1"]
+        gameVersions = [project.minecraft_version]
         gameLoaders = ["fabric", "quilt"]
 
         mainPublication tasks.remapJar // Declares the publicated jar

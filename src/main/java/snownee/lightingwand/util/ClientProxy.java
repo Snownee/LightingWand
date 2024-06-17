@@ -30,7 +30,7 @@ public class ClientProxy {
 	public static void postRegister() {
 		ItemProperties.register(
 				CoreModule.WAND.get(),
-				new ResourceLocation("broken"),
+				ResourceLocation.withDefaultNamespace("broken"),
 				(stack, worldIn, entityIn, seed) -> (WandItem.isUsable(stack) ? 0 : 1));
 		EntityRendererRegistry.register(CoreModule.PROJECTILE.get(), EmptyEntityRenderer::new);
 		if (CommonProxy.shimmerCompat) {

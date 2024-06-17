@@ -18,24 +18,26 @@
 			"snownee.lightingwand.util.CommonProxy"
 		],
 		"fabric-datagen": [
-			"snownee.lightingwand.datagen.LWDatagen"
+			"snownee.lightingwand.datagen.LWDataGen"
 		],
 		"rei_client": [
 			"snownee.lightingwand.compat.REICompat"
 		],
 		"jei_mod_plugin": [
-			"snownee.lightingwand.compat.JEICompat"
 		]
 	},
-	"mixins": [],
+	"mixins": [
+		"lightingwand.mixins.json"
+	],
 	"depends": {
-		"minecraft": ">=1.20",
-		"kiwi": ">=11.6.2"
+		"minecraft": ">=1.21",
+		"kiwi": ">=15"
 	},
 	"custom": {
 		"modmenu": {
 			"links": {
-				"modmenu.discord": "https://discord.gg/rRBvGkz"
+				"modmenu.discord": "https://discord.gg/rRBvGkz",
+				"modmenu.donate": "https://ko-fi.com/snownee"
 			}
 		}
 	}

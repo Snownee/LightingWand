@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
+import net.minecraft.server.level.ServerEntity;
 import net.minecraft.world.entity.Entity;
 import snownee.kiwi.Mod;
 import snownee.kiwi.loader.Platform;
@@ -26,13 +27,13 @@ public class CommonProxy implements ModInitializer {
 		}
 	}
 
-	public static Packet<ClientGamePacketListener> getAddEntityPacket(LightEntity entity) {
+	public static Packet<ClientGamePacketListener> getAddEntityPacket(LightEntity entity, ServerEntity serverEntity) {
 		Entity owner = entity.getOwner();
-		return new ClientboundAddEntityPacket(entity, owner == null ? 0 : owner.getId());
+		return new ClientboundAddEntityPacket(entity, serverEntity, owner == null ? 0 : owner.getId());
 	}
 
 	@Override
 	public void onInitialize() {
-		ResourceConditions.register(RepairRecipeCondition.ID, RepairRecipeCondition.INSTANCE);
+		ResourceConditions.register(RepairRecipeCondition.TYPE);
 	}
 }

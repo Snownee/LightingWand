@@ -46,7 +46,7 @@ public class EnergyRepair implements EnergyStorage {
 	@Override
 	public long getCapacity() {
 		ItemStack container = ctx.getItemVariant().toStack();
-		return container.getMaxDamage() * CommonConfig.energyPerUse;
+		return (long) container.getMaxDamage() * CommonConfig.energyPerUse;
 	}
 
 	@Override

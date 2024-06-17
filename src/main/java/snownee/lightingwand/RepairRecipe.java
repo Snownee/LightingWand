@@ -1,19 +1,21 @@
 package snownee.lightingwand;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.Mth;
-import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
+import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -23,16 +25,16 @@ public class RepairRecipe extends CustomRecipe {
 	private final String group;
 	private final Item repairable;
 	private final Ingredient material;
-	private final int ratio;
+	private final double ratio;
 
-	public RepairRecipe(ResourceLocation Id, String group, Item repairable, Ingredient material, int ratio) {
-		super(Id, CraftingBookCategory.MISC);
+	public RepairRecipe(CraftingBookCategory category, String group, Item repairable, Ingredient material, double ratio) {
+		super(category);
 		this.group = group;
 		this.repairable = repairable;
 		this.material = material;
 		this.ratio = ratio;
-		if (repairable.getMaxDamage() == 0) {
-			throw new IllegalArgumentException(String.format("Recipe: %s, Item %s is not repairable", Id, repairable));
+		if (!repairable.components().has(DataComponents.MAX_DAMAGE)) {
+			throw new IllegalArgumentException(String.format("Item %s is not repairable", repairable));
 		}
 	}
 
@@ -42,12 +44,12 @@ public class RepairRecipe extends CustomRecipe {
 	}
 
 	@Override
-	public boolean matches(CraftingContainer inv, Level worldIn) {
+	public boolean matches(CraftingInput input, Level worldIn) {
 		int dust = 0;
 		ItemStack wand = ItemStack.EMPTY;
 
-		for (int i = 0; i < inv.getContainerSize(); ++i) {
-			ItemStack itemstack = inv.getItem(i);
+		for (int i = 0; i < input.size(); ++i) {
+			ItemStack itemstack = input.getItem(i);
 			if (itemstack.getItem() == repairable && itemstack.getDamageValue() != 0) {
 				if (wand.isEmpty()) {
 					wand = itemstack;
@@ -65,12 +67,12 @@ public class RepairRecipe extends CustomRecipe {
 	}
 
 	@Override
-	public ItemStack assemble(CraftingContainer inv, RegistryAccess registryAccess) {
+	public ItemStack assemble(CraftingInput input, HolderLookup.Provider provider) {
 		int dust = 0;
 		ItemStack wand = ItemStack.EMPTY;
 
-		for (int i = 0; i < inv.getContainerSize(); ++i) {
-			ItemStack itemstack = inv.getItem(i);
+		for (int i = 0; i < input.size(); ++i) {
+			ItemStack itemstack = input.getItem(i);
 			if (itemstack.is(repairable)) {
 				wand = itemstack;
 			} else if (!itemstack.isEmpty() && material.test(itemstack)) {
@@ -80,10 +82,7 @@ public class RepairRecipe extends CustomRecipe {
 				}
 			}
 		}
-		int damage = Mth.clamp(
-				wand.getDamageValue() - Mth.ceil(wand.getMaxDamage() / ratio) * dust,
-				0,
-				CoreModule.WAND.get().getMaxDamage());
+		int damage = Mth.clamp(wand.getDamageValue() - Mth.ceil(wand.getMaxDamage() / ratio) * dust, 0, wand.getMaxDamage());
 		ItemStack result = wand.copy();
 		result.setCount(1);
 		result.setDamageValue(damage);
@@ -100,48 +99,48 @@ public class RepairRecipe extends CustomRecipe {
 		return group;
 	}
 
-	public Ingredient getMaterial() {
+	public Ingredient material() {
 		return material;
 	}
 
-	public Item getRepairable() {
+	public Item repairable() {
 		return repairable;
 	}
 
-	public int getRatio() {
+	public double ratio() {
 		return ratio;
 	}
 
 	public static class Serializer implements RecipeSerializer<RepairRecipe> {
+		public static final MapCodec<RepairRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+				CraftingBookCategory.CODEC.fieldOf("category").orElse(CraftingBookCategory.MISC).forGetter(RepairRecipe::category),
+				Codec.STRING.optionalFieldOf("group", "").forGetter(RepairRecipe::getGroup),
+				BuiltInRegistries.ITEM.byNameCodec().fieldOf("repairable").forGetter(RepairRecipe::repairable),
+				Ingredient.CODEC_NONEMPTY.fieldOf("material").forGetter(RepairRecipe::material),
+				Codec.DOUBLE.fieldOf("ratio").forGetter(RepairRecipe::ratio)
+		).apply(instance, RepairRecipe::new));
+
+		public static final StreamCodec<RegistryFriendlyByteBuf, RepairRecipe> STREAM_CODEC = StreamCodec.composite(
+				CraftingBookCategory.STREAM_CODEC,
+				RepairRecipe::category,
+				ByteBufCodecs.STRING_UTF8,
+				RepairRecipe::getGroup,
+				ByteBufCodecs.registry(Registries.ITEM),
+				RepairRecipe::repairable,
+				Ingredient.CONTENTS_STREAM_CODEC,
+				RepairRecipe::material,
+				ByteBufCodecs.DOUBLE,
+				RepairRecipe::ratio,
+				RepairRecipe::new);
+
 		@Override
-		public RepairRecipe fromJson(ResourceLocation recipeId, JsonObject json) {
-			String group = GsonHelper.getAsString(json, "group", "");
-			String s = GsonHelper.getAsString(json, "repairable");
-			Item repairable = BuiltInRegistries.ITEM.get(new ResourceLocation(s));
-			if (repairable == Items.AIR) {
-				throw new JsonSyntaxException("Unknown item '" + s + "'");
-			}
-			Ingredient material = Ingredient.fromJson(GsonHelper.getAsJsonObject(json, "material"));
-			int ratio = GsonHelper.getAsInt(json, "ratio");
-			return new RepairRecipe(recipeId, group, repairable, material, ratio);
+		public MapCodec<RepairRecipe> codec() {
+			return CODEC;
 		}
 
 		@Override
-		public RepairRecipe fromNetwork(ResourceLocation recipeId, FriendlyByteBuf buffer) {
-			String group = buffer.readUtf(256);
-			Item repairable = Item.byId(buffer.readVarInt());
-			Ingredient material = Ingredient.fromNetwork(buffer);
-			int ratio = buffer.readVarInt();
-			return new RepairRecipe(recipeId, group, repairable, material, ratio);
+		public StreamCodec<RegistryFriendlyByteBuf, RepairRecipe> streamCodec() {
+			return STREAM_CODEC;
 		}
-
-		@Override
-		public void toNetwork(FriendlyByteBuf buffer, RepairRecipe recipe) {
-			buffer.writeUtf(recipe.group);
-			buffer.writeVarInt(Item.getId(recipe.repairable));
-			recipe.material.toNetwork(buffer);
-			buffer.writeVarInt(recipe.ratio);
-		}
-
 	}
 }

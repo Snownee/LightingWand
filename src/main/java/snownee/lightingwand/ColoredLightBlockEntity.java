@@ -1,6 +1,9 @@
 package snownee.lightingwand;
 
+import org.jetbrains.annotations.NotNull;
+
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.state.BlockState;
 import snownee.kiwi.block.entity.ModBlockEntity;
@@ -25,21 +28,21 @@ public class ColoredLightBlockEntity extends ModBlockEntity {
 	}
 
 	@Override
-	protected CompoundTag writePacketData(CompoundTag data) {
+	protected @NotNull CompoundTag writePacketData(CompoundTag data, HolderLookup.Provider provider) {
 		data.putInt("Color", color);
 		return data;
 	}
 
 	@Override
-	public void load(CompoundTag data) {
+	protected void loadAdditional(CompoundTag data, HolderLookup.Provider provider) {
 		readPacketData(data);
-		super.load(data);
+		super.loadAdditional(data, provider);
 	}
 
 	@Override
-	public void saveAdditional(CompoundTag data) {
-		writePacketData(data);
-		super.saveAdditional(data);
+	protected void saveAdditional(CompoundTag data, HolderLookup.Provider provider) {
+		writePacketData(data, provider);
+		super.saveAdditional(data, provider);
 	}
 
 	public int getColor() {
@@ -63,7 +66,7 @@ public class ColoredLightBlockEntity extends ModBlockEntity {
 	@Override
 	public void setRemoved() {
 		super.setRemoved();
-		if (level.isClientSide && shimmerLight != null) {
+		if (level != null && level.isClientSide && shimmerLight != null) {
 			ShimmerCompat.removeLight(this);
 		}
 	}

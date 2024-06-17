@@ -1,0 +1,6 @@
+configs:
+- data: {}
+  target: snownee.lightingwand.CommonConfig
+modules:
+- data: {}
+  target: snownee.lightingwand.CoreModule

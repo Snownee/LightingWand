@@ -2,6 +2,8 @@ package snownee.lightingwand;
 
 import org.joml.Vector3f;
 
+import com.mojang.serialization.MapCodec;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.util.RandomSource;
@@ -11,7 +13,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
-import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -22,16 +23,16 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import snownee.kiwi.block.ModBlock;
 import snownee.kiwi.loader.Platform;
 import snownee.lightingwand.util.ClientProxy;
 
-public class LightBlock extends ModBlock implements SimpleWaterloggedBlock {
+public class LightBlock extends Block implements SimpleWaterloggedBlock {
+	public static final MapCodec<LightBlock> CODEC = simpleCodec(LightBlock::new);
 	public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 	public static final IntegerProperty LIGHT = IntegerProperty.create("light", 1, 15);
 
 	public LightBlock(Properties properties) {
-		super(properties.sound(SoundType.FROGLIGHT));
+		super(properties);
 		registerDefaultState(stateDefinition.any().setValue(WATERLOGGED, false).setValue(LIGHT, 15));
 	}
 
@@ -42,7 +43,7 @@ public class LightBlock extends ModBlock implements SimpleWaterloggedBlock {
 
 	@Override
 	public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext ctx) {
-		return (Platform.isPhysicalClient() && /*EffectiveSide.get() == LogicalSide.CLIENT &&*/ ClientProxy.hasItem()) ?
+		return (Platform.isPhysicalClient() && ClientProxy.hasItem()) ?
 				Shapes.block() :
 				Shapes.empty();
 	}
@@ -91,4 +92,8 @@ public class LightBlock extends ModBlock implements SimpleWaterloggedBlock {
 		return super.getStateForPlacement(context).setValue(WATERLOGGED, fluidstate.getType() == Fluids.WATER);
 	}
 
+	@Override
+	protected MapCodec<? extends Block> codec() {
+		return CODEC;
+	}
 }
