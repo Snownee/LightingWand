@@ -114,7 +114,10 @@ public class CoreModule extends AbstractModule {
 				} else {
 					if (!level.isClientSide) {
 						itemStack.remove(DataComponents.DYED_COLOR);
-						itemStack.remove(WAND_ITEM_DATA.get());
+						itemStack.update(
+								WAND_ITEM_DATA.get(),
+								WandItemData.DEFAULT,
+								$ -> new WandItemData($.light(), WandItemData.DEFAULT.alpha()));
 						player.awardStat(Stats.CLEAN_ARMOR);
 						LayeredCauldronBlock.lowerFillLevel(blockState, level, blockPos);
 					}
