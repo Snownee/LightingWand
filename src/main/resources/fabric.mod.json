@@ -24,6 +24,7 @@
 			"snownee.lightingwand.compat.REICompat"
 		],
 		"jei_mod_plugin": [
+			"snownee.lightingwand.compat.JEICompat"
 		]
 	},
 	"mixins": [

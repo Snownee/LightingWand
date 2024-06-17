@@ -89,10 +89,10 @@ dependencies {
     modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-fabric:${project.rei_version}"
 
     // compile against the JEI API but do not include it at runtime
-//    modCompileOnlyApi "mezz.jei:jei-1.20.1-common-api:${jei_version}"
-//    modCompileOnlyApi "mezz.jei:jei-1.20.1-fabric-api:${jei_version}"
+    modCompileOnlyApi "mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"
+    modCompileOnlyApi "mezz.jei:jei-${minecraft_version}-fabric-api:${jei_version}"
     // at runtime, use the full JEI jar for Fabric
-    //modRuntimeOnly "mezz.jei:jei-${minecraft_version}-fabric:${jei_version}"
+    modRuntimeOnly "mezz.jei:jei-${minecraft_version}-fabric:${jei_version}"
 
     // https://modrinth.com/mod/jade/versions
     //modRuntimeOnly "curse.maven:jade-324717:3879361"

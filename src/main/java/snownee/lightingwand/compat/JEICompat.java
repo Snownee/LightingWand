@@ -1,4 +1,3 @@
-/*
 package snownee.lightingwand.compat;
 
 import java.util.List;
@@ -9,13 +8,13 @@ import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.ingredient.ICraftingGridHelper;
 import mezz.jei.api.recipe.IFocusGroup;
-import mezz.jei.api.recipe.category.extensions.IExtendableRecipeCategory;
 import mezz.jei.api.recipe.category.extensions.vanilla.crafting.ICraftingCategoryExtension;
+import mezz.jei.api.recipe.category.extensions.vanilla.crafting.IExtendableCraftingRecipeCategory;
 import mezz.jei.api.registration.IVanillaCategoryExtensionRegistration;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import snownee.lightingwand.LW;
 import snownee.lightingwand.RepairRecipe;
 
@@ -24,37 +23,36 @@ public class JEICompat implements IModPlugin {
 
 	@Override
 	public ResourceLocation getPluginUid() {
-		return new ResourceLocation(LW.ID, "main");
+		return LW.id("main");
 	}
 
 	@Override
 	public void registerVanillaCategoryExtensions(IVanillaCategoryExtensionRegistration registration) {
-		IExtendableRecipeCategory<CraftingRecipe, ICraftingCategoryExtension> craftingCategory = registration.getCraftingCategory();
-		craftingCategory.addCategoryExtension(RepairRecipe.class, RepairRecipeWrapper::new);
+		IExtendableCraftingRecipeCategory craftingCategory = registration.getCraftingCategory();
+		craftingCategory.addExtension(RepairRecipe.class, new RepairRecipeWrapper());
 	}
 
-	private static class RepairRecipeWrapper implements ICraftingCategoryExtension {
-		private RepairRecipe recipe;
-
-		public RepairRecipeWrapper(RepairRecipe recipe) {
-			this.recipe = recipe;
-		}
-
+	private static class RepairRecipeWrapper implements ICraftingCategoryExtension<RepairRecipe> {
 		@Override
-		public void setRecipe(IRecipeLayoutBuilder builder, ICraftingGridHelper craftingGridHelper, IFocusGroup focuses) {
+		public void setRecipe(
+				RecipeHolder<RepairRecipe> recipeHolder,
+				IRecipeLayoutBuilder builder,
+				ICraftingGridHelper craftingGridHelper,
+				IFocusGroup focuses) {
+			RepairRecipe recipe = recipeHolder.value();
 			builder.setShapeless();
-			ItemStack broken = new ItemStack(recipe.getRepairable());
+			ItemStack broken = new ItemStack(recipe.repairable());
 			int duration = broken.getMaxDamage();
 			broken.setDamageValue(duration);
 			craftingGridHelper.createAndSetInputs(
 					builder,
 					VanillaTypes.ITEM_STACK,
-					List.of(List.of(broken), List.of(recipe.getMaterial().getItems())),
+					List.of(List.of(broken), List.of(recipe.material().getItems())),
 					0,
 					0);
-			ItemStack output = new ItemStack(recipe.getRepairable());
-			output.setDamageValue(Mth.clamp(duration - Mth.ceil(duration / recipe.getRatio()), 0, duration));
+			ItemStack output = new ItemStack(recipe.repairable());
+			output.setDamageValue(Mth.clamp(duration - Mth.ceil(duration / recipe.ratio()), 0, duration));
 			craftingGridHelper.createAndSetOutputs(builder, VanillaTypes.ITEM_STACK, List.of(output));
 		}
 	}
-}*/
+}
