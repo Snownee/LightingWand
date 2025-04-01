@@ -16,6 +16,6 @@ public class LWItemTagProvider extends FabricTagProvider.ItemTagProvider {
 
 	@Override
 	protected void addTags(HolderLookup.Provider wrapperLookup) {
-		getOrCreateTagBuilder(ItemTags.DYEABLE).add(CoreModule.WAND.get());
+		tag(ItemTags.DYEABLE).add(CoreModule.WAND.get());
 	}
 }

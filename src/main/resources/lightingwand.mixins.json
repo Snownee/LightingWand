@@ -3,7 +3,6 @@
 	"minVersion": "0.8",
 	"package": "snownee.lightingwand.mixin",
 	"compatibilityLevel": "JAVA_21",
-	"refmap": "lightingwand.refmap.json",
 	"mixins": [
 		"DyedItemColorMixin"
 	],

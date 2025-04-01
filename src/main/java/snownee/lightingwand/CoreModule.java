@@ -125,6 +125,7 @@ public class CoreModule extends AbstractModule {
 					return ItemInteractionResult.sidedSuccess(level.isClientSide);
 				}
 			});
+
 			CommonProxy.postRegister();
 		});
 	}

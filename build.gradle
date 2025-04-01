@@ -90,7 +90,7 @@ dependencies {
 processResources {
     inputs.property "version", realVersion
 
-    filesMatching("fabric.mod.json") {
+    filesMatching("META-INF/neoforge.mods.toml") {
         expand "version": realVersion
     }
 }
