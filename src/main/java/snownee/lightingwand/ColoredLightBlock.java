@@ -8,7 +8,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import snownee.kiwi.util.NotNullByDefault;
 
+@NotNullByDefault
 public class ColoredLightBlock extends LightBlock implements EntityBlock {
 	public static final MapCodec<ColoredLightBlock> CODEC = simpleCodec(ColoredLightBlock::new);
 
@@ -16,6 +18,7 @@ public class ColoredLightBlock extends LightBlock implements EntityBlock {
 		super(properties);
 	}
 
+	@Override
 	public int getColor(BlockState stateIn, Level worldIn, BlockPos pos) {
 		if (worldIn.getBlockEntity(pos) instanceof ColoredLightBlockEntity be) {
 			return be.getColor();

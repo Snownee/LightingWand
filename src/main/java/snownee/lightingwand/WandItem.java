@@ -32,8 +32,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import snownee.kiwi.util.NotNullByDefault;
 import snownee.lightingwand.util.CommonProxy;
 
+@NotNullByDefault
 public class WandItem extends Item {
 	public WandItem(Properties properties) {
 		super(properties);

@@ -7,9 +7,11 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.state.BlockState;
 import snownee.kiwi.block.entity.ModBlockEntity;
+import snownee.kiwi.util.NotNullByDefault;
 import snownee.lightingwand.compat.ShimmerCompat;
 import snownee.lightingwand.util.CommonProxy;
 
+@NotNullByDefault
 public class ColoredLightBlockEntity extends ModBlockEntity {
 
 	public Object shimmerLight;

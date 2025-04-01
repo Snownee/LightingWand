@@ -24,9 +24,11 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
+import snownee.kiwi.util.NotNullByDefault;
 import snownee.lightingwand.compat.ShimmerCompat;
 import snownee.lightingwand.util.CommonProxy;
 
+@NotNullByDefault
 public class LightEntity extends ThrowableProjectile {
 	private static final EntityDataAccessor<Integer> DATA_LIGHT = SynchedEntityData.defineId(LightEntity.class, EntityDataSerializers.INT);
 	private static final EntityDataAccessor<Integer> DATA_COLOR = SynchedEntityData.defineId(LightEntity.class, EntityDataSerializers.INT);

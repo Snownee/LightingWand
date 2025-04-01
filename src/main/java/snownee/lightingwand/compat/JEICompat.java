@@ -15,9 +15,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import snownee.kiwi.util.NotNullByDefault;
 import snownee.lightingwand.LW;
 import snownee.lightingwand.RepairRecipe;
 
+@NotNullByDefault
 @JeiPlugin
 public class JEICompat implements IModPlugin {
 

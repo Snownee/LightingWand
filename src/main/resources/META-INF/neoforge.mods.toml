@@ -4,19 +4,16 @@ license = "MIT"
 
 [[mods]]
 modId = "lightingwand"
-version = "${version}"
+version = "${file.jarVersion}"
 displayName = "Lighting Wand"
 authors = "Snownee"
-displayURL = "https://www.curseforge.com/minecraft/mc-mods/lighting-wand-fabric"
+displayURL = "https://www.curseforge.com/minecraft/mc-mods/lighting-wand"
 description = "Wand that can place invisible light source!"
 credits = "SettingDust"
 
 [[dependencies.lightingwand]]
 modId = "kiwi"
-mandatory = true
 versionRange = "[15,)"
-ordering = "NONE"
-side = "BOTH"
 
 [[mixins]]
 config = "lightingwand.mixins.json"

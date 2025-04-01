@@ -24,8 +24,10 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import snownee.kiwi.loader.Platform;
+import snownee.kiwi.util.NotNullByDefault;
 import snownee.lightingwand.util.ClientProxy;
 
+@NotNullByDefault
 public class LightBlock extends Block implements SimpleWaterloggedBlock {
 	public static final MapCodec<LightBlock> CODEC = simpleCodec(LightBlock::new);
 	public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
