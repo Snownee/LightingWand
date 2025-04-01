@@ -32,10 +32,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-import snownee.kiwi.util.PreventUpdateAnimation;
 import snownee.lightingwand.util.CommonProxy;
 
-public class WandItem extends Item implements PreventUpdateAnimation {
+public class WandItem extends Item {
 	public WandItem(Properties properties) {
 		super(properties);
 	}
@@ -217,5 +216,10 @@ public class WandItem extends Item implements PreventUpdateAnimation {
 			return OptionalInt.of(((int) (alpha * 255) << 24) + color);
 		}
 		return OptionalInt.empty();
+	}
+
+	@Override
+	public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+		return slotChanged;
 	}
 }

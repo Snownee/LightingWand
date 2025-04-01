@@ -1,0 +1,25 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+license = "MIT"
+
+[[mods]]
+modId = "lightingwand"
+version = "${version}"
+displayName = "Lighting Wand"
+authors = "Snownee"
+displayURL = "https://www.curseforge.com/minecraft/mc-mods/lighting-wand-fabric"
+description = "Wand that can place invisible light source!"
+credits = "SettingDust"
+
+[[dependencies.lightingwand]]
+modId = "kiwi"
+mandatory = true
+versionRange = "[15,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[mixins]]
+config = "lightingwand.mixins.json"
+
+[modproperties.lightingwand]
+catalogueItemIcon = "lightingwand:wand" #Support for Catalogue mod

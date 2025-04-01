@@ -1,27 +1,28 @@
 package snownee.lightingwand.util;
 
-import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.server.level.ServerEntity;
 import net.minecraft.world.entity.Entity;
-import snownee.kiwi.Mod;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import net.neoforged.neoforge.registries.RegisterEvent;
 import snownee.kiwi.loader.Platform;
+import snownee.lightingwand.CoreModule;
 import snownee.lightingwand.LW;
 import snownee.lightingwand.LightEntity;
-import snownee.lightingwand.compat.TREnergyCompat;
-import snownee.lightingwand.fabric.RepairRecipeCondition;
+import snownee.lightingwand.neoforge.EnergyRepair;
+import snownee.lightingwand.neoforge.RepairRecipeCondition;
 
 @Mod(LW.ID)
-public class CommonProxy implements ModInitializer {
+public class CommonProxy {
 	public static final boolean shimmerCompat = Platform.isModLoaded("shimmer");
 
 	public static void postRegister() {
-		if (Platform.isModLoaded("team_reborn_energy")) {
-			TREnergyCompat.init();
-		}
 		if (Platform.isPhysicalClient()) {
 			ClientProxy.postRegister();
 		}
@@ -32,8 +33,15 @@ public class CommonProxy implements ModInitializer {
 		return new ClientboundAddEntityPacket(entity, serverEntity, owner == null ? 0 : owner.getId());
 	}
 
-	@Override
-	public void onInitialize() {
-		ResourceConditions.register(RepairRecipeCondition.TYPE);
+	public CommonProxy(IEventBus modBus) {
+		modBus.addListener((RegisterEvent event) -> event.register(
+				NeoForgeRegistries.Keys.CONDITION_CODECS,
+				LW.id("repair_recipe"),
+				() -> RepairRecipeCondition.CODEC));
+
+		modBus.addListener((RegisterCapabilitiesEvent event) -> event.registerItem(
+				Capabilities.EnergyStorage.ITEM,
+				(stack, context) -> new EnergyRepair(stack),
+				CoreModule.WAND.get()));
 	}
 }
