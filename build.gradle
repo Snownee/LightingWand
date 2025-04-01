@@ -98,6 +98,8 @@ dependencies {
 
     // https://modrinth.com/mod/shimmer!/versions
 //    modImplementation "maven.modrinth:uBKACKpl:zh7cZkGa"
+
+//    runtimeOnly "maven.modrinth:mekanism:10.7.13.78"
 }
 
 processResources {

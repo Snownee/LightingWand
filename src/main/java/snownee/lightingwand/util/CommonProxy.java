@@ -1,7 +1,5 @@
 package snownee.lightingwand.util;
 
-import org.jetbrains.annotations.Nullable;
-
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
@@ -9,7 +7,7 @@ import net.minecraft.server.level.ServerEntity;
 import net.minecraft.world.entity.Entity;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.neoforge.capabilities.ItemCapability;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.neoforged.neoforge.registries.RegisterEvent;
@@ -23,8 +21,6 @@ import snownee.lightingwand.neoforge.RepairRecipeCondition;
 @Mod(LW.ID)
 public class CommonProxy {
 	public static final boolean shimmerCompat = Platform.isModLoaded("shimmer");
-	public static final ItemCapability<EnergyRepair, @Nullable Void> ENERGY_REPAIR_CAPABILITY =
-			ItemCapability.createVoid(LW.id("energy_repair"), EnergyRepair.class);
 
 	public static void postRegister() {
 		if (Platform.isPhysicalClient()) {
@@ -44,7 +40,7 @@ public class CommonProxy {
 				() -> RepairRecipeCondition.CODEC));
 
 		modBus.addListener((RegisterCapabilitiesEvent event) -> event.registerItem(
-				ENERGY_REPAIR_CAPABILITY,
+				Capabilities.EnergyStorage.ITEM,
 				(stack, context) -> new EnergyRepair(stack),
 				CoreModule.WAND.get()));
 	}
