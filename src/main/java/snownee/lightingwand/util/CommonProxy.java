@@ -7,10 +7,10 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.server.level.ServerEntity;
 import net.minecraft.world.entity.Entity;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.capabilities.ItemCapability;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.neoforged.neoforge.registries.RegisterEvent;
 import snownee.kiwi.loader.Platform;
@@ -37,13 +37,13 @@ public class CommonProxy {
 		return new ClientboundAddEntityPacket(entity, serverEntity, owner == null ? 0 : owner.getId());
 	}
 
-	public CommonProxy() {
-		NeoForge.EVENT_BUS.addListener((RegisterEvent event) -> event.register(
+	public CommonProxy(IEventBus modBus) {
+		modBus.addListener((RegisterEvent event) -> event.register(
 				NeoForgeRegistries.Keys.CONDITION_CODECS,
 				LW.id("repair_recipe"),
 				() -> RepairRecipeCondition.CODEC));
 
-		NeoForge.EVENT_BUS.addListener((RegisterCapabilitiesEvent event) -> event.registerItem(
+		modBus.addListener((RegisterCapabilitiesEvent event) -> event.registerItem(
 				ENERGY_REPAIR_CAPABILITY,
 				(stack, context) -> new EnergyRepair(stack),
 				CoreModule.WAND.get()));
