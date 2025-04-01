@@ -166,7 +166,7 @@ unifiedPublishing {
         if (System.getenv("CURSE_TOKEN") != null) {
             curseforge {
                 token = System.getenv("CURSE_TOKEN")
-                id = "558346" // Required, must be a string, ID of CurseForge project
+                id = "296028" // Required, must be a string, ID of CurseForge project
 
                 relations { // Optional, Inferred from the relations above by default
                     depends "kiwi"
