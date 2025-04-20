@@ -1,10 +1,11 @@
 package snownee.lightingwand.util;
 
-import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import snownee.lightingwand.CoreModule;
 import snownee.lightingwand.WandItem;
 import snownee.lightingwand.client.EmptyEntityRenderer;
@@ -27,12 +28,17 @@ public class ClientProxy {
 		return false;
 	}
 
+	public static void init(IEventBus modBus) {
+		modBus.addListener((EntityRenderersEvent.RegisterRenderers event) -> {
+			event.registerEntityRenderer(CoreModule.PROJECTILE.getOrCreate(), EmptyEntityRenderer::new);
+		});
+	}
+
 	public static void postRegister() {
 		ItemProperties.register(
 				CoreModule.WAND.get(),
 				ResourceLocation.withDefaultNamespace("broken"),
 				(stack, worldIn, entityIn, seed) -> (WandItem.isUsable(stack) ? 0 : 1));
-		EntityRendererRegistry.register(CoreModule.PROJECTILE.get(), EmptyEntityRenderer::new);
 		if (CommonProxy.shimmerCompat) {
 			ShimmerCompat.init();
 		}
