@@ -43,5 +43,8 @@ public class CommonProxy {
 				Capabilities.EnergyStorage.ITEM,
 				(stack, context) -> new EnergyRepair(stack),
 				CoreModule.WAND.get()));
+		if (Platform.isPhysicalClient()) {
+			ClientProxy.init(modBus);
+		}
 	}
 }
