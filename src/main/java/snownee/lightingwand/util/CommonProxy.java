@@ -16,7 +16,7 @@ import snownee.lightingwand.fabric.RepairRecipeCondition;
 
 @Mod(LW.ID)
 public class CommonProxy implements ModInitializer {
-	public static final boolean shimmerCompat = Platform.isModLoaded("shimmer");
+	public static final boolean shimmerCompat = false; // Platform.isModLoaded("shimmer");
 
 	public static void postRegister() {
 		if (Platform.isModLoaded("team_reborn_energy")) {
