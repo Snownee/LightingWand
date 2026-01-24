@@ -112,7 +112,7 @@ java {
 }
 
 publishMods {
-    file = jar.archiveFile
+    file = remapJar.archiveFile
     changelog = file('CHANGELOG.md').exists() ? file('CHANGELOG.md').text : ''
     type = ['release': STABLE, 'beta': BETA, 'alpha': ALPHA][release_type]
     modLoaders.add("fabric")
