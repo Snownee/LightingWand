@@ -19,7 +19,7 @@
   "modmenu.nameTranslation.lightingwand": "Lighting Wand",
   "psi.spellerror.lightingwand.light": "ERROR: Volume must be between (0,15]",
   "tip.lightingwand.color": "Color: %s",
-  "tip.lightingwand.light": "Range: %s",
+  "tip.lightingwand.light": "Brightness: %s",
   "tip.lightingwand.noShimmer": "Shimmer not installed. Custom color is unavailable.",
   "tip.lightingwand.opacity": "Opacity: %s%%",
   "tip.lightingwand.uncharged": "Uncharged"

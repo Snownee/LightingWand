@@ -1,12 +1,12 @@
 package snownee.lightingwand.fabric;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import com.mojang.serialization.MapCodec;
 
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceCondition;
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditionType;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.resources.RegistryOps;
 import snownee.lightingwand.CommonConfig;
 import snownee.lightingwand.LW;
 
@@ -20,7 +20,7 @@ public class RepairRecipeCondition implements ResourceCondition {
 	}
 
 	@Override
-	public boolean test(@Nullable HolderLookup.Provider registryLookup) {
+	public boolean test(RegistryOps.@Nullable RegistryInfoLookup registryInfo) {
 		return CommonConfig.repairRecipe;
 	}
 }

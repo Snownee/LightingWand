@@ -2,13 +2,5 @@
 	"parent": "item/handheld",
 	"textures": {
 		"layer0": "lightingwand:item/wand"
-	},
-	"overrides": [
-		{
-			"predicate": {
-				"broken": 1
-			},
-			"model": "lightingwand:item/wand_uncharged"
-		}
-	]
+	}
 }

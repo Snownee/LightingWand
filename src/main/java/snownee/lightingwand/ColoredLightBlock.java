@@ -16,6 +16,7 @@ public class ColoredLightBlock extends LightBlock implements EntityBlock {
 		super(properties);
 	}
 
+	@Override
 	public int getColor(BlockState stateIn, Level worldIn, BlockPos pos) {
 		if (worldIn.getBlockEntity(pos) instanceof ColoredLightBlockEntity be) {
 			return be.getColor();
@@ -24,8 +25,8 @@ public class ColoredLightBlock extends LightBlock implements EntityBlock {
 	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return CoreModule.LIGHT_TILE.get().create(pos, state);
+	public BlockEntity newBlockEntity(BlockPos worldPosition, BlockState blockState) {
+		return CoreModule.LIGHT_TILE.get().create(worldPosition, blockState);
 	}
 
 	@Override

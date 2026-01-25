@@ -4,7 +4,7 @@
 	"block.lightingwand.colored_light": "Light Source",
 	"entity.lightingwand.light": "Light Source",
 	"tip.lightingwand.uncharged": "Uncharged",
-	"tip.lightingwand.light": "Range: %s",
+	"tip.lightingwand.light": "Brightness: %s",
 	"tip.lightingwand.color": "Color: %s",
 	"tip.lightingwand.opacity": "Opacity: %s%%",
 	"tip.lightingwand.noShimmer": "Shimmer not installed. Custom color is unavailable.",

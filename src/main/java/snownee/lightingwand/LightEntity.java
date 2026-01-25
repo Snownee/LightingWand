@@ -1,26 +1,23 @@
 package snownee.lightingwand;
 
-import org.joml.Vector3f;
+import org.jspecify.annotations.Nullable;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.DustParticleOptions;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.server.level.ServerEntity;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.ThrowableProjectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -31,19 +28,15 @@ public class LightEntity extends ThrowableProjectile {
 	private static final EntityDataAccessor<Integer> DATA_LIGHT = SynchedEntityData.defineId(LightEntity.class, EntityDataSerializers.INT);
 	private static final EntityDataAccessor<Integer> DATA_COLOR = SynchedEntityData.defineId(LightEntity.class, EntityDataSerializers.INT);
 
-	public Object shimmerLight;
+	public @Nullable Object shimmerLight;
 	private boolean discardNextTick;
 
-	public LightEntity(EntityType<?> type, Level levelIn) {
-		this(levelIn);
+	public LightEntity(EntityType<?> type, Level level) {
+		this(level);
 	}
 
-	public LightEntity(Level levelIn) {
-		super(CoreModule.PROJECTILE.get(), levelIn);
-	}
-
-	public LightEntity(Level levelIn, LivingEntity owner) {
-		super(CoreModule.PROJECTILE.get(), owner, levelIn);
+	public LightEntity(Level level) {
+		super(CoreModule.PROJECTILE.get(), level);
 	}
 
 	@Override
@@ -52,26 +45,26 @@ public class LightEntity extends ThrowableProjectile {
 	}
 
 	@Override
-	public void shoot(double x, double y, double z, float velocity, float inaccuracy) {
-		float f = Mth.sqrt((float) (x * x + y * y + z * z));
-		setDeltaMovement(x / f * velocity, y / f * velocity, z / f * velocity);
+	public void shoot(double xd, double yd, double zd, float pow, float uncertainty) {
+		float f = Mth.sqrt((float) (xd * xd + yd * yd + zd * zd));
+		setDeltaMovement(xd / f * pow, yd / f * pow, zd / f * pow);
 	}
 
 	@Override
-	protected void onHitBlock(BlockHitResult blockHitResult) {
-		super.onHitBlock(blockHitResult);
-		placeLight(blockHitResult.getBlockPos().relative(blockHitResult.getDirection()));
+	protected void onHitBlock(BlockHitResult hitResult) {
+		super.onHitBlock(hitResult);
+		placeLight(hitResult.getBlockPos().relative(hitResult.getDirection()));
 	}
 
 	@Override
-	protected void onHitEntity(EntityHitResult entityHitResult) {
-		super.onHitEntity(entityHitResult);
-		placeLight(BlockPos.containing(entityHitResult.getLocation()));
+	protected void onHitEntity(EntityHitResult hitResult) {
+		super.onHitEntity(hitResult);
+		placeLight(BlockPos.containing(hitResult.getLocation()));
 	}
 
 	private void placeLight(BlockPos pos) {
 		Level level = level();
-		if (discardNextTick || level.isClientSide || !level.getBlockState(pos).canBeReplaced()) {
+		if (discardNextTick || level.isClientSide() || !level.getBlockState(pos).canBeReplaced()) {
 			return;
 		}
 		FluidState fluidstate = level.getFluidState(pos);
@@ -86,7 +79,7 @@ public class LightEntity extends ThrowableProjectile {
 			if (color != 0 && level.getBlockEntity(pos) instanceof ColoredLightBlockEntity be) {
 				be.setColor(color);
 			}
-			level.playSound(null, pos, SoundEvents.FROGLIGHT_PLACE, SoundSource.BLOCKS, 1.0F, level.random.nextFloat() * 0.4F + 0.8F);
+			level.playSound(null, pos, SoundEvents.FROGLIGHT_PLACE, SoundSource.BLOCKS, 1.0F, level.getRandom().nextFloat() * 0.4F + 0.8F);
 		}
 		discardNextTick = true;
 	}
@@ -98,17 +91,16 @@ public class LightEntity extends ThrowableProjectile {
 			return;
 		}
 		super.tick();
-		if (level().isClientSide && !onGround()) {
+		if (level().isClientSide() && !onGround()) {
 			if (CommonProxy.shimmerCompat && shimmerLight == null) {
 				ShimmerCompat.addLight(this);
 			} else if (shimmerLight != null) {
 				ShimmerCompat.updateLight(this);
 			}
 			Vec3 motion = getDeltaMovement();
-			Vector3f color = CommonConfig.intColorToVector3(getColor());
 			for (int k = 0; k < 2; ++k) {
 				level().addParticle(
-						new DustParticleOptions(color, 1.0F),
+						new DustParticleOptions(getColor(), 1.0F),
 						getX() + motion.x * k / 2D,
 						getY() + motion.y * k / 2D,
 						getZ() + motion.z * k / 2D,
@@ -120,34 +112,29 @@ public class LightEntity extends ThrowableProjectile {
 	}
 
 	@Override
-	protected void defineSynchedData(SynchedEntityData.Builder builder) {
-		builder.define(DATA_LIGHT, 15);
-		builder.define(DATA_COLOR, 0);
+	protected void defineSynchedData(SynchedEntityData.Builder entityData) {
+		entityData.define(DATA_LIGHT, 15);
+		entityData.define(DATA_COLOR, 0);
 	}
 
 	@Override
-	public Packet<ClientGamePacketListener> getAddEntityPacket(ServerEntity serverEntity) {
-		return CommonProxy.getAddEntityPacket(this, serverEntity);
+	protected void readAdditionalSaveData(ValueInput input) {
+		super.readAdditionalSaveData(input);
+		setLightValue(input.getIntOr("Light", 15));
+		setColor(input.getIntOr("Color", CommonConfig.defaultLightColor));
+		discardNextTick = input.getBooleanOr("Discard", false);
 	}
 
 	@Override
-	protected void readAdditionalSaveData(CompoundTag compound) {
-		super.readAdditionalSaveData(compound);
-		setLightValue(compound.getInt("Light"));
-		setColor(compound.getInt("Color"));
-		discardNextTick = compound.getBoolean("Discard");
-	}
-
-	@Override
-	protected void addAdditionalSaveData(CompoundTag compound) {
-		super.addAdditionalSaveData(compound);
-		compound.putInt("Light", getLightValue());
+	protected void addAdditionalSaveData(ValueOutput output) {
+		super.addAdditionalSaveData(output);
+		output.putInt("Light", getLightValue());
 		int color = getColor();
 		if (color != 0) {
-			compound.putInt("Color", color);
+			output.putInt("Color", color);
 		}
 		if (discardNextTick) {
-			compound.putBoolean("Discard", true);
+			output.putBoolean("Discard", true);
 		}
 	}
 

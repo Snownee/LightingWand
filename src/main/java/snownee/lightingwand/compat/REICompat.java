@@ -1,3 +1,4 @@
+/*
 package snownee.lightingwand.compat;
 
 import java.util.List;
@@ -48,3 +49,4 @@ public class REICompat implements REIClientPlugin {
 		}
 	}
 }
+*/

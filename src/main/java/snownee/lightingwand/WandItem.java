@@ -1,8 +1,8 @@
 package snownee.lightingwand;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.OptionalInt;
+import java.util.function.Consumer;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -15,7 +15,6 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
@@ -24,6 +23,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -36,7 +36,7 @@ import snownee.kiwi.util.PreventUpdateAnimation;
 import snownee.lightingwand.util.CommonProxy;
 
 public class WandItem extends Item implements PreventUpdateAnimation {
-	public WandItem(Properties properties) {
+	public WandItem(Item.Properties properties) {
 		super(properties);
 	}
 
@@ -49,72 +49,74 @@ public class WandItem extends Item implements PreventUpdateAnimation {
 	}
 
 	@Override
-	public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn) {
-		ItemStack stack = playerIn.getItemInHand(handIn);
+	public InteractionResult use(Level level, Player player, InteractionHand hand) {
+		ItemStack stack = player.getItemInHand(hand);
 		if (!isUsable(stack)) {
-			return InteractionResultHolder.fail(stack);
+			return InteractionResult.FAIL;
 		}
-		if (!worldIn.isClientSide) {
-			BlockHitResult rayTraceResult = getPlayerPOVHitResult(worldIn, playerIn, ClipContext.Fluid.NONE);
+		if (!level.isClientSide()) {
+			BlockHitResult rayTraceResult = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
 			if (rayTraceResult.getType() == HitResult.Type.BLOCK) {
 				BlockPos pos = rayTraceResult.getBlockPos().relative(rayTraceResult.getDirection());
-				if (!playerIn.mayUseItemAt(pos, playerIn.getMotionDirection(), stack)) {
-					return new InteractionResultHolder<>(InteractionResult.FAIL, playerIn.getItemInHand(handIn));
+				if (!player.mayUseItemAt(pos, player.getMotionDirection(), stack)) {
+					return InteractionResult.FAIL;
 				}
-				BlockState state = worldIn.getBlockState(pos);
+				BlockState state = level.getBlockState(pos);
 				if (!CoreModule.isLightBlock(state) && state.canBeReplaced()) {
-					worldIn.playSound(
+					level.playSound(
 							null,
 							pos,
 							SoundEvents.FROGLIGHT_PLACE,
 							SoundSource.BLOCKS,
 							1.0F,
-							playerIn.getRandom().nextFloat() * 0.4F + 0.8F);
-					FluidState fluidstate = worldIn.getFluidState(pos);
+							player.getRandom().nextFloat() * 0.4F + 0.8F);
+					FluidState fluidstate = level.getFluidState(pos);
 					OptionalInt color = getCustomColor(stack);
 					Block block = color.isEmpty() ? CoreModule.LIGHT.get() : CoreModule.COLORED_LIGHT.get();
-					worldIn.setBlock(
+					level.setBlock(
 							pos,
 							block.defaultBlockState()
 									.setValue(LightBlock.LIGHT, getLightValue(stack))
 									.setValue(LightBlock.WATERLOGGED, fluidstate.is(FluidTags.WATER) && fluidstate.getAmount() == 8),
 							11);
-					if (color.isPresent() && worldIn.getBlockEntity(pos) instanceof ColoredLightBlockEntity be) {
+					if (color.isPresent() && level.getBlockEntity(pos) instanceof ColoredLightBlockEntity be) {
 						be.setColor(color.getAsInt());
 					}
 				}
 			} else if (rayTraceResult.getType() == HitResult.Type.MISS && CommonConfig.shootProjectile) {
 				// TODO: Sound subtitle
-				worldIn.playSound(
+				level.playSound(
 						null,
-						playerIn.getX(),
-						playerIn.getY(),
-						playerIn.getZ(),
+						player.getX(),
+						player.getY(),
+						player.getZ(),
 						SoundEvents.EGG_THROW,
 						SoundSource.PLAYERS,
 						0.8F,
-						0.4F / (playerIn.getRandom().nextFloat() * 0.4F + 0.8F));
-				LightEntity entity = new LightEntity(worldIn, playerIn);
+						0.4F / (player.getRandom().nextFloat() * 0.4F + 0.8F));
+				LightEntity entity = new LightEntity(level);
+				entity.setPos(player.getX(), player.getEyeY() - 0.1F, player.getZ());
+				entity.setOwner(player);
 				entity.setLightValue(getLightValue(stack));
-				entity.setColor(getCustomColor(stack).orElse(0));
-				entity.shootFromRotation(playerIn, playerIn.getXRot(), playerIn.getYRot(), 0, 1.5F, 0);
-				worldIn.addFreshEntity(entity);
+				entity.setColor(getCustomColor(stack).orElse(CommonConfig.defaultLightColor));
+				entity.shootFromRotation(player, player.getXRot(), player.getYRot(), 0, 1.5F, 0);
+				level.addFreshEntity(entity);
 			}
-			stack.hurtAndBreak(1, playerIn, LivingEntity.getSlotForHand(handIn));
+			stack.hurtAndBreak(1, player, hand);
 			if (!isUsable(stack)) {
-				worldIn.playSound(
+				level.playSound(
 						null,
-						playerIn.getX(),
-						playerIn.getY(),
-						playerIn.getZ(),
+						player.getX(),
+						player.getY(),
+						player.getZ(),
 						SoundEvents.ITEM_BREAK,
 						SoundSource.NEUTRAL,
 						0.5F,
-						0.8F + worldIn.random.nextFloat() * 0.4F);
+						0.8F + level.getRandom().nextFloat() * 0.4F);
 			}
-			playerIn.awardStat(Stats.ITEM_USED.get(this));
+			player.awardStat(Stats.ITEM_USED.get(this));
 		}
-		return InteractionResultHolder.sidedSuccess(stack, worldIn.isClientSide);
+		return InteractionResult.SUCCESS_SERVER;
 	}
 
 	@Override
@@ -162,20 +164,26 @@ public class WandItem extends Item implements PreventUpdateAnimation {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack itemStack, TooltipContext tooltipContext, List<Component> tooltip, TooltipFlag flagIn) {
+	public void appendHoverText(
+			ItemStack itemStack,
+			TooltipContext context,
+			TooltipDisplay display,
+			Consumer<Component> builder,
+			TooltipFlag tooltipFlag) {
 		if (!isUsable(itemStack)) {
-			tooltip.add(Component.translatable("tip.lightingwand.uncharged").withStyle(ChatFormatting.DARK_RED));
+			builder.accept(Component.translatable("tip.lightingwand.uncharged").withStyle(ChatFormatting.DARK_RED));
 		}
 		if (itemStack.has(DataComponents.DYED_COLOR)) {
 			if (CommonProxy.shimmerCompat) {
-				tooltip.add(Component.translatable(
-						"tip.lightingwand.color",
-						Component.literal("■").withStyle($ -> $.withColor(getColor(itemStack)))).withStyle(ChatFormatting.GRAY));
+				builder.accept(Component.translatable(
+								"tip.lightingwand.color",
+								Component.literal("■").withStyle($ -> $.withColor(getColor(itemStack))))
+						.withStyle(ChatFormatting.GRAY));
 			} else {
-				tooltip.add(Component.translatable("tip.lightingwand.noShimmer").withStyle(ChatFormatting.DARK_RED));
+				builder.accept(Component.translatable("tip.lightingwand.noShimmer").withStyle(ChatFormatting.DARK_RED));
 			}
 		}
-		tooltip.add(Component.translatable("tip.lightingwand.light", getLightValue(itemStack)).withStyle(ChatFormatting.GRAY));
+		builder.accept(Component.translatable("tip.lightingwand.light", getLightValue(itemStack)).withStyle(ChatFormatting.GRAY));
 	}
 
 	@Override
@@ -187,20 +195,13 @@ public class WandItem extends Item implements PreventUpdateAnimation {
 	}
 
 	@Override
-	public boolean isEnchantable(ItemStack stack) {
-		return false;
-	}
-
-	@Override
-	public boolean hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
-		if (isUsable(stack)) {
-			target.addEffect(new MobEffectInstance(MobEffects.GLOWING, 200));
+	public void hurtEnemy(ItemStack itemStack, LivingEntity mob, LivingEntity attacker) {
+		if (isUsable(itemStack)) {
+			mob.addEffect(new MobEffectInstance(MobEffects.GLOWING, 200));
 			if (attacker instanceof Player && !((Player) attacker).isCreative()) {
-				stack.setDamageValue(stack.getDamageValue() + 1);
+				itemStack.setDamageValue(itemStack.getDamageValue() + 1);
 			}
-			return true;
 		}
-		return super.hurtEnemy(stack, target, attacker);
 	}
 
 	public int getColor(ItemStack stack) {

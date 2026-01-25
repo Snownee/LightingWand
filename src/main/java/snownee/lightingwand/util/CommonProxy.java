@@ -1,16 +1,12 @@
 package snownee.lightingwand.util;
 
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.recipe.v1.sync.RecipeSynchronization;
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
-import net.minecraft.server.level.ServerEntity;
-import net.minecraft.world.entity.Entity;
 import snownee.kiwi.Mod;
 import snownee.kiwi.loader.Platform;
+import snownee.lightingwand.CoreModule;
 import snownee.lightingwand.LW;
-import snownee.lightingwand.LightEntity;
 import snownee.lightingwand.compat.TREnergyCompat;
 import snownee.lightingwand.fabric.RepairRecipeCondition;
 
@@ -27,13 +23,9 @@ public class CommonProxy implements ModInitializer {
 		}
 	}
 
-	public static Packet<ClientGamePacketListener> getAddEntityPacket(LightEntity entity, ServerEntity serverEntity) {
-		Entity owner = entity.getOwner();
-		return new ClientboundAddEntityPacket(entity, serverEntity, owner == null ? 0 : owner.getId());
-	}
-
 	@Override
 	public void onInitialize() {
 		ResourceConditions.register(RepairRecipeCondition.TYPE);
+		RecipeSynchronization.synchronizeRecipeSerializer(CoreModule.REPAIR.getOrCreate());
 	}
 }
