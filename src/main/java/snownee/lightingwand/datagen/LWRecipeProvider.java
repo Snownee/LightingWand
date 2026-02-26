@@ -33,6 +33,8 @@ public class LWRecipeProvider extends FabricRecipeProvider {
 						.unlockedBy(getHasName(Blocks.GLOWSTONE), has(Blocks.GLOWSTONE))
 						.unlockedBy(getHasName(Items.BLAZE_ROD), has(Items.BLAZE_ROD))
 						.save(output);
+
+				dyedItem(CoreModule.WAND.get(), "dyed_lighting_wand");
 			}
 		};
 	}

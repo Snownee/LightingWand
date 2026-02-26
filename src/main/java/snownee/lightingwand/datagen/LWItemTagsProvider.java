@@ -4,8 +4,8 @@ import java.util.concurrent.CompletableFuture;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
+import net.fabricmc.fabric.api.tag.convention.v2.ConventionalItemTags;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.tags.ItemTags;
 import snownee.lightingwand.CoreModule;
 
 public class LWItemTagsProvider extends FabricTagsProvider.ItemTagsProvider {
@@ -16,6 +16,6 @@ public class LWItemTagsProvider extends FabricTagsProvider.ItemTagsProvider {
 
 	@Override
 	protected void addTags(HolderLookup.Provider registries) {
-		valueLookupBuilder(ItemTags.DYEABLE).add(CoreModule.WAND.get());
+		valueLookupBuilder(ConventionalItemTags.TOOLS).add(CoreModule.WAND.get());
 	}
 }

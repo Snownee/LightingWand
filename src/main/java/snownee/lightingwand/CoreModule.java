@@ -11,7 +11,6 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -67,7 +66,9 @@ public class CoreModule extends AbstractModule {
 			.component(
 					DataComponents.TOOLTIP_DISPLAY,
 					new TooltipDisplay(false, ReferenceSortedSets.singleton(DataComponents.DYED_COLOR)))));
-	public static final KiwiGO<RecipeSerializer<RepairRecipe>> REPAIR = go(RepairRecipe.Serializer::new);
+	public static final KiwiGO<RecipeSerializer<RepairRecipe>> REPAIR = go(() -> new RecipeSerializer<>(
+			RepairRecipe.CODEC,
+			RepairRecipe.STREAM_CODEC));
 	@Name("light")
 	public static final KiwiGO<EntityType<LightEntity>> PROJECTILE = entity(key -> EntityType.Builder
 			.of(LightEntity::new, MobCategory.MISC)
@@ -121,9 +122,7 @@ public class CoreModule extends AbstractModule {
 			}
 			CauldronInteraction.WATER.map().put(
 					WAND.get(), (blockState, level, blockPos, player, interactionHand, itemStack) -> {
-						if (!itemStack.is(ItemTags.DYEABLE)) {
-							return InteractionResult.TRY_WITH_EMPTY_HAND;
-						} else if (!itemStack.has(DataComponents.DYED_COLOR)) {
+						if (!itemStack.has(DataComponents.DYED_COLOR)) {
 							return InteractionResult.TRY_WITH_EMPTY_HAND;
 						} else {
 							if (!level.isClientSide()) {

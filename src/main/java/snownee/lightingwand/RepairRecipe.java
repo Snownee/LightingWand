@@ -24,7 +24,6 @@ public class RepairRecipe extends CustomRecipe {
 	private final double ratio;
 
 	public RepairRecipe(CraftingBookCategory category, String group, ItemStackTemplate repairable, Ingredient material, double ratio) {
-		super(category);
 		this.group = group;
 		this.repairable = repairable;
 		this.material = material;
@@ -99,36 +98,24 @@ public class RepairRecipe extends CustomRecipe {
 		return ratio;
 	}
 
-	public static class Serializer implements RecipeSerializer<RepairRecipe> {
-		public static final MapCodec<RepairRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-				CraftingBookCategory.CODEC.fieldOf("category").orElse(CraftingBookCategory.MISC).forGetter(RepairRecipe::category),
-				Codec.STRING.optionalFieldOf("group", "").forGetter(RepairRecipe::group),
-				ItemStackTemplate.CODEC.fieldOf("repairable").forGetter(RepairRecipe::repairable),
-				Ingredient.CODEC.fieldOf("material").forGetter(RepairRecipe::material),
-				Codec.DOUBLE.fieldOf("ratio").forGetter(RepairRecipe::ratio)
-		).apply(instance, RepairRecipe::new));
+	public static final MapCodec<RepairRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+			CraftingBookCategory.CODEC.fieldOf("category").orElse(CraftingBookCategory.MISC).forGetter(RepairRecipe::category),
+			Codec.STRING.optionalFieldOf("group", "").forGetter(RepairRecipe::group),
+			ItemStackTemplate.CODEC.fieldOf("repairable").forGetter(RepairRecipe::repairable),
+			Ingredient.CODEC.fieldOf("material").forGetter(RepairRecipe::material),
+			Codec.DOUBLE.fieldOf("ratio").forGetter(RepairRecipe::ratio)
+	).apply(instance, RepairRecipe::new));
 
-		public static final StreamCodec<RegistryFriendlyByteBuf, RepairRecipe> STREAM_CODEC = StreamCodec.composite(
-				CraftingBookCategory.STREAM_CODEC,
-				RepairRecipe::category,
-				ByteBufCodecs.STRING_UTF8,
-				RepairRecipe::group,
-				ItemStackTemplate.STREAM_CODEC,
-				RepairRecipe::repairable,
-				Ingredient.CONTENTS_STREAM_CODEC,
-				RepairRecipe::material,
-				ByteBufCodecs.DOUBLE,
-				RepairRecipe::ratio,
-				RepairRecipe::new);
-
-		@Override
-		public MapCodec<RepairRecipe> codec() {
-			return CODEC;
-		}
-
-		@Override
-		public StreamCodec<RegistryFriendlyByteBuf, RepairRecipe> streamCodec() {
-			return STREAM_CODEC;
-		}
-	}
+	public static final StreamCodec<RegistryFriendlyByteBuf, RepairRecipe> STREAM_CODEC = StreamCodec.composite(
+			CraftingBookCategory.STREAM_CODEC,
+			RepairRecipe::category,
+			ByteBufCodecs.STRING_UTF8,
+			RepairRecipe::group,
+			ItemStackTemplate.STREAM_CODEC,
+			RepairRecipe::repairable,
+			Ingredient.CONTENTS_STREAM_CODEC,
+			RepairRecipe::material,
+			ByteBufCodecs.DOUBLE,
+			RepairRecipe::ratio,
+			RepairRecipe::new);
 }

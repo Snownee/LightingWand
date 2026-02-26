@@ -9,6 +9,7 @@ public class LWDataGen implements DataGeneratorEntrypoint {
 	public void onInitializeDataGenerator(FabricDataGenerator fabricDataGenerator) {
 		FabricDataGenerator.Pack pack = fabricDataGenerator.createPack();
 		pack.addProvider(LWItemTagsProvider::new);
+		pack.addProvider(LWBlockTagsProvider::new);
 		pack.addProvider(LWRecipeProvider::new);
 		pack.addProvider(KiwiLanguageProvider::new);
 	}

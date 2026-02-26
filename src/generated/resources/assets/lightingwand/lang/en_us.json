@@ -2,6 +2,7 @@
   "block.lightingwand.colored_light": "Light Source",
   "block.lightingwand.light": "Light Source",
   "entity.lightingwand.light": "Light Source",
+  "fml.menu.mods.info.description.lightingwand": "Wand that can place invisible light source!",
   "item.lightingwand.wand": "Lighting Wand",
   "lightingwand.config.defaultLightColor": "Default Light Color",
   "lightingwand.config.defaultLightColor.desc": "",
