@@ -147,7 +147,7 @@ public class WandItem extends Item implements PreventUpdateAnimation {
 			if (worldIn.getBlockEntity(pos) instanceof ColoredLightBlockEntity be) {
 				be.setColor(getColor(stack));
 			}
-			player.displayClientMessage(Component.translatable("tip.lightingwand.opacity", (int) (alpha * 100)), true);
+			player.sendOverlayMessage(Component.translatable("tip.lightingwand.opacity", (int) (alpha * 100)));
 		} else {
 			int wandLight = WandItem.getLightValue(stack);
 			int blockLight = state.getValue(LightBlock.LIGHT);
@@ -157,7 +157,7 @@ public class WandItem extends Item implements PreventUpdateAnimation {
 				wandLight = wandLight % 15 + 1;
 				stack.set(CoreModule.WAND_ITEM_DATA.get(), new WandItemData(wandLight, data.alpha()));
 				worldIn.setBlockAndUpdate(pos, state.setValue(LightBlock.LIGHT, wandLight));
-				player.displayClientMessage(Component.translatable("tip.lightingwand.light", wandLight), true);
+				player.sendOverlayMessage(Component.translatable("tip.lightingwand.light", wandLight));
 			}
 		}
 		return InteractionResult.SUCCESS;

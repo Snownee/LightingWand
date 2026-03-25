@@ -13,6 +13,7 @@
 		"issues": "https://github.com/Snownee/LightingWand/issues"
 	},
 	"license": "MIT",
+	"accessWidener": "lightingwand.classtweaker",
 	"entrypoints": {
 		"main": [
 			"snownee.lightingwand.util.CommonProxy"

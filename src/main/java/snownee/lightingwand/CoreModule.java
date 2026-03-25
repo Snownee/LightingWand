@@ -5,7 +5,7 @@ import com.mojang.serialization.MapCodec;
 import it.unimi.dsi.fastutil.objects.ReferenceSortedSets;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
-import net.minecraft.core.cauldron.CauldronInteraction;
+import net.minecraft.core.cauldron.CauldronInteractions;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
@@ -120,7 +120,7 @@ public class CoreModule extends AbstractModule {
 							return stack;
 						});
 			}
-			CauldronInteraction.WATER.map().put(
+			CauldronInteractions.WATER.put(
 					WAND.get(), (blockState, level, blockPos, player, interactionHand, itemStack) -> {
 						if (!itemStack.has(DataComponents.DYED_COLOR)) {
 							return InteractionResult.TRY_WITH_EMPTY_HAND;

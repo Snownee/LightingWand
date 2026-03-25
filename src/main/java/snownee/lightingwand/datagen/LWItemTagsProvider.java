@@ -15,7 +15,7 @@ public class LWItemTagsProvider extends FabricTagsProvider.ItemTagsProvider {
 	}
 
 	@Override
-	protected void addTags(HolderLookup.Provider registries) {
+	protected void addTags(HolderLookup.Provider provider) {
 		valueLookupBuilder(ConventionalItemTags.TOOLS).add(CoreModule.WAND.get());
 	}
 }
