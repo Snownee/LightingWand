@@ -1,13 +1,11 @@
 {
-	"fabric:load_conditions": [
+	"neoforge:conditions": [
 		{
-			"condition": "lightingwand:repair_recipe"
+			"type": "lightingwand:repair_recipe"
 		}
 	],
 	"type": "lightingwand:repair",
 	"repairable": "lightingwand:wand",
-	"material": {
-		"tag": "c:dusts/glowstone"
-	},
+	"material": "#c:dusts/glowstone",
 	"ratio": 4
 }

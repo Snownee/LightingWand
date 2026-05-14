@@ -1,15 +1,14 @@
 package snownee.lightingwand.datagen;
 
-import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
-import snownee.kiwi.datagen.KiwiLanguageProvider;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
 
-public class LWDataGen implements DataGeneratorEntrypoint {
-	@Override
-	public void onInitializeDataGenerator(FabricDataGenerator fabricDataGenerator) {
-		FabricDataGenerator.Pack pack = fabricDataGenerator.createPack();
-		pack.addProvider(LWItemTagProvider::new);
-		pack.addProvider(LWRecipeProvider::new);
-		pack.addProvider(KiwiLanguageProvider::new);
+
+public final class LWDataGen {
+	private LWDataGen() {
+	}
+
+	public static void gatherData(GatherDataEvent.Client event) {
+		event.createProvider(LWItemTagProvider::new);
+		event.createProvider(LWRecipeProvider.Runner::new);
 	}
 }

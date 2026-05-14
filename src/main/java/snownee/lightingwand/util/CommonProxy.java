@@ -9,12 +9,14 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.neoforged.neoforge.registries.RegisterEvent;
 import snownee.kiwi.loader.Platform;
 import snownee.lightingwand.CoreModule;
 import snownee.lightingwand.LW;
 import snownee.lightingwand.LightEntity;
+import snownee.lightingwand.datagen.LWDataGen;
 import snownee.lightingwand.neoforge.EnergyRepair;
 import snownee.lightingwand.neoforge.RepairRecipeCondition;
 
@@ -34,13 +36,15 @@ public class CommonProxy {
 	}
 
 	public CommonProxy(IEventBus modBus) {
+		modBus.addListener((GatherDataEvent.Client event) -> LWDataGen.gatherData(event));
+
 		modBus.addListener((RegisterEvent event) -> event.register(
 				NeoForgeRegistries.Keys.CONDITION_CODECS,
 				LW.id("repair_recipe"),
 				() -> RepairRecipeCondition.CODEC));
 
 		modBus.addListener((RegisterCapabilitiesEvent event) -> event.registerItem(
-				Capabilities.EnergyStorage.ITEM,
+				Capabilities.Energy.ITEM,
 				(stack, context) -> new EnergyRepair(stack),
 				CoreModule.WAND.get()));
 		if (Platform.isPhysicalClient()) {

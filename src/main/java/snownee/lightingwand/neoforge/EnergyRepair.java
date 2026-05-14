@@ -1,10 +1,13 @@
 package snownee.lightingwand.neoforge;
 
+import org.jspecify.annotations.NonNull;
+
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import snownee.lightingwand.CommonConfig;
 
-public class EnergyRepair implements IEnergyStorage {
+public class EnergyRepair implements EnergyHandler {
 	protected ItemStack container;
 
 	public EnergyRepair(ItemStack container) {
@@ -12,39 +15,26 @@ public class EnergyRepair implements IEnergyStorage {
 	}
 
 	@Override
-	public int receiveEnergy(int maxReceive, boolean simulate) {
-		if (container.isEmpty() || !container.isDamaged() || maxReceive < CommonConfig.energyPerUse) {
+	public long getAmountAsLong() {
+		return Math.max((container.getMaxDamage() - container.getDamageValue()) * CommonConfig.energyPerUse, 0);
+	}
+
+	@Override
+	public long getCapacityAsLong() {
+		return (long) container.getMaxDamage() * CommonConfig.energyPerUse;
+	}
+
+	@Override
+	public int insert(int amount, @NonNull TransactionContext transaction) {
+		if (container.isEmpty() || !container.isDamaged() || amount < CommonConfig.energyPerUse) {
 			return 0;
-		}
-		if (!simulate) {
-			container.setDamageValue(container.getDamageValue() - 1);
 		}
 		return CommonConfig.energyPerUse;
 	}
 
 	@Override
-	public int extractEnergy(int maxExtract, boolean simulate) {
+	public int extract(int amount, TransactionContext transaction) {
 		return 0;
-	}
-
-	@Override
-	public int getEnergyStored() {
-		return Math.max((container.getMaxDamage() - container.getDamageValue()) * CommonConfig.energyPerUse, 0);
-	}
-
-	@Override
-	public int getMaxEnergyStored() {
-		return container.getMaxDamage() * CommonConfig.energyPerUse;
-	}
-
-	@Override
-	public boolean canExtract() {
-		return false;
-	}
-
-	@Override
-	public boolean canReceive() {
-		return true;
 	}
 }
 

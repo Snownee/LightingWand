@@ -1,6 +1,6 @@
 //package snownee.lightingwand.compat;
 //
-//import net.minecraft.resources.ResourceLocation;
+//import net.minecraft.resources.Identifier;
 //import net.minecraftforge.api.distmarker.Dist;
 //import net.minecraftforge.fml.DistExecutor;
 //import net.minecraftforge.fml.ModList;
@@ -13,7 +13,7 @@
 //    // from LibPieceGroups
 //    public static final String BLOCK_CONJURATION = "block_conjuration";
 //
-//    public static final ResourceLocation PIECE_ID = new ResourceLocation(LW.MODID, "trick_conjure_invisible_light");
+//    public static final Identifier PIECE_ID = new Identifier(LW.MODID, "trick_conjure_invisible_light");
 //
 //    public static void init() {
 //        PsiAPI.registerSpellPiece(PIECE_ID, ConjureInvisibleLightPieceTrick.class);
@@ -23,9 +23,9 @@
 //            if (ModList.get().isLoaded("magipsi")) {
 //                textureName = "magical_" + textureName;
 //            }
-//            ClientPsiAPI.registerPieceTexture(PIECE_ID, new ResourceLocation(LW.MODID, "spell/" + textureName));
+//            ClientPsiAPI.registerPieceTexture(PIECE_ID, new Identifier(LW.MODID, "spell/" + textureName));
 //        });
 //
-//        PsiAPI.addPieceToGroup(ConjureInvisibleLightPieceTrick.class, new ResourceLocation("psi", BLOCK_CONJURATION), false);
+//        PsiAPI.addPieceToGroup(ConjureInvisibleLightPieceTrick.class, new Identifier("psi", BLOCK_CONJURATION), false);
 //    }
 //}

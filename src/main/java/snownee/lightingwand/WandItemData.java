@@ -13,7 +13,7 @@ public record WandItemData(int light, float alpha) {
 			Codec.floatRange(0, 1).optionalFieldOf("alpha", 1F).forGetter(WandItemData::alpha)
 	).apply(instance, WandItemData::new));
 	public static final StreamCodec<ByteBuf, WandItemData> STREAM_CODEC = StreamCodec.composite(
-			ByteBufCodecs.VAR_INT,
+			ByteBufCodecs.INT,
 			WandItemData::light,
 			ByteBufCodecs.FLOAT,
 			WandItemData::alpha,

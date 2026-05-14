@@ -1,7 +1,5 @@
 package snownee.lightingwand;
 
-import org.joml.Vector3f;
-
 import com.mojang.serialization.MapCodec;
 
 import net.minecraft.core.BlockPos;
@@ -24,14 +22,12 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import snownee.kiwi.loader.Platform;
-import snownee.kiwi.util.NotNullByDefault;
 import snownee.lightingwand.util.ClientProxy;
 
-@NotNullByDefault
 public class LightBlock extends Block implements SimpleWaterloggedBlock {
-	public static final MapCodec<LightBlock> CODEC = simpleCodec(LightBlock::new);
 	public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 	public static final IntegerProperty LIGHT = IntegerProperty.create("light", 1, 15);
+	public static final MapCodec<LightBlock> CODEC = simpleCodec(LightBlock::new);
 
 	public LightBlock(Properties properties) {
 		super(properties);
@@ -44,33 +40,27 @@ public class LightBlock extends Block implements SimpleWaterloggedBlock {
 	}
 
 	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext ctx) {
-		return (Platform.isPhysicalClient() && ClientProxy.hasItem()) ?
-				Shapes.block() :
-				Shapes.empty();
+	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+		return (Platform.isPhysicalClient() && ClientProxy.hasItem()) ? Shapes.block() : Shapes.empty();
 	}
 
 	@Override
-	public VoxelShape getCollisionShape(
-			BlockState p_220071_1_,
-			BlockGetter p_220071_2_,
-			BlockPos p_220071_3_,
-			CollisionContext p_220071_4_) {
+	protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
 		return Shapes.empty();
 	}
 
 	@Override
-	public void animateTick(BlockState stateIn, Level worldIn, BlockPos pos, RandomSource rand) {
+	public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
 		if (ClientProxy.hasItem()) {
-			float x = pos.getX() + 0.3F + rand.nextFloat() * 0.4F;
+			float x = pos.getX() + 0.3F + random.nextFloat() * 0.4F;
 			float y = pos.getY() + 0.5F;
-			float z = pos.getZ() + 0.3F + rand.nextFloat() * 0.4F;
+			float z = pos.getZ() + 0.3F + random.nextFloat() * 0.4F;
 
-			Vector3f colorVector = CommonConfig.defaultLightColorVector;
-			if (CoreModule.COLORED_LIGHT.is(stateIn) && worldIn.getBlockEntity(pos) instanceof ColoredLightBlockEntity be) {
-				colorVector = CommonConfig.intColorToVector3(be.getColor());
+			int color = CommonConfig.defaultLightColor;
+			if (CoreModule.COLORED_LIGHT.is(state) && level.getBlockEntity(pos) instanceof ColoredLightBlockEntity be) {
+				color = be.getColor();
 			}
-			worldIn.addParticle(new DustParticleOptions(colorVector, 1.0F), x, y, z, 0, 0, 0);
+			level.addParticle(new DustParticleOptions(color, 1.0F), x, y, z, 0, 0, 0);
 		}
 	}
 
@@ -91,7 +81,7 @@ public class LightBlock extends Block implements SimpleWaterloggedBlock {
 	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext context) {
 		FluidState fluidstate = context.getLevel().getFluidState(context.getClickedPos());
-		return super.getStateForPlacement(context).setValue(WATERLOGGED, fluidstate.getType() == Fluids.WATER);
+		return defaultBlockState().setValue(WATERLOGGED, fluidstate.getType() == Fluids.WATER);
 	}
 
 	@Override

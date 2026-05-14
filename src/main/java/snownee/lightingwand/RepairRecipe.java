@@ -4,63 +4,48 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.Mth;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
-import snownee.kiwi.util.NotNullByDefault;
 
-@NotNullByDefault
 public class RepairRecipe extends CustomRecipe {
 	private final String group;
-	private final Item repairable;
+	private final ItemStackTemplate repairable;
 	private final Ingredient material;
 	private final double ratio;
 
-	public RepairRecipe(CraftingBookCategory category, String group, Item repairable, Ingredient material, double ratio) {
-		super(category);
+	public RepairRecipe(CraftingBookCategory category, String group, ItemStackTemplate repairable, Ingredient material, double ratio) {
 		this.group = group;
 		this.repairable = repairable;
 		this.material = material;
 		this.ratio = ratio;
-		if (!repairable.components().has(DataComponents.MAX_DAMAGE)) {
-			throw new IllegalArgumentException(String.format("Item %s is not repairable", repairable));
-		}
 	}
 
 	@Override
-	public boolean canCraftInDimensions(int width, int height) {
-		return width > 1 || height > 1;
-	}
-
-	@Override
-	public boolean matches(CraftingInput input, Level worldIn) {
+	public boolean matches(CraftingInput input, Level level) {
 		int dust = 0;
 		ItemStack wand = ItemStack.EMPTY;
 
 		for (int i = 0; i < input.size(); ++i) {
-			ItemStack itemstack = input.getItem(i);
-			if (itemstack.getItem() == repairable && itemstack.getDamageValue() != 0) {
+			ItemStack itemStack = input.getItem(i);
+			if (itemStack.is(repairable.item()) && itemStack.getDamageValue() != 0) {
 				if (wand.isEmpty()) {
-					wand = itemstack;
+					wand = itemStack;
 				} else {
 					return false;
 				}
-			} else if (!itemstack.isEmpty() && material.test(itemstack)) {
+			} else if (!itemStack.isEmpty() && material.test(itemStack)) {
 				dust++;
-			} else if (itemstack != ItemStack.EMPTY) {
+			} else if (itemStack != ItemStack.EMPTY) {
 				return false;
 			}
 		}
@@ -69,16 +54,16 @@ public class RepairRecipe extends CustomRecipe {
 	}
 
 	@Override
-	public ItemStack assemble(CraftingInput input, HolderLookup.Provider provider) {
+	public ItemStack assemble(CraftingInput input) {
 		int dust = 0;
 		ItemStack wand = ItemStack.EMPTY;
 
 		for (int i = 0; i < input.size(); ++i) {
-			ItemStack itemstack = input.getItem(i);
-			if (itemstack.is(repairable)) {
-				wand = itemstack;
-			} else if (!itemstack.isEmpty() && material.test(itemstack)) {
-				int count = itemstack.getCount();
+			ItemStack itemStack = input.getItem(i);
+			if (itemStack.is(repairable.item())) {
+				wand = itemStack;
+			} else if (!itemStack.isEmpty() && material.test(itemStack)) {
+				int count = itemStack.getCount();
 				if (count > 0) {
 					dust++;
 				}
@@ -92,12 +77,12 @@ public class RepairRecipe extends CustomRecipe {
 	}
 
 	@Override
-	public RecipeSerializer<?> getSerializer() {
+	public RecipeSerializer<? extends CustomRecipe> getSerializer() {
 		return CoreModule.REPAIR.get();
 	}
 
 	@Override
-	public String getGroup() {
+	public String group() {
 		return group;
 	}
 
@@ -105,7 +90,7 @@ public class RepairRecipe extends CustomRecipe {
 		return material;
 	}
 
-	public Item repairable() {
+	public ItemStackTemplate repairable() {
 		return repairable;
 	}
 
@@ -113,36 +98,24 @@ public class RepairRecipe extends CustomRecipe {
 		return ratio;
 	}
 
-	public static class Serializer implements RecipeSerializer<RepairRecipe> {
-		public static final MapCodec<RepairRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-				CraftingBookCategory.CODEC.fieldOf("category").orElse(CraftingBookCategory.MISC).forGetter(RepairRecipe::category),
-				Codec.STRING.optionalFieldOf("group", "").forGetter(RepairRecipe::getGroup),
-				BuiltInRegistries.ITEM.byNameCodec().fieldOf("repairable").forGetter(RepairRecipe::repairable),
-				Ingredient.CODEC_NONEMPTY.fieldOf("material").forGetter(RepairRecipe::material),
-				Codec.DOUBLE.fieldOf("ratio").forGetter(RepairRecipe::ratio)
-		).apply(instance, RepairRecipe::new));
+	public static final MapCodec<RepairRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+			CraftingBookCategory.CODEC.fieldOf("category").orElse(CraftingBookCategory.MISC).forGetter(RepairRecipe::category),
+			Codec.STRING.optionalFieldOf("group", "").forGetter(RepairRecipe::group),
+			ItemStackTemplate.CODEC.fieldOf("repairable").forGetter(RepairRecipe::repairable),
+			Ingredient.CODEC.fieldOf("material").forGetter(RepairRecipe::material),
+			Codec.DOUBLE.fieldOf("ratio").forGetter(RepairRecipe::ratio)
+	).apply(instance, RepairRecipe::new));
 
-		public static final StreamCodec<RegistryFriendlyByteBuf, RepairRecipe> STREAM_CODEC = StreamCodec.composite(
-				CraftingBookCategory.STREAM_CODEC,
-				RepairRecipe::category,
-				ByteBufCodecs.STRING_UTF8,
-				RepairRecipe::getGroup,
-				ByteBufCodecs.registry(Registries.ITEM),
-				RepairRecipe::repairable,
-				Ingredient.CONTENTS_STREAM_CODEC,
-				RepairRecipe::material,
-				ByteBufCodecs.DOUBLE,
-				RepairRecipe::ratio,
-				RepairRecipe::new);
-
-		@Override
-		public MapCodec<RepairRecipe> codec() {
-			return CODEC;
-		}
-
-		@Override
-		public StreamCodec<RegistryFriendlyByteBuf, RepairRecipe> streamCodec() {
-			return STREAM_CODEC;
-		}
-	}
+	public static final StreamCodec<RegistryFriendlyByteBuf, RepairRecipe> STREAM_CODEC = StreamCodec.composite(
+			CraftingBookCategory.STREAM_CODEC,
+			RepairRecipe::category,
+			ByteBufCodecs.STRING_UTF8,
+			RepairRecipe::group,
+			ItemStackTemplate.STREAM_CODEC,
+			RepairRecipe::repairable,
+			Ingredient.CONTENTS_STREAM_CODEC,
+			RepairRecipe::material,
+			ByteBufCodecs.DOUBLE,
+			RepairRecipe::ratio,
+			RepairRecipe::new);
 }

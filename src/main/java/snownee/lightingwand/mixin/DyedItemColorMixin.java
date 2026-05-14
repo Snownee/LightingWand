@@ -1,28 +1,31 @@
 package snownee.lightingwand.mixin;
 
+import java.util.function.Consumer;
+
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
 
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.llamalad7.mixinextras.sugar.Local;
 
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.component.DataComponentGetter;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.DyedItemColor;
 import snownee.lightingwand.CoreModule;
 
 @Mixin(DyedItemColor.class)
 public class DyedItemColorMixin {
-	@WrapOperation(method = "applyDyes", at = @At(value = "NEW", target = "(IZ)Lnet/minecraft/world/item/component/DyedItemColor;"))
-	private static DyedItemColor applyDyes(
-			int color,
-			boolean showInTooltip,
-			Operation<DyedItemColor> original,
-			@Local(argsOnly = true) ItemStack itemStack,
-			@Local DyedItemColor dyedItemColor) {
-		if (dyedItemColor == null && itemStack.has(CoreModule.WAND_ITEM_DATA.get())) {
-			return original.call(color, false);
+	@WrapMethod(method = "addToTooltip")
+	private void lightingwand$avoidTooltip(
+			Item.TooltipContext context,
+			Consumer<Component> consumer,
+			TooltipFlag flag,
+			DataComponentGetter components,
+			Operation<Void> original) {
+		if (components.has(CoreModule.WAND_ITEM_DATA.get())) {
+			return;
 		}
-		return original.call(color, showInTooltip);
+		original.call(context, consumer, flag, components);
 	}
 }
