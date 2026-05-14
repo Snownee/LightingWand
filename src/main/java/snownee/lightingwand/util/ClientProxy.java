@@ -10,7 +10,11 @@ import snownee.lightingwand.compat.ShimmerCompat;
 
 public class ClientProxy {
 	public static boolean hasItem() {
-		Player player = Minecraft.getInstance().player;
+		Minecraft minecraft = Minecraft.getInstance();
+		if (minecraft == null) {
+			return false;
+		}
+		Player player = minecraft.player;
 		if (player == null) {
 			return false;
 		}

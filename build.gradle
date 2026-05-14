@@ -38,6 +38,10 @@ neoForge {
         server {
             server()
         }
+        data {
+            clientData()
+            programArguments = ['--mod', project.mod_id, '--all', '--output', project.file('src/generated/resources').absolutePath]
+        }
     }
 }
 
@@ -84,7 +88,8 @@ dependencies {
     runtimeOnly "maven.modrinth:jade:${jade_version}+neoforge"
 
     // https://modrinth.com/mod/kiwi/versions
-    implementation(annotationProcessor("maven.modrinth:kiwi:26.0.5+neoforge"))
+    implementation(annotationProcessor("maven.modrinth:kiwi:26.0.7+neoforge"))
+//    implementation(annotationProcessor(files("libs/Kiwi-mc26.1.2-NeoForge-26.0.6.jar")))
 
     // https://modrinth.com/mod/shimmer!/versions
 //    modImplementation "maven.modrinth:uBKACKpl:zh7cZkGa"
