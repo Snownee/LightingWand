@@ -1,20 +1,18 @@
 package snownee.lightingwand;
 
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import snownee.kiwi.block.entity.ModBlockEntity;
-import snownee.kiwi.util.NotNullByDefault;
 import snownee.lightingwand.compat.ShimmerCompat;
 import snownee.lightingwand.util.CommonProxy;
 
-@NotNullByDefault
 public class ColoredLightBlockEntity extends ModBlockEntity {
 
-	public Object shimmerLight;
+	public @Nullable Object shimmerLight;
 	private int color = CommonConfig.defaultLightColor;
 
 	public ColoredLightBlockEntity(BlockPos pos, BlockState state) {
@@ -22,29 +20,28 @@ public class ColoredLightBlockEntity extends ModBlockEntity {
 	}
 
 	@Override
-	protected void readPacketData(CompoundTag data) {
-		color = data.getInt("Color");
-		if (CommonProxy.shimmerCompat && level != null && level.isClientSide) {
+	protected void readPacketData(ValueInput valueInput) {
+		color = valueInput.getIntOr("Color", CommonConfig.defaultLightColor);
+		if (CommonProxy.shimmerCompat && level != null && level.isClientSide()) {
 			ShimmerCompat.addLight(this);
 		}
 	}
 
 	@Override
-	protected @NotNull CompoundTag writePacketData(CompoundTag data, HolderLookup.Provider provider) {
-		data.putInt("Color", color);
-		return data;
+	protected void writePacketData(ValueOutput valueOutput) {
+		valueOutput.putInt("Color", color);
 	}
 
 	@Override
-	protected void loadAdditional(CompoundTag data, HolderLookup.Provider provider) {
-		readPacketData(data);
-		super.loadAdditional(data, provider);
+	protected void loadAdditional(ValueInput input) {
+		readPacketData(input);
+		super.loadAdditional(input);
 	}
 
 	@Override
-	protected void saveAdditional(CompoundTag data, HolderLookup.Provider provider) {
-		writePacketData(data, provider);
-		super.saveAdditional(data, provider);
+	protected void saveAdditional(ValueOutput output) {
+		writePacketData(output);
+		super.saveAdditional(output);
 	}
 
 	public int getColor() {
@@ -58,9 +55,9 @@ public class ColoredLightBlockEntity extends ModBlockEntity {
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public void setBlockState(BlockState newState) {
-		super.setBlockState(newState);
-		if (CommonProxy.shimmerCompat && level != null && level.isClientSide) {
+	public void setBlockState(BlockState blockState) {
+		super.setBlockState(blockState);
+		if (CommonProxy.shimmerCompat && level != null && level.isClientSide()) {
 			ShimmerCompat.addLight(this);
 		}
 	}
@@ -68,7 +65,7 @@ public class ColoredLightBlockEntity extends ModBlockEntity {
 	@Override
 	public void setRemoved() {
 		super.setRemoved();
-		if (level != null && level.isClientSide && shimmerLight != null) {
+		if (level != null && level.isClientSide() && shimmerLight != null) {
 			ShimmerCompat.removeLight(this);
 		}
 	}

@@ -40,7 +40,7 @@ public class CommonProxy {
 				() -> RepairRecipeCondition.CODEC));
 
 		modBus.addListener((RegisterCapabilitiesEvent event) -> event.registerItem(
-				Capabilities.EnergyStorage.ITEM,
+				Capabilities.Energy.ITEM,
 				(stack, context) -> new EnergyRepair(stack),
 				CoreModule.WAND.get()));
 		if (Platform.isPhysicalClient()) {
