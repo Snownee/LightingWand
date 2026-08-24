@@ -1,6 +1,5 @@
 configs:
-- data: {}
-  target: snownee.lightingwand.CommonConfig
+  - target: snownee.lightingwand.CommonConfig
 modules:
-- data: {}
-  target: snownee.lightingwand.CoreModule
+  - target: snownee.lightingwand.CoreModule
+useDataModule: true

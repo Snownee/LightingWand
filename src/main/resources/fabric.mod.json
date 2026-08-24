@@ -26,6 +26,9 @@
 		],
 		"jei_mod_plugin": [
 			"snownee.lightingwand.compat.JEICompat"
+		],
+		"lambdynlights:initializer": [
+			"snownee.lightingwand.compat.lambdynlights.LambDynLightsCompat"
 		]
 	},
 	"depends": {
