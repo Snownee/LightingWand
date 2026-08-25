@@ -1,5 +1,7 @@
 // 26.1.2	-999999999-01-01T00:00:00	Lighting Wand/LW Recipes
 dca20ffb363aa8095708b387dfb60d1c882b2d43 data/lightingwand/advancement/recipes/misc/wand.json
 e095112064d5d9e60a3212281d778f939a8908d6 data/lightingwand/recipe/wand.json
+b776efc2274de44d14ee56f9b184e5afb1dde911 data/minecraft/advancement/recipes/misc/repair.json
 4b111989e9fea4bb3ba67bb08d662486cf602d4f data/minecraft/advancement/recipes/misc/wand_dyed.json
+4afb4557fcd470871a1033ac76b2014e2f43bb77 data/minecraft/recipe/repair.json
 741b4b8490e614f706fa48dfd9d43960a32f1d54 data/minecraft/recipe/wand_dyed.json

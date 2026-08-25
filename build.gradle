@@ -13,7 +13,10 @@ base {
 }
 
 repositories {
+    // REI
     maven { url "https://maven.shedaniel.me/" }
+    maven { url "https://maven.architectury.dev/" }
+
     maven { url "https://maven.terraformersmc.com/releases/" }
 
     // JEI
@@ -54,21 +57,21 @@ dependencies {
     implementation "net.fabricmc:fabric-loader:${project.loader_version}"
     implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
-//    api("me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}") {
-//        exclude(group: "net.fabricmc.fabric-api")
-//    }
+    api("me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
     implementation "com.terraformersmc:modmenu:${project.modmenu_version}"
 
-//    compileOnly "me.shedaniel:RoughlyEnoughItems-fabric:${project.rei_version}"
-//    runtimeOnly "me.shedaniel:RoughlyEnoughItems-fabric:${project.rei_version}"
+    implementation "me.shedaniel:RoughlyEnoughItems-fabric:${project.rei_version}"
+    implementation "dev.architectury:architectury-fabric:${project.architectury_version}"
 
 //    compileOnlyApi "mezz.jei:jei-${minecraft_version}-fabric-api:${jei_version}"
-    compileOnly "mezz.jei:jei-26.1-pre-3-fabric:${jei_version}"
+    implementation "mezz.jei:jei-26.1.2-fabric:${jei_version}"
 
     runtimeOnly "maven.modrinth:jade:${jade_version}+fabric"
 
     // https://modrinth.com/mod/kiwi/versions
-    implementation(annotationProcessor("maven.modrinth:kiwi:26.0.16+fabric"))
+    implementation(annotationProcessor("maven.modrinth:kiwi:26.0.18+fabric"))
 //    implementation fileTree(dir: "libs", include: ["*.jar"])
 //    annotationProcessor fileTree(dir: "libs", include: ["*.jar"])
 

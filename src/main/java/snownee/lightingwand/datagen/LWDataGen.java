@@ -11,9 +11,9 @@ public class LWDataGen implements DataGeneratorEntrypoint {
 	@Override
 	public void onInitializeDataGenerator(FabricDataGenerator fabricDataGenerator) {
 		FabricDataGenerator.Pack pack = fabricDataGenerator.createPack();
-		pack.addProvider(LWItemTagsProvider::new);
-		pack.addProvider(LWBlockTagsProvider::new);
-		pack.addProvider(LWRecipeProvider::new);
+		pack.addProvider(LWItemTags::new);
+		pack.addProvider(LWBlockTags::new);
+		pack.addProvider(LWRecipes::new);
 		pack.addProvider(KiwiLanguageProvider::new);
 
 		pack.addProvider((output, lookupProvider) -> new EntityLightData(output, lookupProvider, LW.ID));

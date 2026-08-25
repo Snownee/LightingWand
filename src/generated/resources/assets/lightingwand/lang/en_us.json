@@ -8,8 +8,6 @@
   "lightingwand.config.defaultLightColor.desc": "",
   "lightingwand.config.energyPerUse": "Energy Per Use",
   "lightingwand.config.energyPerUse.desc": "How much FE to repair one use of wand. Zero to disable.",
-  "lightingwand.config.repairRecipe": "Repair Recipe",
-  "lightingwand.config.repairRecipe.desc": "Should use glowstone dust to repair wand.",
   "lightingwand.config.shootProjectile": "Shoot Projectile",
   "lightingwand.config.shootProjectile.desc": "Should wand be able to shoot projectile.",
   "lightingwand.config.wandDurability": "Wand Durability",

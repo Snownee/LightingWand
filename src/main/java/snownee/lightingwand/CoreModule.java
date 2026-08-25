@@ -17,6 +17,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
@@ -86,6 +87,9 @@ public class CoreModule extends AbstractModule {
 	@Name("light_value")
 	public static final KiwiGO<DataComponentPredicate.Type<LightValuePredicate>> LIGHT_VALUE_PREDICATE = go(() -> new DataComponentPredicate.ConcreteType<>(
 			LightValuePredicate.CODEC));
+	public static final KiwiGO<SlotDisplay.Type<WithDamageSlotDisplay>> WITH_DAMAGE = go(() -> new SlotDisplay.Type<>(
+			WithDamageSlotDisplay.MAP_CODEC,
+			WithDamageSlotDisplay.STREAM_CODEC));
 
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	public static boolean isLightBlock(BlockState state) {

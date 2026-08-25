@@ -6,9 +6,9 @@ import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.minecraft.core.HolderLookup;
 import snownee.kiwi.datagen.KiwiBlockTagsProvider;
 
-public class LWBlockTagsProvider extends KiwiBlockTagsProvider {
+public class LWBlockTags extends KiwiBlockTagsProvider {
 
-	public LWBlockTagsProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registryLookupFuture) {
+	public LWBlockTags(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registryLookupFuture) {
 		super(output, registryLookupFuture);
 	}
 
