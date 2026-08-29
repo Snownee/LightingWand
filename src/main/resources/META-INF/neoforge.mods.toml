@@ -22,4 +22,4 @@ config = "lightingwand.mixins.json"
 catalogueItemIcon = "lightingwand:wand" #Support for Catalogue mod
 
 [modproperties.lightingwand."yumi:entrypoints"]
-"lambdynlights:initializer" = "snownee.lightingwand.compat.lambdynlights.LWDynamicLightsInitializer"
+"lambdynlights:initializer" = "snownee.lightingwand.compat.lambdynlights.LambDynLightsCompat"

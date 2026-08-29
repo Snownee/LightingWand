@@ -13,8 +13,6 @@ public class CommonConfig {
 	@Range(min = 0)
 	public static int energyPerUse = 200;
 
-	public static boolean repairRecipe = true;
-
 	@GameRestart
 	@Range(min = 1)
 	public static int wandDurability = 255;

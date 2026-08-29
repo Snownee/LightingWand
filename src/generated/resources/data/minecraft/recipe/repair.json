@@ -1,0 +1,7 @@
+{
+  "type": "lightingwand:repair",
+  "category": "misc",
+  "material": "#c:dusts/glowstone",
+  "ratio": 4.0,
+  "repairable": "lightingwand:wand"
+}

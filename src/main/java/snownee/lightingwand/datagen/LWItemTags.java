@@ -13,10 +13,10 @@ import net.neoforged.neoforge.common.data.ItemTagsProvider;
 import snownee.lightingwand.CoreModule;
 import snownee.lightingwand.LW;
 
-public class LWItemTagProvider extends ItemTagsProvider {
+public class LWItemTags extends ItemTagsProvider {
 	private static final TagKey<Item> DYEABLE = TagKey.create(Registries.ITEM, LW.id("dyeable"));
 
-	public LWItemTagProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> completableFuture) {
+	public LWItemTags(PackOutput output, CompletableFuture<HolderLookup.Provider> completableFuture) {
 		super(output, completableFuture, LW.ID);
 	}
 

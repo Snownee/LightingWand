@@ -5,16 +5,22 @@ import java.util.concurrent.CompletableFuture;
 import org.jspecify.annotations.NonNull;
 
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
+import net.minecraft.data.recipes.CustomCraftingRecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.Blocks;
+import net.neoforged.neoforge.common.Tags;
+import snownee.kiwi.recipe.RecipeUtil;
 import snownee.lightingwand.CoreModule;
+import snownee.lightingwand.RepairRecipe;
 
-public class LWRecipeProvider extends RecipeProvider {
-	public LWRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
+public class LWRecipes extends RecipeProvider {
+	public LWRecipes(HolderLookup.Provider registries, RecipeOutput output) {
 		super(registries, output);
 	}
 
@@ -29,6 +35,21 @@ public class LWRecipeProvider extends RecipeProvider {
 				.unlockedBy(getHasName(Blocks.GLOWSTONE), has(Blocks.GLOWSTONE))
 				.unlockedBy(getHasName(Items.BLAZE_ROD), has(Items.BLAZE_ROD))
 				.save(output);
+
+		CustomCraftingRecipeBuilder.customCrafting(
+						RecipeCategory.MISC, (
+								(commonInfo, bookInfo) -> new RepairRecipe(
+										commonInfo,
+										bookInfo,
+										Ingredient.of(CoreModule.WAND.get()),
+										RecipeUtil.tagIngredient(
+												registries.lookupOrThrow(Registries.ITEM),
+												Tags.Items.DUSTS_GLOWSTONE),
+										4)))
+				.unlockedBy(getHasName(CoreModule.WAND.get()), has(CoreModule.WAND.get()))
+				.save(output, "repair");
+
+		dyedItem(CoreModule.WAND.get(), "dyed_lighting_wand");
 	}
 
 	public static class Runner extends RecipeProvider.Runner {
@@ -38,7 +59,7 @@ public class LWRecipeProvider extends RecipeProvider {
 
 		@Override
 		protected @NonNull RecipeProvider createRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
-			return new LWRecipeProvider(registries, output);
+			return new LWRecipes(registries, output);
 		}
 
 		@Override
