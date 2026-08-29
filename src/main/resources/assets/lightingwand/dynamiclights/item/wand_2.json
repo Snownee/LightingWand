@@ -1,0 +1,14 @@
+{
+  "luminance": {
+    "type": "value",
+    "value": 2
+  },
+  "match": {
+    "items": "lightingwand:wand",
+    "predicates": {
+      "lightingwand:light_value": {
+        "light": 2
+      }
+    }
+  }
+}

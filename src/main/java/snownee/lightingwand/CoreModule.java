@@ -8,6 +8,7 @@ import net.minecraft.core.Position;
 import net.minecraft.core.cauldron.CauldronInteractions;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.component.predicates.DataComponentPredicate;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
@@ -82,6 +83,9 @@ public class CoreModule extends AbstractModule {
 	public static final KiwiGO<BlockEntityType<ColoredLightBlockEntity>> LIGHT_TILE = blockEntity(
 			ColoredLightBlockEntity::new,
 			COLORED_LIGHT);
+	@Name("light_value")
+	public static final KiwiGO<DataComponentPredicate.Type<LightValuePredicate>> LIGHT_VALUE_PREDICATE = go(() -> new DataComponentPredicate.ConcreteType<>(
+			LightValuePredicate.CODEC));
 
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	public static boolean isLightBlock(BlockState state) {

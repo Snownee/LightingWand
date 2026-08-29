@@ -57,12 +57,12 @@ repositories {
     maven { url "https://modmaven.dev" }
     maven { url "https://dvs1.progwml6.com/files/maven/" }
 
-    // maven {
-    //     url "https://cursemaven.com"
-    //     content {
-    //         includeGroup "curse.maven"
-    //     }
-    // }
+    // LambDynamicLights
+    maven {
+        name = "Gegy"
+        url = uri("https://maven.gegy.dev")
+    }
+
     maven { url "https://api.modrinth.com/maven" }
     flatDir { dir 'libs' }
     // Add repositories to retrieve artifacts from in here.
@@ -81,20 +81,22 @@ dependencies {
     // compile against the JEI API but do not include it at runtime
     compileOnlyApi "mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"
     compileOnlyApi "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"
-    // at runtime, use the full JEI jar for Fabric
     runtimeOnly "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
 
     // https://modrinth.com/mod/jade/versions
     runtimeOnly "maven.modrinth:jade:${jade_version}+neoforge"
 
     // https://modrinth.com/mod/kiwi/versions
-    implementation(annotationProcessor("maven.modrinth:kiwi:26.0.7+neoforge"))
+    implementation(annotationProcessor("maven.modrinth:kiwi:26.0.18+neoforge"))
 //    implementation(annotationProcessor(files("libs/Kiwi-mc26.1.2-NeoForge-26.0.6.jar")))
 
     // https://modrinth.com/mod/shimmer!/versions
 //    modImplementation "maven.modrinth:uBKACKpl:zh7cZkGa"
 
 //    runtimeOnly "maven.modrinth:mekanism:10.7.13.78"
+
+    compileOnly("dev.lambdaurora.lambdynamiclights:lambdynamiclights-api:${project.lambdynamiclights_version}")
+//    runtimeOnly("dev.lambdaurora.lambdynamiclights:lambdynamiclights-runtime:${project.lambdynamiclights_version}")
 }
 
 tasks.withType(JavaCompile).configureEach {

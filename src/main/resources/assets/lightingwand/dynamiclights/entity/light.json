@@ -1,0 +1,10 @@
+{
+  "luminance": [
+    {
+      "type": "lightingwand:entity"
+    }
+  ],
+  "match": {
+    "type": "lightingwand:light"
+  }
+}
