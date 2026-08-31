@@ -1,13 +1,28 @@
 package snownee.lightingwand;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.function.Consumer;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.dialog.ActionButton;
+import net.minecraft.server.dialog.CommonButtonData;
+import net.minecraft.server.dialog.CommonDialogData;
+import net.minecraft.server.dialog.DialogAction;
+import net.minecraft.server.dialog.Input;
+import net.minecraft.server.dialog.NoticeDialog;
+import net.minecraft.server.dialog.action.CustomAll;
+import net.minecraft.server.dialog.input.NumberRangeInput;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -36,6 +51,8 @@ import snownee.kiwi.util.PreventUpdateAnimation;
 import snownee.lightingwand.util.CommonProxy;
 
 public class WandItem extends Item implements PreventUpdateAnimation {
+	public static final Identifier LIGHT_DIALOG_ACTION = LW.id("set_light");
+
 	public WandItem(Item.Properties properties) {
 		super(properties);
 	}
@@ -149,18 +166,88 @@ public class WandItem extends Item implements PreventUpdateAnimation {
 			}
 			player.sendOverlayMessage(Component.translatable("tip.lightingwand.opacity", (int) (alpha * 100)));
 		} else {
-			int wandLight = WandItem.getLightValue(stack);
-			int blockLight = state.getValue(LightBlock.LIGHT);
-			if (wandLight != blockLight) {
-				worldIn.setBlockAndUpdate(pos, state.setValue(LightBlock.LIGHT, wandLight));
-			} else {
-				wandLight = wandLight % 15 + 1;
-				stack.set(CoreModule.WAND_ITEM_DATA.get(), new WandItemData(wandLight, data.alpha()));
-				worldIn.setBlockAndUpdate(pos, state.setValue(LightBlock.LIGHT, wandLight));
-				player.sendOverlayMessage(Component.translatable("tip.lightingwand.light", wandLight));
+			if (player instanceof ServerPlayer serverPlayer) {
+				openLightDialog(serverPlayer, context.getHand(), pos, state.getValue(LightBlock.LIGHT));
 			}
 		}
 		return InteractionResult.SUCCESS;
+	}
+
+	private static void openLightDialog(ServerPlayer player, InteractionHand hand, BlockPos pos, int light) {
+		CompoundTag additions = new CompoundTag();
+		additions.putInt("x", pos.getX());
+		additions.putInt("y", pos.getY());
+		additions.putInt("z", pos.getZ());
+		additions.putInt("hand", hand.ordinal());
+		additions.putString("dimension", player.level().dimension().identifier().toString());
+
+		NumberRangeInput input = new NumberRangeInput(
+				310,
+				Component.translatable("gui.lightingwand.brightness"),
+				"options.generic_value",
+				new NumberRangeInput.RangeInfo(1, 15, Optional.of((float) light), Optional.of(1F)));
+		ActionButton apply = new ActionButton(
+				new CommonButtonData(Component.translatable("gui.lightingwand.apply"), 150),
+				Optional.of(new CustomAll(LIGHT_DIALOG_ACTION, Optional.of(additions))));
+		CommonDialogData common = new CommonDialogData(
+				Component.translatable("gui.lightingwand.adjust_light"),
+				Optional.empty(),
+				true,
+				false,
+				DialogAction.CLOSE,
+				List.of(),
+				List.of(new Input("light", input)));
+		player.openDialog(Holder.direct(new NoticeDialog(common, apply)));
+	}
+
+	public static void handleLightDialogAction(ServerPlayer player, Tag payload) {
+		if (!(payload instanceof CompoundTag tag)) {
+			LW.LOGGER.warn("Rejected Lighting Wand dialog action without a compound payload from {}", player.getGameProfile().name());
+			return;
+		}
+
+		Optional<Integer> x = tag.getInt("x");
+		Optional<Integer> y = tag.getInt("y");
+		Optional<Integer> z = tag.getInt("z");
+		Optional<Integer> handId = tag.getInt("hand");
+		Optional<String> dimension = tag.getString("dimension");
+		Optional<Float> lightValue = tag.getFloat("light");
+		if (x.isEmpty() || y.isEmpty() || z.isEmpty() || handId.isEmpty() || dimension.isEmpty() || lightValue.isEmpty()) {
+			LW.LOGGER.warn("Rejected incomplete Lighting Wand dialog action from {}", player.getGameProfile().name());
+			return;
+		}
+
+		int light = Math.round(lightValue.get());
+		if (light < 1 || light > 15 || (handId.get() != 0 && handId.get() != 1)) {
+			LW.LOGGER.warn("Rejected out-of-range Lighting Wand dialog action from {}", player.getGameProfile().name());
+			return;
+		}
+
+		if (!player.level().dimension().identifier().toString().equals(dimension.get())) {
+			return;
+		}
+		BlockPos pos = new BlockPos(x.get(), y.get(), z.get());
+		if (!player.isWithinBlockInteractionRange(pos, player.blockInteractionRange())) {
+			return;
+		}
+		InteractionHand hand = handId.get() == 0 ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+		ItemStack stack = player.getItemInHand(hand);
+		if (!stack.is(CoreModule.WAND.get())) {
+			return;
+		}
+
+		BlockState state = player.level().getBlockState(pos);
+		if (!CoreModule.isLightBlock(state)) {
+			return;
+		}
+		if (state.getValue(LightBlock.LIGHT) != light) {
+			player.level().setBlockAndUpdate(pos, state.setValue(LightBlock.LIGHT, light));
+		}
+		WandItemData data = stack.getOrDefault(CoreModule.WAND_ITEM_DATA.get(), WandItemData.DEFAULT);
+		if (data.light() != light) {
+			stack.set(CoreModule.WAND_ITEM_DATA.get(), new WandItemData(light, data.alpha()));
+		}
+		player.sendOverlayMessage(Component.translatable("tip.lightingwand.light", light));
 	}
 
 	@Override

@@ -14,6 +14,9 @@
 	},
 	"license": "MIT",
 	"accessWidener": "lightingwand.classtweaker",
+	"mixins": [
+		"lightingwand.mixins.json"
+	],
 	"entrypoints": {
 		"main": [
 			"snownee.lightingwand.util.CommonProxy"

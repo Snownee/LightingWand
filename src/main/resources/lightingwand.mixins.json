@@ -1,0 +1,11 @@
+{
+	"required": true,
+	"package": "snownee.lightingwand.mixin",
+	"compatibilityLevel": "JAVA_25",
+	"mixins": [
+		"ServerCommonPacketListenerImplMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
